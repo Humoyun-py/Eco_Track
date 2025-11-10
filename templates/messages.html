@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoVerse - Xabarlar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/eco-style.css') }}">
+    <style>
+        .message-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .message-item {
+            border-left: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .message-item:hover {
+            border-left-color: #4CAF50;
+            background-color: #f8f9fa;
+        }
+        .message-item.unread {
+            background-color: #e3f2fd;
+            border-left-color: #2196F3;
+        }
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            background-color: #f8f9fa;
+        }
+        .message-bubble {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+        }
+        .message-sent {
+            background-color: #4CAF50;
+            color: white;
+            margin-left: auto;
+        }
+        .message-received {
+            background-color: white;
+            border: 1px solid #e9ecef;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">🌍 EcoVerse</a>
+            <div class="navbar-nav ms-auto">
+                <a class="btn btn-outline-light" href="{{ url_for('dashboard') }}">Orqaga</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <!-- Xabarlar ro'yxati -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">💬 Xabarlar</h5>
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newMessageModal">
+                            <i class="fas fa-plus me-1"></i>Yangi
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="message-list">
+                            {% for conversation in conversations %}
+                            <div class="message-item p-3 border-bottom {% if conversation.unread %}unread{% endif %}" 
+                                 onclick="loadConversation({{ conversation.user.id }})" style="cursor: pointer;">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 40px; height: 40px;">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="ms-3 flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <strong>{{ conversation.user.username }}</strong>
+                                            <small class="text-muted">{{ conversation.last_message_time }}</small>
+                                        </div>
+                                        <p class="mb-0 text-muted small">{{ conversation.last_message }}</p>
+                                    </div>
+                                    {% if conversation.unread %}
+                                    <span class="badge bg-primary">Yangi</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-comments fa-2x text-muted mb-3"></i>
+                                <p class="text-muted">Hozircha xabarlar yo'q</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat qismi -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0" id="chatWith">Xabarlashuv</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chat-messages mb-3" id="chatMessages">
+                            <div class="text-center text-muted py-5">
+                                <i class="fas fa-comment-dots fa-2x mb-3"></i>
+                                <p>Xabarlashuvni boshlash uchun foydalanuvchini tanlang</p>
+                            </div>
+                        </div>
+                        
+                        <form id="messageForm" style="display: none;">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="messageText" placeholder="Xabar yozing...">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Yangi xabar modal -->
+    <div class="modal fade" id="newMessageModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Yangi xabar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newMessageForm">
+                        <div class="mb-3">
+                            <label for="recipient" class="form-label">Qabul qiluvchi</label>
+                            <select class="form-select" id="recipient" required>
+                                <option value="">Foydalanuvchini tanlang</option>
+                                {% for user in all_users %}
+                                <option value="{{ user.id }}">{{ user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newMessage" class="form-label">Xabar</label>
+                            <textarea class="form-control" id="newMessage" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor qilish</button>
+                    <button type="submit" form="newMessageForm" class="btn btn-primary">Yuborish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function loadConversation(userId) {
+            document.getElementById('messageForm').style.display = 'block';
+            document.getElementById('chatMessages').innerHTML = '<div class="text-center"><div class="spinner-border"></div></div>';
+            
+            // Bu yerda serverdan xabarlarni yuklash logikasi bo'ladi
+            setTimeout(() => {
+                document.getElementById('chatMessages').innerHTML = `
+                    <div class="message-bubble message-received">
+                        <strong>Foydalanuvchi:</strong> Salom! Qandaysiz?
+                    </div>
+                    <div class="message-bubble message-sent">
+                        Yaxshi, rahmat! Sizchi?
+                    </div>
+                `;
+            }, 1000);
+        }
+
+        document.getElementById('messageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const messageText = document.getElementById('messageText').value;
+            
+            // Xabarni yuborish logikasi
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.innerHTML += `
+                <div class="message-bubble message-sent">
+                    ${messageText}
+                </div>
+            `;
+            document.getElementById('messageText').value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/eco-script.js') }}"></script>
+</body>
+</html>

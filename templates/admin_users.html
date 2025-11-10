@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoVerse - Barcha Foydalanuvchilar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/eco-style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(135deg, #1B5E20, #2E7D32);">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('admin_dashboard') }}">
+                <i class="fas fa-arrow-left me-2"></i>EcoVerse Admin
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="btn btn-outline-light btn-sm" href="{{ url_for('admin_logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Chiqish
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">👥 Barcha Foydalanuvchilar</h2>
+                    <span class="badge-eco">{{ users|length }} ta foydalanuvchi</span>
+                </div>
+
+                <div class="eco-card">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th>Coins</th>
+                                        <th>Energiya</th>
+                                        <th>Streak</th>
+                                        <th>Ro'yxatdan o'tgan</th>
+                                        <th>Amallar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for user in users %}
+                                    <tr>
+                                        <td>{{ user.id }}</td>
+                                        <td>
+                                            <strong>{{ user.username }}</strong>
+                                            {% if user.role == 'admin' %}
+                                            <span class="badge bg-danger ms-1">Admin</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ user.email }}</td>
+                                        <td>
+                                            <span class="badge bg-{% if user.role == 'child' %}success{% elif user.role == 'adult' %}primary{% else %}danger{% endif %}">
+                                                {{ user.role|title }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm coins-input" 
+                                                   value="{{ user.coins }}" data-user-id="{{ user.id }}" 
+                                                   style="width: 80px;">
+                                        </td>
+                                        <td>
+                                            <input type="number" class="form-control form-control-sm energy-input" 
+                                                   value="{{ user.energy }}" data-user-id="{{ user.id }}"
+                                                   style="width: 80px;">
+                                        </td>
+                                        <td>{{ user.streak }}</td>
+                                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success save-btn" data-user-id="{{ user.id }}">
+                                                <i class="fas fa-save"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Coin va energiyani yangilash
+        document.querySelectorAll('.save-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const userId = this.dataset.userId;
+                const coinsInput = document.querySelector(`.coins-input[data-user-id="${userId}"]`);
+                const energyInput = document.querySelector(`.energy-input[data-user-id="${userId}"]`);
+                
+                const coins = parseInt(coinsInput.value);
+                const energy = parseInt(energyInput.value);
+                
+                fetch(`/admin/update_user_coins/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ coins: coins })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Coinlar yangilandi!');
+                    }
+                });
+                
+                fetch(`/admin/update_user_energy/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ energy: energy })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Energiya yangilandi!');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

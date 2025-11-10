@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoVerse - Barcha Postlar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/eco-style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">🌍 EcoVerse</a>
+            <div class="navbar-nav ms-auto">
+                <a class="btn btn-outline-light" href="{{ url_for('dashboard') }}">Orqaga</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>👥 Barcha Postlar</h2>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Yangi Post</a>
+                </div>
+
+                {% for post in posts %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title">{{ post.title }}</h5>
+                            <span class="badge bg-info">{{ post.category }}</span>
+                        </div>
+                        <p class="card-text">{{ post.content }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">
+                                    <i class="fas fa-user me-1"></i>{{ post.author.username }}
+                                </small>
+                                <small class="text-muted ms-3">
+                                    <i class="fas fa-clock me-1"></i>{{ post.date.strftime('%Y-%m-%d %H:%M') }}
+                                </small>
+                            </div>
+                            <div>
+                                <span class="badge bg-secondary me-2">
+                                    <i class="fas fa-heart me-1"></i>12
+                                </span>
+                                <span class="badge bg-secondary">
+                                    <i class="fas fa-comment me-1"></i>{{ post.comments|length }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ url_for('post_detail', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">Batafsil</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">Hozircha postlar mavjud emas</h4>
+                    <p class="text-muted">Birinchi bo'lib post joylang!</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>🔍 Filtrlar</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label for="categoryFilter" class="form-label">Kategoriya</label>
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">Barchasi</option>
+                                <option value="Eko-lifehack">Eko-lifehack</option>
+                                <option value="Donor chaqiruvi">Donor chaqiruvi</option>
+                                <option value="Volunteer event">Volunteer event</option>
+                                <option value="Eko-maslahat">Eko-maslahat</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-outline-primary w-100">Filtrlash</button>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5>📊 Statistika</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Jami postlar:</span>
+                            <strong>{{ posts|length }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Sizning postlaringiz:</span>
+                            <strong>{{ current_user.posts|length }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Faol foydalanuvchilar:</span>
+                            <strong>45</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/eco-script.js') }}"></script>
+</body>
+</html>
