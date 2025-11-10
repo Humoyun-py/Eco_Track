@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from aiogram import Bot, Dispatcher
-import os
+
 
 from handlers.start import start_router
 from handlers.shop import shop_router
