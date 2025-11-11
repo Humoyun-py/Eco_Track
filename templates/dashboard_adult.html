@@ -12,6 +12,15 @@
         .community-card { border-left: 4px solid #2196F3; }
         .post-card { transition: transform 0.2s; }
         .post-card:hover { transform: translateY(-2px); }
+        .quick-link-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .quick-link-card:hover {
+            transform: translateY(-5px);
+            border-color: #2196F3;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -99,14 +108,63 @@
                     </div>
                 </div>
                 
+                <!-- YANGILANGAN Tezkor Havolalar qismi -->
                 <div class="card">
                     <div class="card-header">
                         <h5>🔗 Tezkor Havolalar</h5>
                     </div>
                     <div class="card-body">
-                        <a href="{{ url_for('posts') }}" class="btn btn-outline-primary w-100 mb-2">Barcha Postlar</a>
-                        <a href="{{ url_for('messages') }}" class="btn btn-outline-success w-100 mb-2">Xabarlar</a>
-                        <a href="{{ url_for('shop') }}" class="btn btn-outline-info w-100">Do'kon</a>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="card quick-link-card text-center h-100">
+                                    <div class="card-body py-3">
+                                        <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                                        <h6 class="mb-1">Jamoa</h6>
+                                        <small class="text-muted">A'zolar</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card quick-link-card text-center h-100">
+                                    <div class="card-body py-3">
+                                        <i class="fas fa-calendar fa-2x text-success mb-2"></i>
+                                        <h6 class="mb-1">Tadbirlar</h6>
+                                        <small class="text-muted">Volunteer</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card quick-link-card text-center h-100">
+                                    <div class="card-body py-3">
+                                        <i class="fas fa-hand-holding-heart fa-2x text-danger mb-2"></i>
+                                        <h6 class="mb-1">Donorlik</h6>
+                                        <small class="text-muted">Chaqiriq</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card quick-link-card text-center h-100">
+                                    <div class="card-body py-3">
+                                        <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                                        <h6 class="mb-1">Statistika</h6>
+                                        <small class="text-muted">Hisobot</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <a href="{{ url_for('posts') }}" class="btn btn-outline-primary w-100 mb-2">
+                                    <i class="fas fa-newspaper me-1"></i>Barcha Postlar
+                                </a>
+                                <a href="{{ url_for('messages') }}" class="btn btn-outline-success w-100 mb-2">
+                                    <i class="fas fa-comments me-1"></i>Xabarlar
+                                </a>
+                                <a href="{{ url_for('shop') }}" class="btn btn-outline-info w-100">
+                                    <i class="fas fa-store me-1"></i>Do'kon
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -171,4 +229,4 @@
     </script>
     <script src="{{ url_for('static', filename='js/eco-script.js') }}"></script>
 </body>
-</html> 
+</html>

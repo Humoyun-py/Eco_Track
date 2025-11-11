@@ -10,9 +10,24 @@
     <style>
         .navbar-eco { background: linear-gradient(135deg, #4CAF50, #2196F3); }
         .hero-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; }
-        .task-card { border-left: 4px solid #4CAF50; border-radius: 10px; }
-        .shop-item { transition: transform 0.2s; }
-        .shop-item:hover { transform: translateY(-5px); }
+        .task-card { border-left: 4px solid #4CAF50; border-radius: 10px; transition: all 0.3s ease; }
+        .task-card:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .shop-item { transition: transform 0.2s; border: 2px solid transparent; }
+        .shop-item:hover { transform: translateY(-5px); border-color: #4CAF50; }
+        .hero-avatar {
+            width: 80px; height: 80px; background: linear-gradient(135deg, #4CAF50, #2196F3); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            color: white; font-size: 2rem; margin: 0 auto;
+        }
+        .quick-link-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .quick-link-card:hover {
+            transform: translateY(-5px);
+            border-color: #4CAF50;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -43,7 +58,21 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-8">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="hero-avatar mb-3">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <h4>{{ user.username }}</h4>
+                        <p class="text-muted">Level {{ (user.streak // 7) + 1 }}</p>
+                        <a href="{{ url_for('hero') }}" class="btn btn-eco w-100">
+                            <i class="fas fa-user-edit me-2"></i>Hero ni tahrirlash
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <h5>Statistika</h5>
@@ -83,10 +112,19 @@
                                         {{ task.difficulty }}
                                     </span>
                                     <span>💰 {{ task.reward_coins }} coin</span>
-                                    <button class="btn btn-success btn-sm complete-task" data-task-id="{{ task.id }}">
+                                    <span>⚡ {{ task.energy_cost }} energiya</span>
+                                    <button class="btn btn-success btn-sm complete-task" 
+                                            data-task-id="{{ task.id }}"
+                                            {% if user.energy < task.energy_cost %}disabled title="Energiya yetarli emas"{% endif %}>
                                         Bajarish
                                     </button>
                                 </div>
+                                {% if user.energy < task.energy_cost %}
+                                <small class="text-danger mt-2">
+                                    <i class="fas fa-exclamation-triangle me-1"></i>
+                                    Energiya yetarli emas! Sizda: {{ user.energy }}, Kerak: {{ task.energy_cost }}
+                                </small>
+                                {% endif %}
                             </div>
                         </div>
                         {% endfor %}
@@ -106,7 +144,9 @@
                                 <h6>{{ item.name }}</h6>
                                 <p class="text-muted">{{ item.item_type }}</p>
                                 <p>💰 {{ item.price }} coin</p>
-                                <button class="btn btn-outline-primary btn-sm buy-item" data-item-id="{{ item.id }}">
+                                <button class="btn btn-outline-primary btn-sm buy-item" 
+                                        data-item-id="{{ item.id }}"
+                                        {% if user.coins < item.price %}disabled title="Coin yetarli emas"{% endif %}>
                                     Sotib olish
                                 </button>
                             </div>
@@ -115,53 +155,122 @@
                     </div>
                 </div>
                 
+                <!-- YANGILANGAN Tezkor Havolalar qismi -->
                 <div class="card mt-3">
                     <div class="card-header">
                         <h5>🔗 Tezkor Havolalar</h5>
                     </div>
                     <div class="card-body">
-                        <a href="{{ url_for('shop') }}" class="btn btn-outline-success w-100 mb-2">Do'kon</a>
-                        <a href="{{ url_for('hero') }}" class="btn btn-outline-primary w-100 mb-2">Mening Hero</a>
-                        <a href="{{ url_for('posts') }}" class="btn btn-outline-info w-100">Jamoa Postlari</a>
+                        <div class="row">
+                            <div class="col-6 mb-3">
+                                <div class="card quick-link-card text-center h-100">
+                                    <div class="card-body py-3">
+                                        <i class="fas fa-gamepad fa-2x text-primary mb-2"></i>
+                                        <h6 class="mb-1">O'yinlar</h6>
+                                        <small class="text-muted">Eko-o'yinlar</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card quick-link-card text-center h-100">
+                                    <div class="card-body py-3">
+                                        <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
+                                        <h6 class="mb-1">Reyting</h6>
+                                        <small class="text-muted">Bellashuv</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card quick-link-card text-center h-100">
+                                    <div class="card-body py-3">
+                                        <i class="fas fa-newspaper fa-2x text-info mb-2"></i>
+                                        <h6 class="mb-1">Yangiliklar</h6>
+                                        <small class="text-muted">Eko-yangiliklar</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="card quick-link-card text-center h-100">
+                                    <div class="card-body py-3">
+                                        <i class="fas fa-seedling fa-2x text-success mb-2"></i>
+                                        <h6 class="mb-1">Mission</h6>
+                                        <small class="text-muted">Topshiriqlar</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col-12">
+                                <a href="{{ url_for('shop') }}" class="btn btn-outline-success w-100 mb-2">
+                                    <i class="fas fa-store me-1"></i>Do'kon
+                                </a>
+                                <a href="{{ url_for('hero') }}" class="btn btn-outline-primary w-100 mb-2">
+                                    <i class="fas fa-user me-1"></i>Mening Hero
+                                </a>
+                                <a href="{{ url_for('posts') }}" class="btn btn-outline-info w-100">
+                                    <i class="fas fa-users me-1"></i>Jamoa
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Topshiriq bajarish
         document.querySelectorAll('.complete-task').forEach(button => {
             button.addEventListener('click', function() {
                 const taskId = this.dataset.taskId;
-                fetch(`/complete_task/${taskId}`, { method: 'POST' })
+                
+                fetch(`/complete_task/${taskId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert(data.message);
+                        alert('✅ ' + data.message);
                         location.reload();
                     } else {
-                        alert(data.error);
+                        alert('❌ ' + data.error);
                     }
+                })
+                .catch(error => {
+                    alert('❌ Xatolik yuz berdi: ' + error);
                 });
             });
         });
 
+        // Item sotib olish
         document.querySelectorAll('.buy-item').forEach(button => {
             button.addEventListener('click', function() {
                 const itemId = this.dataset.itemId;
-                fetch(`/buy_item/${itemId}`, { method: 'POST' })
+                
+                fetch(`/buy_item/${itemId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert(data.message);
+                        alert('✅ ' + data.message);
                         location.reload();
                     } else {
-                        alert(data.error);
+                        alert('❌ ' + data.error);
                     }
+                })
+                .catch(error => {
+                    alert('❌ Xatolik yuz berdi: ' + error);
                 });
             });
         });
     </script>
-    <script src="{{ url_for('static', filename='js/eco-script.js') }}"></script>
 </body>
 </html>

@@ -6,89 +6,64 @@
     <title>EcoVerse - Bolalar Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/eco-style.css') }}">
+    <style>
+        .admin-navbar {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .eco-card {
+            background: white;
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .eco-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        .btn-eco {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-eco:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-success">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="fas fa-cog me-2"></i>Bolalar Admin Panel
+    <nav class="navbar navbar-expand-lg navbar-dark admin-navbar">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('admin_dashboard') }}">
+                <i class="fas fa-arrow-left me-2"></i>EcoVerse Admin
             </a>
             <div class="navbar-nav ms-auto">
-                <a class="btn btn-outline-light" href="{{ url_for('dashboard') }}">User Panel</a>
+                <span class="navbar-text me-3">
+                    <i class="fas fa-user me-1"></i>{{ current_user.username }}
+                </span>
+                <a class="btn btn-outline-light btn-sm" href="{{ url_for('admin_logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Chiqish
+                </a>
             </div>
         </div>
     </nav>
 
     <div class="container-fluid mt-4">
         <div class="row">
-            <!-- Sidebar -->
-            <div class="col-md-3">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Boshqaruv</h5>
-                        <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action active">
-                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-users me-2"></i>Foydalanuvchilar
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-tasks me-2"></i>Topshiriqlar
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <i class="fas fa-store me-2"></i>Do'kon
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Asosiy kontent -->
-            <div class="col-md-9">
-                <h2 class="mb-4">👦 Bolalar Bo'limi Boshqaruvi</h2>
-
-                <!-- Statistikalar -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="card text-white bg-primary">
-                            <div class="card-body">
-                                <h4>150</h4>
-                                <p>Jami Foydalanuvchilar</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card text-white bg-success">
-                            <div class="card-body">
-                                <h4>45</h4>
-                                <p>Faol Foydalanuvchilar</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card text-white bg-warning">
-                            <div class="card-body">
-                                <h4>12,540</h4>
-                                <p>Jami Coinlar</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card text-white bg-info">
-                            <div class="card-body">
-                                <h4>89%</h4>
-                                <p>Faollik Darajasi</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-12">
+                <h2 class="fw-bold mb-4">👦 Bolalar Bo'limi Boshqaruvi</h2>
 
                 <!-- Foydalanuvchilar jadvali -->
-                <div class="card">
+                <div class="eco-card mb-4">
                     <div class="card-header">
-                        <h5 class="mb-0">Foydalanuvchilar Ro'yxati</h5>
+                        <h5 class="fw-bold mb-0">👥 Bolalar Foydalanuvchilari</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -96,101 +71,208 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
-                                        <th>Foydalanuvchi</th>
+                                        <th>Username</th>
                                         <th>Coins</th>
                                         <th>Energiya</th>
                                         <th>Streak</th>
-                                        <th>Holat</th>
+                                        <th>Ro'yxatdan o'tgan</th>
                                         <th>Amallar</th>
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {% for user in child_users %}
                                     <tr>
-                                        <td>1</td>
-                                        <td>ali_eco</td>
+                                        <td>{{ user.id }}</td>
+                                        <td><strong>{{ user.username }}</strong></td>
                                         <td>
-                                            <input type="number" class="form-control form-control-sm" value="150" style="width: 80px;">
+                                            <input type="number" class="form-control form-control-sm coins-input" 
+                                                   value="{{ user.coins }}" data-user-id="{{ user.id }}" 
+                                                   style="width: 80px;">
                                         </td>
-                                        <td>85</td>
-                                        <td>7</td>
-                                        <td><span class="badge bg-success">Faol</span></td>
                                         <td>
-                                            <button class="btn btn-sm btn-success">
+                                            <input type="number" class="form-control form-control-sm energy-input" 
+                                                   value="{{ user.energy }}" data-user-id="{{ user.id }}"
+                                                   style="width: 80px;">
+                                        </td>
+                                        <td>{{ user.streak }}</td>
+                                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success save-user" data-user-id="{{ user.id }}">
                                                 <i class="fas fa-save"></i>
                                             </button>
                                         </td>
                                     </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>zebo_green</td>
-                                        <td>
-                                            <input type="number" class="form-control form-control-sm" value="75" style="width: 80px;">
-                                        </td>
-                                        <td>100</td>
-                                        <td>3</td>
-                                        <td><span class="badge bg-warning">O'rta</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-success">
-                                                <i class="fas fa-save"></i>
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
-                <!-- Yangi topshiriq qo'shish -->
-                <div class="card mt-4">
+                <!-- Topshiriqlar qo'shish -->
+                <div class="eco-card">
                     <div class="card-header">
-                        <h5 class="mb-0">Yangi Topshiriq Qo'shish</h5>
+                        <h5 class="fw-bold mb-0">🎯 Topshiriqlar Boshqaruvi</h5>
                     </div>
                     <div class="card-body">
-                        <form>
+                        <form id="addTaskForm">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <div class="mb-3">
                                         <label class="form-label">Sarlavha</label>
-                                        <input type="text" class="form-control">
+                                        <input type="text" class="form-control" name="title" required>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-2">
                                     <div class="mb-3">
                                         <label class="form-label">Qiyinlik</label>
-                                        <select class="form-select">
-                                            <option>Oson</option>
-                                            <option>O'rta</option>
-                                            <option>Qiyin</option>
+                                        <select class="form-select" name="difficulty" required>
+                                            <option value="easy">Oson</option>
+                                            <option value="medium">O'rta</option>
+                                            <option value="hard">Qiyin</option>
                                         </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="mb-3">
+                                        <label class="form-label">Coin mukofoti</label>
+                                        <input type="number" class="form-control" name="reward_coins" value="10" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="mb-3">
+                                        <label class="form-label">⚡ Energiya sarfi</label>
+                                        <input type="number" class="form-control" name="energy_cost" value="10" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">&nbsp;</label>
+                                        <button type="submit" class="btn btn-eco w-100">Topshiriq Qo'shish</button>
                                     </div>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Tavsif</label>
-                                <textarea class="form-control" rows="3"></textarea>
+                                <textarea class="form-control" name="description" rows="3" required></textarea>
                             </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Coin mukofoti</label>
-                                        <input type="number" class="form-control" value="10">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Energiya sarfi</label>
-                                        <input type="number" class="form-control" value="5">
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-success">Topshiriq Qo'shish</button>
                         </form>
+
+                        <hr class="my-4">
+
+                        <h6>Mavjud Topshiriqlar</h6>
+                        {% for task in tasks %}
+                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                            <div>
+                                <strong>{{ task.title }}</strong>
+                                <br>
+                                <small class="text-muted">{{ task.description }}</small>
+                            </div>
+                            <div>
+                                <span class="badge bg-{% if task.difficulty == 'easy' %}success{% elif task.difficulty == 'medium' %}warning{% else %}danger{% endif %} me-2">
+                                    {{ task.difficulty }}
+                                </span>
+                                <span class="text-warning me-2">💰 {{ task.reward_coins }}</span>
+                                <span class="text-danger me-2">⚡ {{ task.energy_cost }}</span>
+                                <button class="btn btn-sm btn-danger delete-task" data-task-id="{{ task.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src="{{ url_for('static', filename='js/eco-script.js') }}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Foydalanuvchi ma'lumotlarini yangilash
+        document.querySelectorAll('.save-user').forEach(button => {
+            button.addEventListener('click', function() {
+                const userId = this.dataset.userId;
+                const coinsInput = document.querySelector(`.coins-input[data-user-id="${userId}"]`);
+                const energyInput = document.querySelector(`.energy-input[data-user-id="${userId}"]`);
+                
+                const coins = parseInt(coinsInput.value);
+                const energy = parseInt(energyInput.value);
+                
+                fetch(`/admin/update_user_coins/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ coins: coins })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        fetch(`/admin/update_user_energy/${userId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ energy: energy })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Foydalanuvchi ma\'lumotlari yangilandi!');
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        // Topshiriq qo'shish
+        document.getElementById('addTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            data.reward_coins = parseInt(data.reward_coins);
+            data.energy_cost = parseInt(data.energy_cost);
+            
+            fetch('/admin/add_task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert(result.message);
+                    location.reload();
+                } else {
+                    alert(result.error);
+                }
+            });
+        });
+
+        // Topshiriq o'chirish
+        document.querySelectorAll('.delete-task').forEach(button => {
+            button.addEventListener('click', function() {
+                const taskId = this.dataset.taskId;
+                if (confirm('Haqiqatan ham bu topshiriqni o\'chirmoqchimisiz?')) {
+                    fetch(`/admin/delete_task/${taskId}`, {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            alert(result.message);
+                            location.reload();
+                        } else {
+                            alert(result.error);
+                        }
+                    });
+                }
+            });
+        });
+    </script>
 </body>
 </html>

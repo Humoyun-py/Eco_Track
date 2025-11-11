@@ -7,6 +7,45 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/eco-style.css') }}">
+    <style>
+        .energy-pack-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .energy-pack-card:hover {
+            transform: translateY(-5px);
+            border-color: #ffc107;
+            box-shadow: 0 5px 15px rgba(255,193,7,0.3);
+        }
+        .energy-icon {
+            position: relative;
+            display: inline-block;
+        }
+        .energy-amount {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: #ffc107;
+            color: black;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .shop-item-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .shop-item-card:hover {
+            transform: translateY(-5px);
+            border-color: #4CAF50;
+            box-shadow: 0 5px 15px rgba(76,175,80,0.3);
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-success">
@@ -14,7 +53,7 @@
             <a class="navbar-brand" href="{{ url_for('dashboard') }}">🌍 EcoVerse</a>
             <div class="navbar-nav ms-auto">
                 <span class="navbar-text me-3">
-                    💰 {{ current_user.coins }} coin
+                    ⚡ {{ current_user.energy }} | 💰 {{ current_user.coins }} coin
                 </span>
                 <a class="btn btn-outline-light" href="{{ url_for('dashboard') }}">Orqaga</a>
             </div>
@@ -22,6 +61,130 @@
     </nav>
 
     <div class="container mt-4">
+        <!-- ENERGIYA SOTIB OLISH QISMI -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-warning bg-opacity-10">
+                    <div class="card-header bg-warning">
+                        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Energiya Sotib Olish</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Energiya paketlari -->
+                            <div class="col-md-3 mb-3">
+                                <div class="card energy-pack-card text-center h-100">
+                                    <div class="card-body">
+                                        <div class="energy-icon mb-3">
+                                            <i class="fas fa-bolt fa-2x text-warning"></i>
+                                            <span class="energy-amount">+50</span>
+                                        </div>
+                                        <h6 class="fw-bold">Kichik Energiya</h6>
+                                        <p class="text-muted small">Tez energiya to'ldirish</p>
+                                        <p class="fw-bold text-warning">
+                                            <i class="fas fa-coins me-1"></i>25 coin
+                                        </p>
+                                        <button class="btn btn-warning btn-sm buy-energy" data-pack-id="1" data-energy="50" data-price="25"
+                                                {% if current_user.coins < 25 %}disabled{% endif %}>
+                                            Sotib Olish
+                                        </button>
+                                        {% if current_user.coins < 25 %}
+                                        <div class="mt-2">
+                                            <small class="text-danger">
+                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                                Coin yetarli emas
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card energy-pack-card text-center h-100">
+                                    <div class="card-body">
+                                        <div class="energy-icon mb-3">
+                                            <i class="fas fa-bolt fa-2x text-warning"></i>
+                                            <span class="energy-amount">+100</span>
+                                        </div>
+                                        <h6 class="fw-bold">O'rta Energiya</h6>
+                                        <p class="text-muted small">Kunlik energiya</p>
+                                        <p class="fw-bold text-warning">
+                                            <i class="fas fa-coins me-1"></i>45 coin
+                                        </p>
+                                        <button class="btn btn-warning btn-sm buy-energy" data-pack-id="2" data-energy="100" data-price="45"
+                                                {% if current_user.coins < 45 %}disabled{% endif %}>
+                                            Sotib Olish
+                                        </button>
+                                        {% if current_user.coins < 45 %}
+                                        <div class="mt-2">
+                                            <small class="text-danger">
+                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                                Coin yetarli emas
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card energy-pack-card text-center h-100">
+                                    <div class="card-body">
+                                        <div class="energy-icon mb-3">
+                                            <i class="fas fa-bolt fa-2x text-warning"></i>
+                                            <span class="energy-amount">+200</span>
+                                        </div>
+                                        <h6 class="fw-bold">Katta Energiya</h6>
+                                        <p class="text-muted small">To'liq energiya</p>
+                                        <p class="fw-bold text-warning">
+                                            <i class="fas fa-coins me-1"></i>80 coin
+                                        </p>
+                                        <button class="btn btn-warning btn-sm buy-energy" data-pack-id="3" data-energy="200" data-price="80"
+                                                {% if current_user.coins < 80 %}disabled{% endif %}>
+                                            Sotib Olish
+                                        </button>
+                                        {% if current_user.coins < 80 %}
+                                        <div class="mt-2">
+                                            <small class="text-danger">
+                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                                Coin yetarli emas
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="card energy-pack-card text-center h-100">
+                                    <div class="card-body">
+                                        <div class="energy-icon mb-3">
+                                            <i class="fas fa-bolt fa-2x text-warning"></i>
+                                            <span class="energy-amount">+500</span>
+                                        </div>
+                                        <h6 class="fw-bold">Maksimal Energiya</h6>
+                                        <p class="text-muted small">Cheksiz energiya</p>
+                                        <p class="fw-bold text-warning">
+                                            <i class="fas fa-coins me-1"></i>150 coin
+                                        </p>
+                                        <button class="btn btn-warning btn-sm buy-energy" data-pack-id="4" data-energy="500" data-price="150"
+                                                {% if current_user.coins < 150 %}disabled{% endif %}>
+                                            Sotib Olish
+                                        </button>
+                                        {% if current_user.coins < 150 %}
+                                        <div class="mt-2">
+                                            <small class="text-danger">
+                                                <i class="fas fa-exclamation-circle me-1"></i>
+                                                Coin yetarli emas
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-md-3">
                 <div class="card">
@@ -34,6 +197,7 @@
                             <a href="#" class="list-group-item list-group-item-action">Kiyimlar</a>
                             <a href="#" class="list-group-item list-group-item-action">Aksessuarlar</a>
                             <a href="#" class="list-group-item list-group-item-action">Fonlar</a>
+                            <a href="#" class="list-group-item list-group-item-action">Energiya</a>
                         </div>
                     </div>
                 </div>
@@ -42,6 +206,8 @@
                     <div class="card-body text-center">
                         <h4>💰 {{ current_user.coins }}</h4>
                         <p>Sizning coinlaringiz</p>
+                        <h6>⚡ {{ current_user.energy }}</h6>
+                        <p>Joriy energiya</p>
                     </div>
                 </div>
             </div>
@@ -50,10 +216,18 @@
                 <div class="row">
                     {% for item in items %}
                     <div class="col-md-4 mb-4">
-                        <div class="card h-100">
+                        <div class="card shop-item-card h-100">
                             <div class="card-body text-center">
                                 <div class="mb-3">
+                                    {% if item.item_type == 'clothes' %}
                                     <i class="fas fa-tshirt fa-3x text-primary"></i>
+                                    {% elif item.item_type == 'accessory' %}
+                                    <i class="fas fa-gem fa-3x text-info"></i>
+                                    {% elif item.item_type == 'background' %}
+                                    <i class="fas fa-image fa-3x text-success"></i>
+                                    {% else %}
+                                    <i class="fas fa-star fa-3x text-warning"></i>
+                                    {% endif %}
                                 </div>
                                 <h5 class="card-title">{{ item.name }}</h5>
                                 <p class="text-muted">{{ item.item_type|title }}</p>
@@ -75,6 +249,38 @@
     </div>
 
     <script>
+        // Energiya sotib olish
+        document.querySelectorAll('.buy-energy').forEach(button => {
+            button.addEventListener('click', function() {
+                const packId = this.dataset.packId;
+                const energy = this.dataset.energy;
+                const price = this.dataset.price;
+                
+                if (confirm(`${energy} energiya sotib olish uchun ${price} coin to'lashni tasdiqlaysizmi?`)) {
+                    fetch(`/buy_energy/${packId}`, { 
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            energy: energy,
+                            price: price
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('✅ ' + data.message);
+                            location.reload();
+                        } else {
+                            alert('❌ ' + data.error);
+                        }
+                    });
+                }
+            });
+        });
+
+        // Item sotib olish
         document.querySelectorAll('.buy-item').forEach(button => {
             button.addEventListener('click', function() {
                 const itemId = this.dataset.itemId;
