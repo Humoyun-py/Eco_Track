@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}EcoVerse - Reyting{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold text-center mb-4">🏆 Eco Reyting</h2>
+            <p class="text-center text-muted mb-5">Eng faol ekologlar ro'yxati</p>
+        </div>
+    </div>
+
+    <!-- Top 3 talaba -->
+    <div class="row mb-5">
+        <div class="col-md-4 text-center">
+            <div class="card eco-card">
+                <div class="card-body">
+                    <div class="position-2 mb-3">
+                        <i class="fas fa-trophy fa-2x text-warning"></i>
+                        <h5 class="mt-2">2-o'rin</h5>
+                    </div>
+                    <div class="user-avatar bg-warning mx-auto mb-3">
+                        <i class="fas fa-user fa-2x text-white"></i>
+                    </div>
+                    <h5>Eco_Jamshid</h5>
+                    <p class="text-muted">980 coin</p>
+                    <span class="badge bg-success">Level 8</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 text-center">
+            <div class="card eco-card-primary">
+                <div class="card-body">
+                    <div class="position-1 mb-3">
+                        <i class="fas fa-crown fa-2x text-warning"></i>
+                        <h5 class="mt-2">1-o'rin</h5>
+                    </div>
+                    <div class="user-avatar bg-warning mx-auto mb-3">
+                        <i class="fas fa-user fa-2x text-white"></i>
+                    </div>
+                    <h5>Green_Ali</h5>
+                    <p class="text-white">1200 coin</p>
+                    <span class="badge bg-warning">Level 10</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 text-center">
+            <div class="card eco-card">
+                <div class="card-body">
+                    <div class="position-3 mb-3">
+                        <i class="fas fa-award fa-2x text-secondary"></i>
+                        <h5 class="mt-2">3-o'rin</h5>
+                    </div>
+                    <div class="user-avatar bg-secondary mx-auto mb-3">
+                        <i class="fas fa-user fa-2x text-white"></i>
+                    </div>
+                    <h5>Nature_Lover</h5>
+                    <p class="text-muted">850 coin</p>
+                    <span class="badge bg-success">Level 7</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reyting jadvali -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card eco-card">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">📊 Barcha Ishtirokchilar</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>O'rin</th>
+                                    <th>Foydalanuvchi</th>
+                                    <th>Coinlar</th>
+                                    <th>Level</th>
+                                    <th>Faollik</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in users %}
+                                <tr class="{% if user.username == current_user.username %}table-success{% endif %}">
+                                    <td>
+                                        {% if loop.index == 1 %}
+                                            <span class="badge bg-warning">1</span>
+                                        {% elif loop.index == 2 %}
+                                            <span class="badge bg-secondary">2</span>
+                                        {% elif loop.index == 3 %}
+                                            <span class="badge bg-danger">3</span>
+                                        {% else %}
+                                            <span class="badge bg-light text-dark">{{ loop.index }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar-sm bg-primary me-3">
+                                                <i class="fas fa-user text-white"></i>
+                                            </div>
+                                            <div>
+                                                <strong>{{ user.username }}</strong>
+                                                {% if user.username == current_user.username %}
+                                                <span class="badge bg-info ms-2">Siz</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold text-success">{{ user.coins }} 💰</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-success">Level {{ (user.streak // 7) + 1 }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="progress" style="height: 8px;">
+                                            <div class="progress-bar bg-success" 
+                                                 style="width: {{ (user.energy / 100) * 100 }}%"></div>
+                                        </div>
+                                        <small class="text-muted">{{ user.energy }}%</small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Joriy foydalanuvchi statistikasi -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card eco-card">
+                <div class="card-body">
+                    <h5 class="card-title">👤 Sizning O'rnizingiz</h5>
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4>#{{ users.index(current_user) + 1 if current_user in users else 'N/A' }}</h4>
+                            <p class="text-muted">Umumiy o'rin</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4>{{ current_user.coins }}</h4>
+                            <p class="text-muted">Jami coinlar</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4>{{ (current_user.streak // 7) + 1 }}</h4>
+                            <p class="text-muted">Level</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4>{{ current_user.streak }}</h4>
+                            <p class="text-muted">Kunlik streak</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.user-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.user-avatar-sm {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.position-1 {
+    color: gold;
+}
+.position-2 {
+    color: silver;
+}
+.position-3 {
+    color: #cd7f32; /* bronze */
+}
+</style>
+{% endblock %}

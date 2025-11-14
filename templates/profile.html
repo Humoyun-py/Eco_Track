@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}EcoVerse - Profil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Profil ma'lumotlari -->
+        <div class="col-md-4">
+            <div class="card eco-card">
+                <div class="card-body text-center">
+                    <div class="profile-avatar mb-3">
+                        <i class="fas fa-user-circle fa-4x text-success"></i>
+                    </div>
+                    <h4>{{ user.username }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    
+                    <div class="badge-eco mb-3">
+                        {{ user.role|title }} Foydalanuvchi
+                    </div>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item mb-2">
+                            <i class="fas fa-calendar me-2"></i>
+                            Qo'shilgan: {{ user.created_at.strftime('%Y-%m-%d') }}
+                        </div>
+                        <div class="stat-item mb-2">
+                            <i class="fas fa-sign-in-alt me-2"></i>
+                            So'nggi kirish: {{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Hali yo\'q' }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistika -->
+            <div class="card eco-card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">📊 Statistika</h5>
+                    <div class="stats-grid">
+                        <div class="stat-box text-center mb-3">
+                            <div class="stat-value">{{ user.coins }}</div>
+                            <div class="stat-label">Coinlar</div>
+                        </div>
+                        <div class="stat-box text-center mb-3">
+                            <div class="stat-value">{{ user.energy }}</div>
+                            <div class="stat-label">Energiya</div>
+                        </div>
+                        <div class="stat-box text-center mb-3">
+                            <div class="stat-value">{{ user.streak }}</div>
+                            <div class="stat-label">Streak</div>
+                        </div>
+                        <div class="stat-box text-center mb-3">
+                            <div class="stat-value">{{ (user.streak // 7) + 1 }}</div>
+                            <div class="stat-label">Level</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profil sozlamalari va faoliyat -->
+        <div class="col-md-8">
+            <!-- Sozlamalar -->
+            <div class="card eco-card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">⚙️ Profil Sozlamalari</h5>
+                </div>
+                <div class="card-body">
+                    <form id="profileForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Foydalanuvchi nomi</label>
+                                    <input type="text" class="form-control" id="username" value="{{ user.username }}" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" value="{{ user.email }}" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="currentPassword" class="form-label">Joriy parol</label>
+                                    <input type="password" class="form-control" id="currentPassword">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">Yangi parol</label>
+                                    <input type="password" class="form-control" id="newPassword">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-eco">Yangilash</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Faoliyat tarixi -->
+            <div class="card eco-card">
+                <div class="card-header">
+                    <h5 class="mb-0">📈 So'nggi Faoliyat</h5>
+                </div>
+                <div class="card-body">
+                    <div class="activity-list">
+                        {% for activity in [
+                            {"type": "task", "text": "Plastik idishlarni qayta ishlash topshirig'i bajarildi", "time": "2 soat oldin", "coins": 15},
+                            {"type": "game", "text": "Qayta ishlash o'yinida g'alaba qozonildi", "time": "5 soat oldin", "coins": 10},
+                            {"type": "post", "text": "Yangi post joylashtirildi", "time": "1 kun oldin", "coins": 5},
+                            {"type": "login", "text": "Kunlik streak yangilandi", "time": "1 kun oldin", "coins": 2}
+                        ] %}
+                        <div class="activity-item d-flex align-items-center mb-3 pb-3 border-bottom">
+                            <div class="activity-icon me-3">
+                                {% if activity.type == 'task' %}
+                                <i class="fas fa-tasks text-success"></i>
+                                {% elif activity.type == 'game' %}
+                                <i class="fas fa-gamepad text-primary"></i>
+                                {% elif activity.type == 'post' %}
+                                <i class="fas fa-newspaper text-info"></i>
+                                {% else %}
+                                <i class="fas fa-sign-in-alt text-warning"></i>
+                                {% endif %}
+                            </div>
+                            <div class="activity-content flex-grow-1">
+                                <h6 class="mb-1">{{ activity.text }}</h6>
+                                <small class="text-muted">{{ activity.time }}</small>
+                            </div>
+                            <div class="activity-coins">
+                                <span class="badge bg-success">+{{ activity.coins }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Erishgan yutuqlar -->
+            <div class="card eco-card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">🏆 Erishgan Yutuqlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for achievement in [
+                            {"name": "Birinchi Qadam", "desc": "Birinchi topshiriqni bajarish", "icon": "fas fa-footstep", "earned": true},
+                            {"name": "Streak Master", "desc": "7 kun ketma-ket tizimga kirish", "icon": "fas fa-fire", "earned": true},
+                            {"name": "Coin Koleksiyachi", "desc": "500 coin to'plash", "icon": "fas fa-coins", "earned": false},
+                            {"name": "Eko Expert", "desc": "Barcha topshiriqlarni bajarish", "icon": "fas fa-graduation-cap", "earned": false}
+                        ] %}
+                        <div class="col-md-6 mb-3">
+                            <div class="achievement-item d-flex align-items-center p-3 {% if achievement.earned %}bg-light-success{% else %}bg-light{% endif %} rounded">
+                                <div class="achievement-icon me-3">
+                                    <i class="{{ achievement.icon }} fa-2x {% if achievement.earned %}text-success{% else %}text-muted{% endif %}"></i>
+                                </div>
+                                <div class="achievement-content">
+                                    <h6 class="mb-1 {% if not achievement.earned %}text-muted{% endif %}">{{ achievement.name }}</h6>
+                                    <small class="{% if not achievement.earned %}text-muted{% endif %}">{{ achievement.desc }}</small>
+                                </div>
+                                {% if achievement.earned %}
+                                <div class="achievement-badge ms-auto">
+                                    <i class="fas fa-check text-success"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-avatar {
+    transition: transform 0.3s ease;
+}
+.profile-avatar:hover {
+    transform: scale(1.1);
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+.stat-box {
+    padding: 15px;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 10px;
+}
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1B5E20;
+}
+.stat-label {
+    font-size: 0.8rem;
+    color: #666;
+}
+.activity-item {
+    transition: all 0.3s ease;
+}
+.activity-item:hover {
+    transform: translateX(5px);
+}
+.bg-light-success {
+    background: rgba(76, 175, 80, 0.1) !important;
+    border: 1px solid rgba(76, 175, 80, 0.2);
+}
+</style>
+
+{% block scripts %}
+<script>
+document.getElementById('profileForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const currentPassword = document.getElementById('currentPassword').value;
+    const newPassword = document.getElementById('newPassword').value;
+    
+    if (newPassword && !currentPassword) {
+        alert('Yangi parol uchun joriy parolni kiriting!');
+        return;
+    }
+    
+    if (newPassword) {
+        // Parolni yangilash logikasi
+        alert('Parol muvaffaqiyatli yangilandi!');
+    } else {
+        alert('Profil ma\'lumotlari yangilandi!');
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

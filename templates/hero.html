@@ -1,338 +1,285 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoVerse - Mening Hero</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/eco-style.css') }}">
-    <style>
-        .hero-container {
-            background: linear-gradient(135deg, #1B5E20, #2E7D32);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .character-section {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .character-display {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, #E8F5E8, #F1F8E9);
-            border-radius: 15px;
-            border: 3px solid #4CAF50;
-            position: relative;
-            min-height: 400px;
-        }
-        .character-avatar {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 80px;
-            color: white;
-            border: 5px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-        }
-        .character-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        .clothing-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-        .clothing-category {
-            margin-bottom: 25px;
-        }
-        .clothing-item {
-            background: white;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-            margin-bottom: 15px;
-            border: 2px solid transparent;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .clothing-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-color: #4CAF50;
-        }
-        .clothing-item.equipped {
-            border-color: #4CAF50;
-            background: #E8F5E8;
-        }
-        .clothing-item img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-        .stats-card {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        .character-preview {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 300px;
-            height: 300px;
-        }
-        .character-layer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-        }
-        .character-base {
-            background: url("{{ url_for('static', filename='images/character_base.png') }}") no-repeat center;
-            background-size: contain;
-        }
-        .character-clothes {
-            background-size: contain;
-        }
-        .character-hat {
-            background-size: contain;
-        }
-        .character-shoes {
-            background-size: contain;
-        }
-    </style>
-</head>
-<body>
-    <div class="hero-container">
-        <div class="container">
-            <!-- Sarlavha va orqaga -->
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h1 class="text-white"><i class="fas fa-user-circle me-2"></i>Mening Qahramonim</h1>
-                        <a href="{{ url_for('dashboard') }}" class="btn btn-light">
-                            <i class="fas fa-arrow-left me-2"></i>Orqaga
-                        </a>
+{% extends "base.html" %}
+
+{% block title %}EcoVerse - Mening Hero{% endblock %}
+
+{% block content %}
+<div class="hero-container">
+    <div class="container">
+        <div class="row">
+            <!-- Qahramon ko'rinishi -->
+            <div class="col-md-5">
+                <div class="character-section">
+                    <div class="character-display">
+                        <div class="character-preview">
+                            <!-- Asosiy qahramon -->
+                            <div class="character-layer character-base"></div>
+                            
+                            <!-- Kiyilgan kiyimlar -->
+                            {% if equipped_clothes %}
+                                {% for item in equipped_clothes %}
+                                <div class="character-layer character-clothes" 
+                                     style="background-image: url('{{ url_for('static', filename=item.item.image_path) }}')"></div>
+                                {% endfor %}
+                            {% endif %}
+                            
+                            {% if equipped_hat %}
+                                {% for item in equipped_hat %}
+                                <div class="character-layer character-hat" 
+                                     style="background-image: url('{{ url_for('static', filename=item.item.image_path) }}')"></div>
+                                {% endfor %}
+                            {% endif %}
+                            
+                            {% if equipped_shoes %}
+                                {% for item in equipped_shoes %}
+                                <div class="character-layer character-shoes" 
+                                     style="background-image: url('{{ url_for('static', filename=item.item.image_path) }}')"></div>
+                                {% endfor %}
+                            {% endif %}
+                            
+                            {% if equipped_accessory %}
+                                {% for item in equipped_accessory %}
+                                <div class="character-layer character-accessory" 
+                                     style=" background-image: url('{{ url_for('static', filename=item.item.image_path) }}') "></div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Statistikalar -->
+                    <div class="stats-card">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h4><i class="fas fa-coins"></i></h4>
+                                <h5>{{ user.coins }}</h5>
+                                <small>Coinlar</small>
+                            </div>
+                            <div class="col-4">
+                                <h4><i class="fas fa-bolt"></i></h4>
+                                <h5>{{ user.energy }}</h5>
+                                <small>Energiya</small>
+                            </div>
+                            <div class="col-4">
+                                <h4><i class="fas fa-fire"></i></h4>
+                                <h5>{{ user.streak }}</h5>
+                                <small>Streak</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Qahramon ma'lumotlari -->
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <h3 class="text-success">{{ user.username }}</h3>
+                            <p class="text-muted">Level {{ (user.streak // 7) + 1 }} Eco Hero</p>
+                            <a href="{{ url_for('shop') }}" class="btn btn-success w-100 mt-2">
+                                <i class="fas fa-shopping-cart me-2"></i>Do'konga o'tish
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row">
-                <!-- Qahramon ko'rinishi -->
-                <div class="col-md-5">
-                    <div class="character-section">
-                        <div class="character-display">
-                            <!-- Qahramon preview -->
-                            <div class="character-preview">
-                                <div class="character-layer character-base"></div>
-                                {% for item in equipped_items %}
-                                    {% if item.item_type == 'clothes' %}
-                                <div class="character-layer character-clothes" 
-                                     style="background-image: url('{{ url_for('static', filename=item.image) if item.image else '' }}')"></div>
-                                    {% elif item.item_type == 'hat' %}
-                                <div class="character-layer character-hat" 
-                                     style="background-image: url('{{ url_for('static', filename=item.image) if item.image else '' }}')"></div>
-                                    {% elif item.item_type == 'shoes' %}
-                                <div class="character-layer character-shoes" 
-                                     style="background-image: url('{{ url_for('static', filename=item.image) if item.image else '' }}')"></div>
-                                    {% endif %}
+            <!-- Kiyimlar va aksessuarlar -->
+            <div class="col-md-7">
+                <div class="character-section">
+                    <h4 class="fw-bold mb-4"><i class="fas fa-tshirt me-2"></i>Mening Kiyimlarim</h4>
+                    
+                    <!-- Kiyilgan itemlar -->
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3">🎯 Hozir Kiyilgan</h6>
+                        <div class="row">
+                            {% if equipped_items %}
+                                {% for equipped_item in equipped_items %}
+                                <div class="col-md-3">
+                                    <div class="clothing-item equipped" data-item-id="{{ equipped_item.id }}">
+                                        <img src="{{ url_for('static', filename=equipped_item.item.image_path) }}" 
+                                             alt="{{ equipped_item.item.name }}"
+                                             class="item-image"
+                                             onerror="this.style.display='none'">
+                                        <i class="fas fa-{% if equipped_item.item.item_type == 'clothes' %}tshirt text-primary
+                                                        {% elif equipped_item.item.item_type == 'hat' %}hat-cowboy text-warning
+                                                        {% elif equipped_item.item.item_type == 'shoes' %}shoe-prints text-secondary
+                                                        {% else %}gem text-info{% endif %} fallback-icon {% if equipped_item.item.image_path %}d-none{% endif %}"></i>
+                                        <h6 class="fw-bold">{{ equipped_item.item.name }}</h6>
+                                        <small class="text-muted">{{ equipped_item.item.item_type|title }}</small>
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-danger unequip-item" 
+                                                    data-item-id="{{ equipped_item.id }}">Echish</button>
+                                        </div>
+                                    </div>
+                                </div>
                                 {% endfor %}
-                            </div>
-                        </div>
-
-                        <!-- Statistikalar -->
-                        <div class="stats-card">
-                            <div class="row text-center">
-                                <div class="col-4">
-                                    <h4><i class="fas fa-coins"></i></h4>
-                                    <h5>{{ current_user.coins }}</h5>
-                                    <small>Coinlar</small>
-                                </div>
-                                <div class="col-4">
-                                    <h4><i class="fas fa-bolt"></i></h4>
-                                    <h5>{{ current_user.energy }}</h5>
-                                    <small>Energiya</small>
-                                </div>
-                                <div class="col-4">
-                                    <h4><i class="fas fa-fire"></i></h4>
-                                    <h5>{{ current_user.streak }}</h5>
-                                    <small>Streak</small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Qahramon ma'lumotlari -->
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <h3 class="text-success">{{ current_user.username }}</h3>
-                                <p class="text-muted">Level {{ (current_user.streak // 7) + 1 }} Eco Hero</p>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <div class="mb-2">
-                                            <small class="text-muted">Jami topshiriqlar</small>
-                                            <h6>15</h6>
-                                        </div>
-                                    </div>
-                                    <div class="col-6">
-                                        <div class="mb-2">
-                                            <small class="text-muted">Yutuqlar</small>
-                                            <h6>3</h6>
-                                        </div>
+                            {% else %}
+                                <div class="col-12">
+                                    <div class="empty-slot">
+                                        <i class="fas fa-tshirt fa-2x mb-2"></i>
+                                        <p>Hozircha hech narsa kiyilmagan</p>
+                                        <a href="{{ url_for('shop') }}" class="btn btn-sm btn-success">Do'konga o'tish</a>
                                     </div>
                                 </div>
-                            </div>
+                            {% endif %}
                         </div>
                     </div>
-                </div>
 
-                <!-- Kiyimlar va aksessuarlar -->
-                <div class="col-md-7">
-                    <div class="character-section">
-                        <h4 class="fw-bold mb-4"><i class="fas fa-tshirt me-2"></i>Kiyimlar va Aksessuarlar</h4>
-                        
-                        <!-- Kiyimlar kategoriyalari -->
-                        <div class="clothing-section">
-                            <!-- Bosh kiyimlari -->
-                            <div class="clothing-category">
-                                <h6 class="fw-bold mb-3"><i class="fas fa-hat-cowboy me-2"></i>Bosh Kiyimlari</h6>
-                                <div class="row">
-                                    {% for item in head_items %}
-                                    <div class="col-md-3">
-                                        <div class="clothing-item {% if item.equipped %}equipped{% endif %}" 
-                                             data-item-id="{{ item.id }}" data-type="head">
-                                            {% if item.image %}
-                                            <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}" 
+                    <!-- Kiyimlar kategoriyalari -->
+                    <div class="clothing-section">
+                        <!-- Futbolkalar -->
+                        <div class="clothing-category">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-tshirt me-2"></i>Futbolkalar</h6>
+                            <div class="row">
+                                {% if clothes_items %}
+                                    {% for inv_item in clothes_items %}
+                                    <div class="col-md-3 mb-3">
+                                        <div class="clothing-item {% if inv_item.equipped %}equipped{% endif %}" 
+                                             data-item-id="{{ inv_item.id }}">
+                                            <img src="{{ url_for('static', filename=inv_item.item.image_path) }}" 
+                                                 alt="{{ inv_item.item.name }}"
+                                                 class="item-image"
                                                  onerror="this.style.display='none'">
-                                            {% endif %}
-                                            <i class="fas fa-hat-cowboy fa-2x text-primary mb-2 {% if item.image %}d-none{% endif %}"></i>
-                                            <h6 class="fw-bold">{{ item.name }}</h6>
-                                            <small class="text-muted">{{ item.rarity }}</small>
-                                            {% if item.equipped %}
+                                            <i class="fas fa-tshirt text-primary fallback-icon {% if inv_item.item.image_path %}d-none{% endif %}"></i>
+                                            <h6 class="fw-bold">{{ inv_item.item.name }}</h6>
+                                            <small class="text-muted">{{ inv_item.item.item_type|title }}</small>
+                                            {% if inv_item.equipped %}
                                             <div class="mt-2">
                                                 <span class="badge bg-success">Kiyilgan</span>
                                             </div>
                                             {% else %}
                                             <div class="mt-2">
                                                 <button class="btn btn-sm btn-outline-primary equip-item" 
-                                                        data-item-id="{{ item.id }}">Kiyish</button>
+                                                        data-item-id="{{ inv_item.id }}">Kiyish</button>
                                             </div>
                                             {% endif %}
                                         </div>
                                     </div>
                                     {% endfor %}
-                                </div>
+                                {% else %}
+                                    <div class="col-12">
+                                        <div class="empty-slot">
+                                            <i class="fas fa-tshirt fa-2x mb-2"></i>
+                                            <p>Hozircha futbolkalaringiz yo'q</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
+                        </div>
 
-                            <!-- Kiyimlar -->
-                            <div class="clothing-category">
-                                <h6 class="fw-bold mb-3"><i class="fas fa-tshirt me-2"></i>Kiyimlar</h6>
-                                <div class="row">
-                                    {% for item in clothing_items %}
-                                    <div class="col-md-3">
-                                        <div class="clothing-item {% if item.equipped %}equipped{% endif %}" 
-                                             data-item-id="{{ item.id }}" data-type="clothing">
-                                            {% if item.image %}
-                                            <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}"
+                        <!-- Bosh kiyimlari -->
+                        <div class="clothing-category">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-hat-cowboy me-2"></i>Bosh Kiyimlari</h6>
+                            <div class="row">
+                                {% if hat_items %}
+                                    {% for inv_item in hat_items %}
+                                    <div class="col-md-3 mb-3">
+                                        <div class="clothing-item {% if inv_item.equipped %}equipped{% endif %}" 
+                                             data-item-id="{{ inv_item.id }}">
+                                            <img src="{{ url_for('static', filename=inv_item.item.image_path) }}" 
+                                                 alt="{{ inv_item.item.name }}"
+                                                 class="item-image"
                                                  onerror="this.style.display='none'">
-                                            {% endif %}
-                                            <i class="fas fa-tshirt fa-2x text-success mb-2 {% if item.image %}d-none{% endif %}"></i>
-                                            <h6 class="fw-bold">{{ item.name }}</h6>
-                                            <small class="text-muted">{{ item.rarity }}</small>
-                                            {% if item.equipped %}
+                                            <i class="fas fa-hat-cowboy text-warning fallback-icon {% if inv_item.item.image_path %}d-none{% endif %}"></i>
+                                            <h6 class="fw-bold">{{ inv_item.item.name }}</h6>
+                                            <small class="text-muted">{{ inv_item.item.item_type|title }}</small>
+                                            {% if inv_item.equipped %}
                                             <div class="mt-2">
                                                 <span class="badge bg-success">Kiyilgan</span>
                                             </div>
                                             {% else %}
                                             <div class="mt-2">
                                                 <button class="btn btn-sm btn-outline-primary equip-item" 
-                                                        data-item-id="{{ item.id }}">Kiyish</button>
+                                                        data-item-id="{{ inv_item.id }}">Kiyish</button>
                                             </div>
                                             {% endif %}
                                         </div>
                                     </div>
                                     {% endfor %}
-                                </div>
+                                {% else %}
+                                    <div class="col-12">
+                                        <div class="empty-slot">
+                                            <i class="fas fa-hat-cowboy fa-2x mb-2"></i>
+                                            <p>Hozircha bosh kiyimlaringiz yo'q</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
+                        </div>
 
-                            <!-- Oyoq kiyimlari -->
-                            <div class="clothing-category">
-                                <h6 class="fw-bold mb-3"><i class="fas fa-shoe-prints me-2"></i>Oyoq Kiyimlari</h6>
-                                <div class="row">
-                                    {% for item in shoe_items %}
-                                    <div class="col-md-3">
-                                        <div class="clothing-item {% if item.equipped %}equipped{% endif %}" 
-                                             data-item-id="{{ item.id }}" data-type="shoes">
-                                            {% if item.image %}
-                                            <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}"
+                        <!-- Oyoq kiyimlari -->
+                        <div class="clothing-category">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-shoe-prints me-2"></i>Oyoq Kiyimlari</h6>
+                            <div class="row">
+                                {% if shoe_items %}
+                                    {% for inv_item in shoe_items %}
+                                    <div class="col-md-3 mb-3">
+                                        <div class="clothing-item {% if inv_item.equipped %}equipped{% endif %}" 
+                                             data-item-id="{{ inv_item.id }}">
+                                            <img src="{{ url_for('static', filename=inv_item.item.image_path) }}" 
+                                                 alt="{{ inv_item.item.name }}"
+                                                 class="item-image"
                                                  onerror="this.style.display='none'">
-                                            {% endif %}
-                                            <i class="fas fa-shoe-prints fa-2x text-warning mb-2 {% if item.image %}d-none{% endif %}"></i>
-                                            <h6 class="fw-bold">{{ item.name }}</h6>
-                                            <small class="text-muted">{{ item.rarity }}</small>
-                                            {% if item.equipped %}
+                                            <i class="fas fa-shoe-prints text-secondary fallback-icon {% if inv_item.item.image_path %}d-none{% endif %}"></i>
+                                            <h6 class="fw-bold">{{ inv_item.item.name }}</h6>
+                                            <small class="text-muted">{{ inv_item.item.item_type|title }}</small>
+                                            {% if inv_item.equipped %}
                                             <div class="mt-2">
                                                 <span class="badge bg-success">Kiyilgan</span>
                                             </div>
                                             {% else %}
                                             <div class="mt-2">
                                                 <button class="btn btn-sm btn-outline-primary equip-item" 
-                                                        data-item-id="{{ item.id }}">Kiyish</button>
+                                                        data-item-id="{{ inv_item.id }}">Kiyish</button>
                                             </div>
                                             {% endif %}
                                         </div>
                                     </div>
                                     {% endfor %}
-                                </div>
+                                {% else %}
+                                    <div class="col-12">
+                                        <div class="empty-slot">
+                                            <i class="fas fa-shoe-prints fa-2x mb-2"></i>
+                                            <p>Hozircha oyoq kiyimlaringiz yo'q</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
+                        </div>
 
-                            <!-- Aksessuarlar -->
-                            <div class="clothing-category">
-                                <h6 class="fw-bold mb-3"><i class="fas fa-gem me-2"></i>Aksessuarlar</h6>
-                                <div class="row">
-                                    {% for item in accessory_items %}
-                                    <div class="col-md-3">
-                                        <div class="clothing-item {% if item.equipped %}equipped{% endif %}" 
-                                             data-item-id="{{ item.id }}" data-type="accessory">
-                                            {% if item.image %}
-                                            <img src="{{ url_for('static', filename=item.image) }}" alt="{{ item.name }}"
+                        <!-- Aksessuarlar -->
+                        <div class="clothing-category">
+                            <h6 class="fw-bold mb-3"><i class="fas fa-gem me-2"></i>Aksessuarlar</h6>
+                            <div class="row">
+                                {% if accessory_items %}
+                                    {% for inv_item in accessory_items %}
+                                    <div class="col-md-3 mb-3">
+                                        <div class="clothing-item {% if inv_item.equipped %}equipped{% endif %}" 
+                                             data-item-id="{{ inv_item.id }}">
+                                            <img src="{{ url_for('static', filename=inv_item.item.image_path) }}" 
+                                                 alt="{{ inv_item.item.name }}"
+                                                 class="item-image"
                                                  onerror="this.style.display='none'">
-                                            {% endif %}
-                                            <i class="fas fa-gem fa-2x text-info mb-2 {% if item.image %}d-none{% endif %}"></i>
-                                            <h6 class="fw-bold">{{ item.name }}</h6>
-                                            <small class="text-muted">{{ item.rarity }}</small>
-                                            {% if item.equipped %}
+                                            <i class="fas fa-gem text-info fallback-icon {% if inv_item.item.image_path %}d-none{% endif %}"></i>
+                                            <h6 class="fw-bold">{{ inv_item.item.name }}</h6>
+                                            <small class="text-muted">{{ inv_item.item.item_type|title }}</small>
+                                            {% if inv_item.equipped %}
                                             <div class="mt-2">
                                                 <span class="badge bg-success">Taqilgan</span>
                                             </div>
                                             {% else %}
                                             <div class="mt-2">
                                                 <button class="btn btn-sm btn-outline-primary equip-item" 
-                                                        data-item-id="{{ item.id }}">Taqish</button>
+                                                        data-item-id="{{ inv_item.id }}">Taqish</button>
                                             </div>
                                             {% endif %}
                                         </div>
                                     </div>
                                     {% endfor %}
-                                </div>
+                                {% else %}
+                                    <div class="col-12">
+                                        <div class="empty-slot">
+                                            <i class="fas fa-gem fa-2x mb-2"></i>
+                                            <p>Hozircha aksessuarlaringiz yo'q</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -340,47 +287,179 @@
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        // Kiyimlarni kiyish/o'chirish
-        document.querySelectorAll('.equip-item').forEach(button => {
-            button.addEventListener('click', function() {
-                const itemId = this.dataset.itemId;
-                
-                fetch(`/equip_item/${itemId}`, { 
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('✅ ' + data.message);
-                        location.reload();
-                    } else {
-                        alert('❌ ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    alert('❌ Xatolik yuz berdi: ' + error);
-                });
-            });
-        });
+<style>
+    .hero-container {
+        background: linear-gradient(135deg, #1B5E20, #2E7D32);
+        min-height: 100vh;
+        padding: 20px;
+    }
+    .character-section {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .character-display {
+        text-align: center;
+        padding: 40px 20px;
+        background: linear-gradient(135deg, #E8F5E8, #F1F8E9);
+        border-radius: 15px;
+        border: 3px solid #4CAF50;
+        position: relative;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .character-preview {
+        position: relative;
+        width: 300px;
+        height: 300px;
+    }
+    .character-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+    }
+    .character-base {
+        background-image: url("{{ url_for('static', filename='images/character_base.png') }}");
+        z-index: 1;
+    }
+    .character-clothes {
+        z-index: 2;
+    }
+    .character-hat {
+        z-index: 3;
+    }
+    .character-shoes {
+        z-index: 4;
+    }
+    .character-accessory {
+        z-index: 5;
+    }
+    .stats-card {
+        background: linear-gradient(135deg, #4CAF50, #45a049);
+        color: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .clothing-section {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 20px;
+    }
+    .clothing-item {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+        margin-bottom: 15px;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    .clothing-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border-color: #4CAF50;
+    }
+    .clothing-item.equipped {
+        border-color: #4CAF50;
+        background: #E8F5E8;
+    }
+    .item-image {
+        width: 80px;
+        height: 80px;
+        object-fit: contain;
+        margin-bottom: 10px;
+    }
+    .empty-slot {
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        color: #6c757d;
+    }
+    .fallback-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
 
-        // Kiyim elementlarini bosganda ham ishlash
-        document.querySelectorAll('.clothing-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                if (!e.target.classList.contains('equip-item') && !e.target.closest('.equip-item')) {
-                    const itemId = this.dataset.itemId;
-                    const button = this.querySelector('.equip-item');
-                    if (button) {
-                        button.click();
-                    }
+{% block scripts %}
+<script>
+    // Kiyimlarni kiyish
+    document.querySelectorAll('.equip-item').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            
+            fetch(`/equip_item/${itemId}`, { 
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    location.reload();
+                } else {
+                    alert('❌ ' + data.error);
                 }
+            })
+            .catch(error => {
+                alert('❌ Xatolik yuz berdi: ' + error);
             });
         });
-    </script>
-    <script src="{{ url_for('static', filename='js/eco-script.js') }}"></script>
-</body>
-</html>
+    });
+
+    // Kiyimlarni echish
+    document.querySelectorAll('.unequip-item').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.dataset.itemId;
+            
+            fetch(`/unequip_item/${itemId}`, { 
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ ' + data.message);
+                    location.reload();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ Xatolik yuz berdi: ' + error);
+            });
+        });
+    });
+
+    // Rasmlar yuklanmasa iconlarni ko'rsatish
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.item-image');
+        images.forEach(img => {
+            img.onerror = function() {
+                this.style.display = 'none';
+                const icon = this.parentElement.querySelector('.fallback-icon');
+                if (icon) {
+                    icon.classList.remove('d-none');
+                }
+            };
+        });
+    });
+</script>
+{% endblock %}

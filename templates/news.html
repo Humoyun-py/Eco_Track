@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}EcoVerse - Yangiliklar{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold text-center mb-4">📰 Eco Yangiliklar</h2>
+            <p class="text-center text-muted mb-5">So'nggi ekologik yangiliklar va tadbirlar</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Asosiy yangilik -->
+        <div class="col-lg-8 mb-4">
+            <div class="card eco-card">
+                <img src="{{ url_for('static', filename='images/news_main.jpg') }}" class="card-img-top" alt="Asosiy yangilik" style="height: 300px; object-fit: cover;">
+                <div class="card-body">
+                    <span class="badge bg-success mb-2">Yangi</span>
+                    <h4 class="card-title">Yilning Eng Katta Daraxt Ekish Kampaniyasi</h4>
+                    <p class="card-text">Bu yil O'zbekistonda 10 million daraxt ekish rejasi amalga oshirilmoqda. Kampaniya butun mamlakat bo'ylab davom etmoqda...</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">2 soat oldin</small>
+                        <a href="#" class="btn btn-eco btn-sm">Batafsil o'qish</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Yangi yangiliklar -->
+        <div class="col-lg-4">
+            <div class="card eco-card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">🔥 Yangi Yangiliklar</h5>
+                    {% for news_item in [
+                        {"title": "Quyosh Energiyasi Loyihasi", "time": "5 soat", "badge": "success"},
+                        {"title": "Suv Tejash Bo'yicha Seminar", "time": "1 kun", "badge": "info"},
+                        {"title": "Plastik Qayta Ishlash Zavodi", "time": "2 kun", "badge": "warning"},
+                        {"title": "Eko Transport Rivojlanishi", "time": "3 kun", "badge": "primary"}
+                    ] %}
+                    <div class="news-item mb-3 pb-3 border-bottom">
+                        <span class="badge bg-{{ news_item.badge }} mb-1">{{ news_item.time }} oldin</span>
+                        <h6 class="mb-1">{{ news_item.title }}</h6>
+                        <small class="text-muted">Yangi loyiha ishga tushirildi</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Boshqa yangiliklar -->
+    <div class="row">
+        {% for news in [
+            {"title": "Shahardagi Yashil Zonalar Ko'paymoqda", "desc": "Yangi parklar va yashil maydonlar qurilmoqda", "img": "park.jpg", "date": "2024.01.15"},
+            {"title": "Elektr Transportlari Sonining O'sishi", "desc": "Elektr avtomobillari soni 40% ga oshdi", "img": "electric_car.jpg", "date": "2024.01.14"},
+            {"title": "Qayta Ishlash Markazlari Ochildi", "desc": "5 yangi qayta ishlash markazi ochildi", "img": "recycle.jpg", "date": "2024.01.13"},
+            {"title": "Suv Sifatini Oshirish Loyihasi", "desc": "Suv manbalarini muhofaza qilish bo'yicha yangi loyiha", "img": "water.jpg", "date": "2024.01.12"}
+        ] %}
+        <div class="col-md-6 col-lg-3 mb-4">
+            <div class="card eco-card h-100">
+                <div class="card-img-container" style="height: 150px; background: linear-gradient(135deg, #4CAF50, #2196F3); display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="fas fa-newspaper fa-3x"></i>
+                </div>
+                <div class="card-body">
+                    <span class="badge bg-light text-dark mb-2">{{ news.date }}</span>
+                    <h6 class="card-title">{{ news.title }}</h6>
+                    <p class="card-text text-muted small">{{ news.desc }}</p>
+                    <a href="#" class="btn btn-outline-eco btn-sm">O'qish</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Eco tips -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card eco-card">
+                <div class="card-body">
+                    <h5 class="card-title">💡 Kunlik Eco Maslahat</h5>
+                    <div class="eco-tip">
+                        <div class="tip-icon">
+                            <i class="fas fa-lightbulb fa-2x text-warning"></i>
+                        </div>
+                        <div class="tip-content">
+                            <h6>Plastik idishlarni qayta ishlang</h6>
+                            <p class="mb-0">Plastik idishlarni alohida idishga solib, qayta ishlash markaziga olib boring. Bu atrof-muhitni ifloslanishidan saqlaydi.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.news-item {
+    transition: all 0.3s ease;
+}
+.news-item:hover {
+    transform: translateX(5px);
+}
+.eco-tip {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 10px;
+}
+.tip-icon {
+    flex-shrink: 0;
+}
+.tip-content {
+    flex-grow: 1;
+}
+.card-img-container {
+    border-radius: 10px 10px 0 0;
+}
+</style>
+{% endblock %}

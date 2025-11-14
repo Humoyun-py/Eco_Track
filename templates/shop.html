@@ -6,16 +6,38 @@
     <title>EcoVerse - Do'kon</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/eco-style.css') }}">
     <style>
+        .shop-container {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .shop-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .shop-item-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            height: 100%;
+        }
+        .shop-item-card:hover {
+            transform: translateY(-5px);
+            border-color: #4CAF50;
+            box-shadow: 0 8px 25px rgba(76,175,80,0.3);
+        }
         .energy-pack-card {
             transition: all 0.3s ease;
             border: 2px solid transparent;
+            height: 100%;
         }
         .energy-pack-card:hover {
             transform: translateY(-5px);
             border-color: #ffc107;
-            box-shadow: 0 5px 15px rgba(255,193,7,0.3);
+            box-shadow: 0 8px 25px rgba(255,193,7,0.3);
         }
         .energy-icon {
             position: relative;
@@ -36,146 +58,186 @@
             font-size: 12px;
             font-weight: bold;
         }
-        .shop-item-card {
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+        .item-image {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin: 0 auto 15px;
+            display: block;
         }
-        .shop-item-card:hover {
-            transform: translateY(-5px);
-            border-color: #4CAF50;
-            box-shadow: 0 5px 15px rgba(76,175,80,0.3);
+        .category-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+        }
+        .price-tag {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: black;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .user-stats {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border-radius: 10px;
+            padding: 15px;
+        }
+        .fallback-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <div class="shop-container">
         <div class="container">
-            <a class="navbar-brand" href="{{ url_for('dashboard') }}">🌍 EcoVerse</a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">
-                    ⚡ {{ current_user.energy }} | 💰 {{ current_user.coins }} coin
-                </span>
-                <a class="btn btn-outline-light" href="{{ url_for('dashboard') }}">Orqaga</a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container mt-4">
-        <!-- ENERGIYA SOTIB OLISH QISMI -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card bg-warning bg-opacity-10">
-                    <div class="card-header bg-warning">
-                        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Energiya Sotib Olish</h5>
+            <!-- Sarlavha va orqaga -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="text-white"><i class="fas fa-store me-2"></i>EcoVerse Do'koni</h1>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-light">
+                            <i class="fas fa-arrow-left me-2"></i>Orqaga
+                        </a>
                     </div>
-                    <div class="card-body">
+                </div>
+            </div>
+
+            <!-- User statistikasi -->
+            <div class="row mb-4">
+                <div class="col-md-8 mx-auto">
+                    <div class="user-stats text-center">
                         <div class="row">
-                            <!-- Energiya paketlari -->
-                            <div class="col-md-3 mb-3">
-                                <div class="card energy-pack-card text-center h-100">
-                                    <div class="card-body">
-                                        <div class="energy-icon mb-3">
-                                            <i class="fas fa-bolt fa-2x text-warning"></i>
-                                            <span class="energy-amount">+50</span>
+                            <div class="col-4">
+                                <h4><i class="fas fa-coins"></i></h4>
+                                <h3>{{ user.coins }}</h3>
+                                <small>Coinlar</small>
+                            </div>
+                            <div class="col-4">
+                                <h4><i class="fas fa-bolt"></i></h4>
+                                <h3>{{ user.energy }}</h3>
+                                <small>Energiya</small>
+                            </div>
+                            <div class="col-4">
+                                <h4><i class="fas fa-user"></i></h4>
+                                <h3>{{ user.username }}</h3>
+                                <small>Foydalanuvchi</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Energiya sotib olish -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="shop-card">
+                        <div class="card-header bg-warning">
+                            <h4 class="mb-0 text-dark"><i class="fas fa-bolt me-2"></i>Energiya Sotib Olish</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <div class="card energy-pack-card text-center h-100">
+                                        <div class="card-body">
+                                            <div class="energy-icon mb-3">
+                                                <img src="{{ url_for('static', filename='images/energy_drink.png') }}" 
+                                                     alt="Energiya" class="item-image"
+                                                     onerror="this.style.display='none'">
+                                                <i class="fas fa-bolt fa-3x text-warning fallback-icon"></i>
+                                                <span class="energy-amount">+50</span>
+                                            </div>
+                                            <h5 class="fw-bold">Kichik Energiya</h5>
+                                            <p class="text-muted small">Tez energiya to'ldirish</p>
+                                            <div class="price-section mb-3">
+                                                <span class="price-tag">
+                                                    <i class="fas fa-coins me-1"></i>25
+                                                </span>
+                                            </div>
+                                            <button class="btn btn-warning w-100 buy-energy" 
+                                                    data-energy="50" data-price="25"
+                                                    {% if user.coins < 25 %}disabled{% endif %}>
+                                                Sotib Olish
+                                            </button>
                                         </div>
-                                        <h6 class="fw-bold">Kichik Energiya</h6>
-                                        <p class="text-muted small">Tez energiya to'ldirish</p>
-                                        <p class="fw-bold text-warning">
-                                            <i class="fas fa-coins me-1"></i>25 coin
-                                        </p>
-                                        <button class="btn btn-warning btn-sm buy-energy" data-pack-id="1" data-energy="50" data-price="25"
-                                                {% if current_user.coins < 25 %}disabled{% endif %}>
-                                            Sotib Olish
-                                        </button>
-                                        {% if current_user.coins < 25 %}
-                                        <div class="mt-2">
-                                            <small class="text-danger">
-                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                Coin yetarli emas
-                                            </small>
-                                        </div>
-                                        {% endif %}
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card energy-pack-card text-center h-100">
-                                    <div class="card-body">
-                                        <div class="energy-icon mb-3">
-                                            <i class="fas fa-bolt fa-2x text-warning"></i>
-                                            <span class="energy-amount">+100</span>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card energy-pack-card text-center h-100">
+                                        <div class="card-body">
+                                            <div class="energy-icon mb-3">
+                                                <img src="{{ url_for('static', filename='images/energy_boost.png') }}" 
+                                                     alt="Energiya" class="item-image"
+                                                     onerror="this.style.display='none'">
+                                                <i class="fas fa-bolt fa-3x text-warning fallback-icon"></i>
+                                                <span class="energy-amount">+100</span>
+                                            </div>
+                                            <h5 class="fw-bold">O'rta Energiya</h5>
+                                            <p class="text-muted small">Kunlik energiya</p>
+                                            <div class="price-section mb-3">
+                                                <span class="price-tag">
+                                                    <i class="fas fa-coins me-1"></i>45
+                                                </span>
+                                            </div>
+                                            <button class="btn btn-warning w-100 buy-energy" 
+                                                    data-energy="100" data-price="45"
+                                                    {% if user.coins < 45 %}disabled{% endif %}>
+                                                Sotib Olish
+                                            </button>
                                         </div>
-                                        <h6 class="fw-bold">O'rta Energiya</h6>
-                                        <p class="text-muted small">Kunlik energiya</p>
-                                        <p class="fw-bold text-warning">
-                                            <i class="fas fa-coins me-1"></i>45 coin
-                                        </p>
-                                        <button class="btn btn-warning btn-sm buy-energy" data-pack-id="2" data-energy="100" data-price="45"
-                                                {% if current_user.coins < 45 %}disabled{% endif %}>
-                                            Sotib Olish
-                                        </button>
-                                        {% if current_user.coins < 45 %}
-                                        <div class="mt-2">
-                                            <small class="text-danger">
-                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                Coin yetarli emas
-                                            </small>
-                                        </div>
-                                        {% endif %}
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card energy-pack-card text-center h-100">
-                                    <div class="card-body">
-                                        <div class="energy-icon mb-3">
-                                            <i class="fas fa-bolt fa-2x text-warning"></i>
-                                            <span class="energy-amount">+200</span>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card energy-pack-card text-center h-100">
+                                        <div class="card-body">
+                                            <div class="energy-icon mb-3">
+                                                <img src="{{ url_for('static', filename='images/energy_boost.png') }}" 
+                                                     alt="Energiya" class="item-image"
+                                                     onerror="this.style.display='none'">
+                                                <i class="fas fa-bolt fa-3x text-warning fallback-icon"></i>
+                                                <span class="energy-amount">+200</span>
+                                            </div>
+                                            <h5 class="fw-bold">Katta Energiya</h5>
+                                            <p class="text-muted small">To'liq energiya</p>
+                                            <div class="price-section mb-3">
+                                                <span class="price-tag">
+                                                    <i class="fas fa-coins me-1"></i>80
+                                                </span>
+                                            </div>
+                                            <button class="btn btn-warning w-100 buy-energy" 
+                                                    data-energy="200" data-price="80"
+                                                    {% if user.coins < 80 %}disabled{% endif %}>
+                                                Sotib Olish
+                                            </button>
                                         </div>
-                                        <h6 class="fw-bold">Katta Energiya</h6>
-                                        <p class="text-muted small">To'liq energiya</p>
-                                        <p class="fw-bold text-warning">
-                                            <i class="fas fa-coins me-1"></i>80 coin
-                                        </p>
-                                        <button class="btn btn-warning btn-sm buy-energy" data-pack-id="3" data-energy="200" data-price="80"
-                                                {% if current_user.coins < 80 %}disabled{% endif %}>
-                                            Sotib Olish
-                                        </button>
-                                        {% if current_user.coins < 80 %}
-                                        <div class="mt-2">
-                                            <small class="text-danger">
-                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                Coin yetarli emas
-                                            </small>
-                                        </div>
-                                        {% endif %}
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-3 mb-3">
-                                <div class="card energy-pack-card text-center h-100">
-                                    <div class="card-body">
-                                        <div class="energy-icon mb-3">
-                                            <i class="fas fa-bolt fa-2x text-warning"></i>
-                                            <span class="energy-amount">+500</span>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card energy-pack-card text-center h-100">
+                                        <div class="card-body">
+                                            <div class="energy-icon mb-3">
+                                                <img src="{{ url_for('static', filename='images/energy_boost.png') }}" 
+                                                     alt="Energiya" class="item-image"
+                                                     onerror="this.style.display='none'">
+                                                <i class="fas fa-bolt fa-3x text-warning fallback-icon"></i>
+                                                <span class="energy-amount">+500</span>
+                                            </div>
+                                            <h5 class="fw-bold">Maksimal Energiya</h5>
+                                            <p class="text-muted small">Cheksiz energiya</p>
+                                            <div class="price-section mb-3">
+                                                <span class="price-tag">
+                                                    <i class="fas fa-coins me-1"></i>150
+                                                </span>
+                                            </div>
+                                            <button class="btn btn-warning w-100 buy-energy" 
+                                                    data-energy="500" data-price="150"
+                                                    {% if user.coins < 150 %}disabled{% endif %}>
+                                                Sotib Olish
+                                            </button>
                                         </div>
-                                        <h6 class="fw-bold">Maksimal Energiya</h6>
-                                        <p class="text-muted small">Cheksiz energiya</p>
-                                        <p class="fw-bold text-warning">
-                                            <i class="fas fa-coins me-1"></i>150 coin
-                                        </p>
-                                        <button class="btn btn-warning btn-sm buy-energy" data-pack-id="4" data-energy="500" data-price="150"
-                                                {% if current_user.coins < 150 %}disabled{% endif %}>
-                                            Sotib Olish
-                                        </button>
-                                        {% if current_user.coins < 150 %}
-                                        <div class="mt-2">
-                                            <small class="text-danger">
-                                                <i class="fas fa-exclamation-circle me-1"></i>
-                                                Coin yetarli emas
-                                            </small>
-                                        </div>
-                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -183,89 +245,155 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>Kategoriyalar</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="list-group">
-                            <a href="#" class="list-group-item list-group-item-action active">Barchasi</a>
-                            <a href="#" class="list-group-item list-group-item-action">Kiyimlar</a>
-                            <a href="#" class="list-group-item list-group-item-action">Aksessuarlar</a>
-                            <a href="#" class="list-group-item list-group-item-action">Fonlar</a>
-                            <a href="#" class="list-group-item list-group-item-action">Energiya</a>
+            <!-- Kiyimlar va aksessuarlar -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="shop-card">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0"><i class="fas fa-tshirt me-2"></i>Kiyimlar va Aksessuarlar</h4>
                         </div>
-                    </div>
-                </div>
-                
-                <div class="card mt-3">
-                    <div class="card-body text-center">
-                        <h4>💰 {{ current_user.coins }}</h4>
-                        <p>Sizning coinlaringiz</p>
-                        <h6>⚡ {{ current_user.energy }}</h6>
-                        <p>Joriy energiya</p>
+                        <div class="card-body">
+                            <!-- Kategoriya filterlari -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button class="btn btn-outline-success active filter-btn" data-filter="all">
+                                            Hammasi
+                                        </button>
+                                        <button class="btn btn-outline-primary filter-btn" data-filter="clothes">
+                                            <i class="fas fa-tshirt me-1"></i>Kiyimlar
+                                        </button>
+                                        <button class="btn btn-outline-info filter-btn" data-filter="accessory">
+                                            <i class="fas fa-gem me-1"></i>Aksessuarlar
+                                        </button>
+                                        <button class="btn btn-outline-warning filter-btn" data-filter="hat">
+                                            <i class="fas fa-hat-cowboy me-1"></i>Bosh Kiyim
+                                        </button>
+                                        <button class="btn btn-outline-secondary filter-btn" data-filter="shoes">
+                                            <i class="fas fa-shoe-prints me-1"></i>Oyoq Kiyim
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Itemlar -->
+                            <div class="row" id="items-container">
+                                {% for item in items %}
+                                <div class="col-md-3 mb-4 item-card" data-type="{{ item.item_type }}">
+                                    <div class="card shop-item-card text-center h-100 position-relative">
+                                        <span class="badge category-badge 
+                                            {% if item.item_type == 'clothes' %}bg-primary
+                                            {% elif item.item_type == 'accessory' %}bg-info
+                                            {% elif item.item_type == 'hat' %}bg-warning text-dark
+                                            {% elif item.item_type == 'shoes' %}bg-secondary
+                                            {% else %}bg-success{% endif %}">
+                                            {{ item.item_type|title }}
+                                        </span>
+
+                                        <div class="card-body">
+                                            <!-- Item rasmi -->
+                                            {% if item.image_path %}
+                                            <img src="{{ url_for('static', filename=item.image_path) }}" 
+                                                 alt="{{ item.name }}"
+                                                 class="item-image"
+                                                 onerror="this.style.display='none'">
+                                            {% endif %}
+                                            
+                                            <!-- Fallback icon -->
+                                            <i class="fas fa-{% if item.item_type == 'clothes' %}tshirt text-primary
+                                                            {% elif item.item_type == 'accessory' %}gem text-info
+                                                            {% elif item.item_type == 'hat' %}hat-cowboy text-warning
+                                                            {% elif item.item_type == 'shoes' %}shoe-prints text-secondary
+                                                            {% else %}star text-warning{% endif %} fallback-icon {% if item.image_path %}d-none{% endif %}">
+                                            </i>
+
+                                            <h5 class="card-title fw-bold">{{ item.name }}</h5>
+                                            
+                                            <p class="text-muted small mb-2">
+                                                {% if item.item_type == 'clothes' %}
+                                                Stil va qulaylik
+                                                {% elif item.item_type == 'accessory' %}
+                                                Ajoyib aksessuar
+                                                {% elif item.item_type == 'hat' %}
+                                                Zamonaviy bosh kiyim
+                                                {% elif item.item_type == 'shoes' %}
+                                                Qulay oyoq kiyim
+                                                {% else %}
+                                                Maxsus buyum
+                                                {% endif %}
+                                            </p>
+
+                                            {% if item.energy_boost > 0 %}
+                                            <div class="mb-2">
+                                                <small class="text-success">
+                                                    <i class="fas fa-bolt me-1"></i>+{{ item.energy_boost }} energiya
+                                                </small>
+                                            </div>
+                                            {% endif %}
+
+                                            <div class="price-section mb-3">
+                                                <span class="price-tag">
+                                                    <i class="fas fa-coins me-1"></i>{{ item.price }}
+                                                </span>
+                                            </div>
+
+                                            {% if user.coins >= item.price %}
+                                            <button class="btn btn-success w-100 buy-item" 
+                                                    data-item-id="{{ item.id }}">
+                                                <i class="fas fa-shopping-cart me-1"></i>Sotib Olish
+                                            </button>
+                                            {% else %}
+                                            <button class="btn btn-secondary w-100" disabled>
+                                                <i class="fas fa-lock me-1"></i>Coin yetarli emas
+                                            </button>
+                                            <div class="mt-2">
+                                                <small class="text-danger">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>
+                                                    {{ item.price - user.coins }} coin kam
+                                                </small>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-9">
-                <div class="row">
-                    {% for item in items %}
-                    <div class="col-md-4 mb-4">
-                        <div class="card shop-item-card h-100">
-                            <div class="card-body text-center">
-                                <div class="mb-3">
-                                    {% if item.item_type == 'clothes' %}
-                                    <i class="fas fa-tshirt fa-3x text-primary"></i>
-                                    {% elif item.item_type == 'accessory' %}
-                                    <i class="fas fa-gem fa-3x text-info"></i>
-                                    {% elif item.item_type == 'background' %}
-                                    <i class="fas fa-image fa-3x text-success"></i>
-                                    {% else %}
-                                    <i class="fas fa-star fa-3x text-warning"></i>
-                                    {% endif %}
-                                </div>
-                                <h5 class="card-title">{{ item.name }}</h5>
-                                <p class="text-muted">{{ item.item_type|title }}</p>
-                                <h4 class="text-warning">💰 {{ item.price }}</h4>
-                                {% if current_user.coins >= item.price %}
-                                <button class="btn btn-success buy-item" data-item-id="{{ item.id }}">
-                                    Sotib olish
-                                </button>
-                                {% else %}
-                                <button class="btn btn-secondary" disabled>Coin yetarli emas</button>
-                                {% endif %}
-                            </div>
+            <!-- Hero sahifasiga o'tish -->
+            <div class="row mt-4">
+                <div class="col-12 text-center">
+                    <div class="shop-card">
+                        <div class="card-body">
+                            <h4>🦸 O'zingizning qahramoningizni yarating!</h4>
+                            <p class="text-muted">Sotib olgan kiyimlaringizni qahramoningizga kiygizing</p>
+                            <a href="{{ url_for('hero') }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-user-circle me-2"></i>Mening Hero sahifasiga o'tish
+                            </a>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Energiya sotib olish
         document.querySelectorAll('.buy-energy').forEach(button => {
             button.addEventListener('click', function() {
-                const packId = this.dataset.packId;
                 const energy = this.dataset.energy;
                 const price = this.dataset.price;
                 
                 if (confirm(`${energy} energiya sotib olish uchun ${price} coin to'lashni tasdiqlaysizmi?`)) {
-                    fetch(`/buy_energy/${packId}`, { 
+                    fetch(`/buy_energy`, { 
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            energy: energy,
-                            price: price
-                        })
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({energy: parseInt(energy), price: parseInt(price)})
                     })
                     .then(response => response.json())
                     .then(data => {
@@ -275,6 +403,9 @@
                         } else {
                             alert('❌ ' + data.error);
                         }
+                    })
+                    .catch(error => {
+                        alert('❌ Xatolik yuz berdi: ' + error);
                     });
                 }
             });
@@ -284,19 +415,73 @@
         document.querySelectorAll('.buy-item').forEach(button => {
             button.addEventListener('click', function() {
                 const itemId = this.dataset.itemId;
-                fetch(`/buy_item/${itemId}`, { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert(data.message);
-                        location.reload();
+                const itemName = this.closest('.card').querySelector('.card-title').textContent;
+                
+                if (confirm(`${itemName} sotib olishni tasdiqlaysizmi?`)) {
+                    fetch(`/buy_item/${itemId}`, { 
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'}
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('✅ ' + data.message);
+                            location.reload();
+                        } else {
+                            alert('❌ ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        alert('❌ Xatolik yuz berdi: ' + error);
+                    });
+                }
+            });
+        });
+
+        // Kategoriya filterlari
+        document.querySelectorAll('.filter-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active', 'btn-success');
+                    btn.classList.add('btn-outline-success');
+                });
+                
+                this.classList.add('active', 'btn-success');
+                this.classList.remove('btn-outline-success');
+                
+                const filter = this.dataset.filter;
+                const items = document.querySelectorAll('.item-card');
+                
+                items.forEach(item => {
+                    if (filter === 'all' || item.dataset.type === filter) {
+                        item.style.display = 'block';
                     } else {
-                        alert(data.error);
+                        item.style.display = 'none';
                     }
                 });
             });
         });
+
+        // Rasmlar yuklanmasa iconlarni ko'rsatish
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.onerror = function() {
+                    this.style.display = 'none';
+                    const icon = this.parentElement.querySelector('.fallback-icon');
+                    if (icon) {
+                        icon.classList.remove('d-none');
+                    }
+                };
+                
+                img.onload = function() {
+                    const icon = this.parentElement.querySelector('.fallback-icon');
+                    if (icon) {
+                        icon.classList.add('d-none');
+                    }
+                };
+            });
+        });
     </script>
-    <script src="{{ url_for('static', filename='js/eco-script.js') }}"></script>
 </body>
 </html>

@@ -1,232 +1,232 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoVerse - Community</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/eco-style.css') }}">
-    <style>
-        .navbar-eco { background: linear-gradient(135deg, #2196F3, #4CAF50); }
-        .community-card { border-left: 4px solid #2196F3; }
-        .post-card { transition: transform 0.2s; }
-        .post-card:hover { transform: translateY(-2px); }
-        .quick-link-card {
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-        .quick-link-card:hover {
-            transform: translateY(-5px);
-            border-color: #2196F3;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-eco">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                <i class="fas fa-earth-americas me-2"></i>EcoVerse - Community
-            </a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">
-                    ⚡ {{ user.energy }} | 💰 {{ user.coins }} | 🔥 {{ user.streak }}
-                </span>
-                <a class="btn btn-outline-light" href="{{ url_for('logout') }}">Chiqish</a>
-            </div>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
-    <div class="container mt-4">
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card bg-primary text-white">
-                    <div class="card-body text-center">
-                        <h4>Eco Community</h4>
-                        <h2>{{ user.username }}</h2>
-                        <div class="mt-3">
-                            <span class="badge bg-warning">Faol a'zo</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-body">
-                        <h5>Jamoaviy Statistika</h5>
-                        <div class="row text-center">
-                            <div class="col-3">
-                                <h6>💰 Coinlar</h6>
-                                <h4>{{ user.coins }}</h4>
-                            </div>
-                            <div class="col-3">
-                                <h6>⚡ Faollik</h6>
-                                <h4>{{ user.energy }}</h4>
-                            </div>
-                            <div class="col-3">
-                                <h6>🔥 Streak</h6>
-                                <h4>{{ user.streak }} kun</h4>
-                            </div>
-                            <div class="col-3">
-                                <h6>📝 Postlar</h6>
-                                <h4>{{ user.posts|length }}</h4>
-                            </div>
-                        </div>
+{% block title %}EcoVerse - Community{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h4>Eco Community</h4>
+                    <h2>{{ user.username }}</h2>
+                    <div class="mt-3">
+                        <span class="badge bg-warning">Faol a'zo</span>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5>📝 Yangi Post</h5>
-                    </div>
-                    <div class="card-body">
-                        <form id="createPostForm">
-                            <div class="mb-3">
-                                <label for="title" class="form-label">Sarlavha</label>
-                                <input type="text" class="form-control" id="title" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="category" class="form-label">Kategoriya</label>
-                                <select class="form-select" id="category" required>
-                                    <option value="Eko-lifehack">Eko-lifehack</option>
-                                    <option value="Donor chaqiruvi">Donor chaqiruvi</option>
-                                    <option value="Volunteer event">Volunteer event</option>
-                                    <option value="Eko-maslahat">Eko-maslahat</option>
-                                </select>
-                            </div>
-                            <div class="mb-3">
-                                <label for="content" class="form-label">Mazmuni</label>
-                                <textarea class="form-control" id="content" rows="4" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100">Post Joylash</button>
-                        </form>
-                    </div>
-                </div>
-                
-                <!-- YANGILANGAN Tezkor Havolalar qismi -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5>🔗 Tezkor Havolalar</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <div class="card quick-link-card text-center h-100">
-                                    <div class="card-body py-3">
-                                        <i class="fas fa-users fa-2x text-primary mb-2"></i>
-                                        <h6 class="mb-1">Jamoa</h6>
-                                        <small class="text-muted">A'zolar</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div class="card quick-link-card text-center h-100">
-                                    <div class="card-body py-3">
-                                        <i class="fas fa-calendar fa-2x text-success mb-2"></i>
-                                        <h6 class="mb-1">Tadbirlar</h6>
-                                        <small class="text-muted">Volunteer</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div class="card quick-link-card text-center h-100">
-                                    <div class="card-body py-3">
-                                        <i class="fas fa-hand-holding-heart fa-2x text-danger mb-2"></i>
-                                        <h6 class="mb-1">Donorlik</h6>
-                                        <small class="text-muted">Chaqiriq</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 mb-3">
-                                <div class="card quick-link-card text-center h-100">
-                                    <div class="card-body py-3">
-                                        <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
-                                        <h6 class="mb-1">Statistika</h6>
-                                        <small class="text-muted">Hisobot</small>
-                                    </div>
-                                </div>
-                            </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Jamoaviy Statistika</h5>
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <h6>💰 Coinlar</h6>
+                            <h4>{{ user.coins }}</h4>
                         </div>
-                        <div class="row mt-2">
-                            <div class="col-12">
-                                <a href="{{ url_for('posts') }}" class="btn btn-outline-primary w-100 mb-2">
-                                    <i class="fas fa-newspaper me-1"></i>Barcha Postlar
-                                </a>
-                                <a href="{{ url_for('messages') }}" class="btn btn-outline-success w-100 mb-2">
-                                    <i class="fas fa-comments me-1"></i>Xabarlar
-                                </a>
-                                <a href="{{ url_for('shop') }}" class="btn btn-outline-info w-100">
-                                    <i class="fas fa-store me-1"></i>Do'kon
-                                </a>
-                            </div>
+                        <div class="col-3">
+                            <h6>⚡ Faollik</h6>
+                            <h4>{{ user.energy }}</h4>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5>👥 So'nggi Postlar</h5>
-                        <span class="badge bg-primary">{{ posts|length }} post</span>
-                    </div>
-                    <div class="card-body">
-                        {% for post in posts %}
-                        <div class="card post-card mb-3 community-card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                    <h6 class="card-title">{{ post.title }}</h6>
-                                    <span class="badge bg-info">{{ post.category }}</span>
-                                </div>
-                                <p class="card-text">{{ post.content[:150] }}{% if post.content|length > 150 %}...{% endif %}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <small class="text-muted">{{ post.date.strftime('%Y-%m-%d %H:%M') }}</small>
-                                    <small class="text-muted">{{ post.author.username }}</small>
-                                </div>
-                                <div class="mt-2">
-                                    <a href="{{ url_for('post_detail', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">Batafsil</a>
-                                </div>
-                            </div>
+                        <div class="col-3">
+                            <h6>🔥 Streak</h6>
+                            <h4>{{ user.streak }} kun</h4>
                         </div>
-                        {% else %}
-                        <div class="text-center text-muted py-4">
-                            <p>Hozircha postlar mavjud emas. Birinchi bo'lib post joylang!</p>
+                        <div class="col-3">
+                            <h6>📝 Postlar</h6>
+                            <h4>{{ user.posts|length }}</h4>
                         </div>
-                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        document.getElementById('createPostForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData();
-            formData.append('title', document.getElementById('title').value);
-            formData.append('content', document.getElementById('content').value);
-            formData.append('category', document.getElementById('category').value);
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>📝 Yangi Post</h5>
+                </div>
+                <div class="card-body">
+                    <form id="createPostForm">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Sarlavha</label>
+                            <input type="text" class="form-control" id="title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Kategoriya</label>
+                            <select class="form-select" id="category" required>
+                                <option value="Eko-lifehack">Eko-lifehack</option>
+                                <option value="Donor chaqiruvi">Donor chaqiruvi</option>
+                                <option value="Volunteer event">Volunteer event</option>
+                                <option value="Eko-maslahat">Eko-maslahat</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Mazmuni</label>
+                            <textarea class="form-control" id="content" rows="4" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Post Joylash</button>
+                    </form>
+                </div>
+            </div>
             
-            fetch('/create_post', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message);
-                    location.reload();
-                } else {
-                    alert(data.error);
-                }
-            });
+            <!-- Tezkor Havolalar qismi -->
+            <div class="card">
+                <div class="card-header">
+                    <h5>🔗 Qo'shimcha Havolalar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <div class="card quick-link-card text-center h-100">
+                                <div class="card-body py-3">
+                                    <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                                    <h6 class="mb-1">Jamoa</h6>
+                                    <small class="text-muted">A'zolar</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="card quick-link-card text-center h-100">
+                                <div class="card-body py-3">
+                                    <i class="fas fa-calendar fa-2x text-success mb-2"></i>
+                                    <h6 class="mb-1">Tadbirlar</h6>
+                                    <small class="text-muted">Volunteer</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="card quick-link-card text-center h-100">
+                                <div class="card-body py-3">
+                                    <i class="fas fa-hand-holding-heart fa-2x text-danger mb-2"></i>
+                                    <h6 class="mb-1">Donorlik</h6>
+                                    <small class="text-muted">Chaqiriq</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <div class="card quick-link-card text-center h-100">
+                                <div class="card-body py-3">
+                                    <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                                    <h6 class="mb-1">Statistika</h6>
+                                    <small class="text-muted">Hisobot</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <a href="{{ url_for('posts') }}" class="btn btn-outline-primary w-100 mb-2">
+                                <i class="fas fa-newspaper me-1"></i>Barcha Postlar
+                            </a>
+                            <a href="{{ url_for('messages') }}" class="btn btn-outline-success w-100 mb-2">
+                                <i class="fas fa-comments me-1"></i>Xabarlar
+                            </a>
+                            <a href="{{ url_for('shop') }}" class="btn btn-outline-info w-100">
+                                <i class="fas fa-store me-1"></i>Do'kon
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5>👥 So'nggi Postlar</h5>
+                    <span class="badge bg-primary">{{ posts|length }} post</span>
+                </div>
+                <div class="card-body">
+                    {% for post in posts %}
+                    <div class="card post-card mb-3 community-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title">{{ post.title }}</h6>
+                                <span class="badge bg-info">{{ post.category }}</span>
+                            </div>
+                            <p class="card-text">{{ post.content[:150] }}{% if post.content|length > 150 %}...{% endif %}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ post.date.strftime('%Y-%m-%d %H:%M') }}</small>
+                                <small class="text-muted">{{ post.author.username }}</small>
+                            </div>
+                            <div class="mt-2">
+                                <a href="{{ url_for('post_detail', post_id=post.id) }}" class="btn btn-sm btn-outline-primary">Batafsil</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="text-center text-muted py-4">
+                        <p>Hozircha postlar mavjud emas. Birinchi bo'lib post joylang!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .community-card { border-left: 4px solid #2196F3; }
+    .post-card { transition: transform 0.2s; }
+    .post-card:hover { transform: translateY(-2px); }
+    .quick-link-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+    .quick-link-card:hover {
+        transform: translateY(-5px);
+        border-color: #2196F3;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .navbar-eco { background: linear-gradient(135deg, #4CAF50, #2196F3); }
+        .hero-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; }
+        .task-card { border-left: 4px solid #4CAF50; border-radius: 10px; transition: all 0.3s ease; }
+        .task-card:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .shop-item { transition: transform 0.2s; border: 2px solid transparent; }
+        .shop-item:hover { transform: translateY(-5px); border-color: #4CAF50; }
+        .hero-avatar {
+            width: 80px; height: 80px; background: linear-gradient(135deg, #4CAF50, #2196F3); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            color: white; font-size: 2rem; margin: 0 auto;
+        }
+        .quick-link-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .quick-link-card:hover {
+            transform: translateY(-5px);
+            border-color: #4CAF50;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('createPostForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('title', document.getElementById('title').value);
+        formData.append('content', document.getElementById('content').value);
+        formData.append('category', document.getElementById('category').value);
+        
+        fetch('/create_post', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                location.reload();
+            } else {
+                alert(data.error);
+            }
         });
-    </script>
-    <script src="{{ url_for('static', filename='js/eco-script.js') }}"></script>
-</body>
-</html>
+    });
+</script>
+{% endblock %}

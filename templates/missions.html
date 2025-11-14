@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}EcoVerse - Mission{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold text-center mb-4">🎯 Eco Missionlar</h2>
+            <p class="text-center text-muted mb-5">Topshiriqlarni bajarib, coinlar va tajriba to'plang</p>
+        </div>
+    </div>
+
+    <!-- Kunlik missionlar -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card eco-card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">📅 Kunlik Missionlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for task in tasks %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card task-card h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <h6 class="card-title">{{ task.title }}</h6>
+                                        <span class="badge bg-{% if task.difficulty == 'easy' %}success{% elif task.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
+                                            {{ task.difficulty }}
+                                        </span>
+                                    </div>
+                                    <p class="card-text text-muted small">{{ task.description }}</p>
+                                    <div class="task-rewards mb-3">
+                                        <span class="badge bg-success me-2">💰 {{ task.reward_coins }} coin</span>
+                                        <span class="badge bg-info">⚡ {{ task.energy_cost }} energiya</span>
+                                    </div>
+                                    <button class="btn btn-eco w-100 complete-task" 
+                                            data-task-id="{{ task.id }}"
+                                            {% if user.energy < task.energy_cost %}disabled{% endif %}>
+                                        {% if user.energy >= task.energy_cost %}
+                                        Missionni Boshlash
+                                        {% else %}
+                                        Energiya Yetarli Emas
+                                        {% endif %}
+                                    </button>
+                                    {% if user.energy < task.energy_cost %}
+                                    <small class="text-danger mt-2 d-block">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Energiya yetarli emas
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Haftalik missionlar -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card eco-card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📆 Haftalik Missionlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for weekly_task in [
+                            {"title": "5 ta Daraxt Ekish", "desc": "Bir hafta davomida 5 ta daraxt eking", "coins": 100, "energy": 30, "progress": 3},
+                            {"title": "10 kg Plastik Qayta Ishlash", "desc": "Plastik chiqindilarni qayta ishlang", "coins": 80, "energy": 25, "progress": 7},
+                            {"title": "Energiya Tejash Kampaniyasi", "desc": "Kuniga 2 soat energiya tejang", "coins": 120, "energy": 35, "progress": 5}
+                        ] %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card task-card h-100">
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ weekly_task.title }}</h6>
+                                    <p class="card-text text-muted small">{{ weekly_task.desc }}</p>
+                                    
+                                    <div class="progress mb-2" style="height: 8px;">
+                                        <div class="progress-bar bg-success" style="width: {{ (weekly_task.progress / 10) * 100 }}%"></div>
+                                    </div>
+                                    <small class="text-muted">{{ weekly_task.progress }}/10 bajarildi</small>
+                                    
+                                    <div class="task-rewards mb-3">
+                                        <span class="badge bg-success me-2">💰 {{ weekly_task.coins }} coin</span>
+                                        <span class="badge bg-info">⚡ {{ weekly_task.energy }} energiya</span>
+                                    </div>
+                                    
+                                    <button class="btn btn-outline-eco w-100">Davom etish</button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Maxsus missionlar -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card eco-card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">⭐ Maxsus Missionlar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for special_task in [
+                            {"title": "Eco Ambassador Bo'lish", "desc": "10 ta yangi foydalanuvchini taklif qiling", "coins": 200, "energy": 50, "icon": "fas fa-star"},
+                            {"title": "Top Reytingda Bo'lish", "desc": "Reytingda birinchi 3 talikda bo'ling", "coins": 300, "energy": 70, "icon": "fas fa-trophy"},
+                            {"title": "30 Kunlik Streak", "desc": "30 kun ketma-ket tizimga kiring", "coins": 500, "energy": 100, "icon": "fas fa-fire"}
+                        ] %}
+                        <div class="col-md-6 col-lg-4 mb-4">
+                            <div class="card task-card special-task h-100">
+                                <div class="card-body text-center">
+                                    <div class="special-icon mb-3">
+                                        <i class="{{ special_task.icon }} fa-2x text-warning"></i>
+                                    </div>
+                                    <h6 class="card-title">{{ special_task.title }}</h6>
+                                    <p class="card-text text-muted small">{{ special_task.desc }}</p>
+                                    <div class="task-rewards mb-3">
+                                        <span class="badge bg-warning me-2">💰 {{ special_task.coins }} coin</span>
+                                        <span class="badge bg-info">⚡ {{ special_task.energy }} energiya</span>
+                                    </div>
+                                    <button class="btn btn-eco w-100">Qabul qilish</button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mission statistikasi -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card eco-card">
+                <div class="card-body">
+                    <h5 class="card-title">📊 Mission Statistikangiz</h5>
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4>{{ tasks|length }}</h4>
+                            <p class="text-muted">Jami Missionlar</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4>8</h4>
+                            <p class="text-muted">Bajarilganlar</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4>{{ user.coins }}</h4>
+                            <p class="text-muted">Yig'ilgan Coinlar</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4>{{ (user.streak // 7) + 1 }}</h4>
+                            <p class="text-muted">Level</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.special-task {
+    border: 2px solid #FFC107;
+    background: linear-gradient(135deg, #fff, #fffde7);
+}
+.special-icon {
+    transition: transform 0.3s ease;
+}
+.special-task:hover .special-icon {
+    transform: scale(1.2) rotate(10deg);
+}
+.task-card {
+    transition: all 0.3s ease;
+}
+.task-card:hover {
+    transform: translateY(-5px);
+}
+</style>
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.complete-task').forEach(button => {
+    button.addEventListener('click', function() {
+        const taskId = this.dataset.taskId;
+        
+        fetch(`/complete_task/${taskId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ ' + data.message);
+                location.reload();
+            } else {
+                alert('❌ ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('❌ Xatolik yuz berdi: ' + error);
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
