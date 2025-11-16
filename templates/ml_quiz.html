@@ -1,0 +1,638 @@
+{% extends "base.html" %}
+
+{% block title %}EcoVerse - ML Eco Test{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold text-center mb-4">🧠 Eco Bilim Testi</h2>
+            
+            {% if task %}
+            <div class="alert alert-info">
+                <h5><i class="fas fa-tasks me-2"></i>{{ task.title }}</h5>
+                <p class="mb-1">{{ task.description }}</p>
+                <small>
+                    <strong>Qiyinlik darajasi:</strong> 
+                    <span class="badge bg-{% if task.difficulty == 'easy' %}success{% elif task.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
+                        {{ task.difficulty }}
+                    </span> |
+                    <strong>Mukofot:</strong> {{ task.reward_coins }} coin |
+                    <strong>Energiya:</strong> {{ task.energy_cost }}
+                </small>
+            </div>
+            {% endif %}
+            
+            <p class="text-center text-muted mb-5">Ekologiya bilimingizni sinab ko'ring va coinlar yuting!</p>
+        </div>
+    </div>
+
+    <!-- Test statistikasi -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card eco-card">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <h4 id="currentQuestion">1</h4>
+                            <p class="text-muted">Joriy savol</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 id="totalQuestions">10</h4>
+                            <p class="text-muted">Jami savol</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 id="correctCount">0</h4>
+                            <p class="text-muted">To'g'ri javob</p>
+                        </div>
+                        <div class="col-md-3">
+                            <h4 id="score">0</h4>
+                            <p class="text-muted">Ball</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test konteyneri -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card eco-card">
+                <div class="card-body">
+                    <!-- Boshlash tugmasi -->
+                    <div id="startScreen" class="text-center py-5">
+                        <i class="fas fa-brain fa-4x text-success mb-4"></i>
+                        <h3>Eco Bilim Testiga Xush Kelibsiz!</h3>
+                        <p class="text-muted mb-4">
+                            {% if task %}
+                                "{{ task.title }}" topshirig'i uchun test
+                            {% else %}
+                                5 ta ekologiya savoliga javob bering va bilimingizni sinab ko'ring
+                            {% endif %}
+                        </p>
+                        <div class="test-info mb-4">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <i class="fas fa-clock text-warning me-2"></i>
+                                    <span>5 daqiqa</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-coins text-warning me-2"></i>
+                                    <span>
+                                        {% if task %}
+                                            {{ task.reward_coins }} coin mukofot
+                                        {% else %}
+                                            50 coin mukofot
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="col-md-4">
+                                    <i class="fas fa-bolt text-warning me-2"></i>
+                                    <span>20 energiya</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="startQuiz" class="btn btn-eco btn-lg">
+                            {% if task %}
+                                Topshiriq Testini Boshlash
+                            {% else %}
+                                Testni Boshlash
+                            {% endif %}
+                        </button>
+                    </div>
+
+                    <!-- Test savollari -->
+                    <div id="quizContainer" class="d-none">
+                        <div class="question-header mb-4">
+                            <span class="badge bg-info" id="questionCategory">Kategoriya</span>
+                            <span class="badge bg-warning ms-2" id="questionDifficulty">O'rta</span>
+                        </div>
+                        
+                        <!-- Savol qismi - himoyalangan -->
+                        <div class="question-protected mb-4">
+                            <h4 class="question-text mb-4" id="questionText">Savol matni...</h4>
+                        </div>
+                        
+                        <div class="options-container mb-4">
+                            <div class="option-item mb-3" data-option="0">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="quizOption" id="option0">
+                                    <label class="form-check-label" for="option0" id="optionText0">
+                                        Variant 1
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="option-item mb-3" data-option="1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="quizOption" id="option1">
+                                    <label class="form-check-label" for="option1" id="optionText1">
+                                        Variant 2
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="option-item mb-3" data-option="2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="quizOption" id="option2">
+                                    <label class="form-check-label" for="option2" id="optionText2">
+                                        Variant 3
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="option-item mb-3" data-option="3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="quizOption" id="option3">
+                                    <label class="form-check-label" for="option3" id="optionText3">
+                                        Variant 4
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <button id="prevQuestion" class="btn btn-outline-eco" disabled>Oldingi</button>
+                            <button id="nextQuestion" class="btn btn-eco">Keyingi savol</button>
+                            <button id="submitQuiz" class="btn btn-success d-none">Testni Yakunlash</button>
+                        </div>
+                    </div>
+
+                    <!-- Natijalar -->
+                    <div id="resultsContainer" class="d-none text-center py-5">
+                        <div class="results-icon mb-4">
+                            <i class="fas fa-trophy fa-4x text-warning"></i>
+                        </div>
+                        <h3>Test Yakunlandi!</h3>
+                        <div class="results-stats mb-4">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h2 id="finalScore">0</h2>
+                                    <p>Ball</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <h2 id="correctAnswers">0/5</h2>
+                                    <p>To'g'ri javoblar</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="results-rewards mb-4">
+                            <h5 class="text-success" id="earnedCoins">+0 coin</h5>
+                            <p class="text-muted" id="earnedEnergy">+0 energiya</p>
+                        </div>
+                        <div id="taskCompletionMessage"></div>
+                        <div class="results-actions">
+                            <button id="restartQuiz" class="btn btn-eco me-3">Qayta Boshlash</button>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-eco">Bosh Sahifa</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.eco-card {
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    border: none;
+}
+.option-item {
+    padding: 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.option-item:hover {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.05);
+}
+.option-item.selected {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.1);
+}
+.question-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    user-select: none; /* Matnni tanlashni oldini olish */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+.question-protected {
+    position: relative;
+    background: rgba(76, 175, 80, 0.05);
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+}
+/* Screen qilishni qiyinlashtirish */
+.question-protected::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    pointer-events: none;
+}
+.results-stats {
+    background: rgba(76, 175, 80, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+}
+.btn-eco {
+    background: linear-gradient(135deg, #4CAF50, #2196F3);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    font-weight: 600;
+}
+.btn-eco:hover {
+    background: linear-gradient(135deg, #45a049, #1976D2);
+    color: white;
+}
+.btn-outline-eco {
+    border: 2px solid #4CAF50;
+    color: #4CAF50;
+    padding: 12px 30px;
+    font-weight: 600;
+}
+.btn-outline-eco:hover {
+    background: #4CAF50;
+    color: white;
+}
+
+/* Copy qilishni bloklash */
+.protected-content {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Screen qilishga qarshi himoya */
+@media print {
+    .question-protected,
+    .quizContainer,
+    .options-container {
+        display: none !important;
+    }
+}
+</style>
+
+{% block scripts %}
+<script>
+let currentQuestionIndex = 0;
+let userAnswers = [];
+let questions = [];
+let quizStarted = false;
+let quizInProgress = false;
+
+// Screen va copy qilishni bloklash
+document.addEventListener('DOMContentLoaded', function() {
+    // Context menu ni bloklash
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+    });
+    
+    // Klaviatura kombinatsiyalarini bloklash
+    document.addEventListener('keydown', function(e) {
+        // Ctrl+C, Ctrl+V, Ctrl+A, Print Screen bloklash
+        if ((e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'a')) || e.key === 'PrintScreen') {
+            e.preventDefault();
+            return false;
+        }
+        
+        // F12 (Developer tools) bloklash
+        if (e.key === 'F12') {
+            e.preventDefault();
+            return false;
+        }
+    });
+    
+    // Drag & drop ni bloklash
+    document.addEventListener('dragstart', function(e) {
+        e.preventDefault();
+        return false;
+    });
+    
+    // Copy event ni bloklash
+    document.addEventListener('copy', function(e) {
+        e.preventDefault();
+        return false;
+    });
+    
+    // Cut event ni bloklash
+    document.addEventListener('cut', function(e) {
+        e.preventDefault();
+        return false;
+    });
+});
+
+// Tab o'zgarganda ogohlantirish
+let visibilityChange;
+if (typeof document.hidden !== "undefined") {
+    visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+    visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+    visibilityChange = "webkitvisibilitychange";
+}
+
+document.addEventListener(visibilityChange, function() {
+    if (document.hidden || document.msHidden || document.webkitHidden) {
+        if (quizInProgress) {
+            alert("⚠️ Test davomida sahifani tark etish mumkin emas! Agar davom etsangiz, test yangidan boshlanadi.");
+            resetQuiz();
+        }
+    }
+}, false);
+
+// Oldinga/ortga tugmalarini bloklash
+window.addEventListener('beforeunload', function(e) {
+    if (quizInProgress) {
+        e.preventDefault();
+        e.returnValue = 'Test davomida sahifani tark etish mumkin emas!';
+        return 'Test davomida sahifani tark etish mumkin emas!';
+    }
+});
+
+// Testni reset qilish
+function resetQuiz() {
+    currentQuestionIndex = 0;
+    userAnswers = [];
+    questions = [];
+    quizStarted = false;
+    quizInProgress = false;
+    
+    document.getElementById('resultsContainer').classList.add('d-none');
+    document.getElementById('quizContainer').classList.add('d-none');
+    document.getElementById('startScreen').classList.remove('d-none');
+    document.getElementById('taskCompletionMessage').innerHTML = '';
+}
+
+// URL parametrlarini tekshirish
+function checkUrlParams() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromTask = urlParams.get('from_task');
+    const taskId = urlParams.get('task_id');
+    
+    if (fromTask === 'true' || taskId) {
+        setTimeout(() => {
+            startQuiz();
+        }, 1000);
+    }
+}
+
+// Energiya tekshirish
+async function checkEnergy() {
+    try {
+        const response = await fetch('/check_energy/20');
+        const data = await response.json();
+        return data.has_enough;
+    } catch (error) {
+        console.error('Energiya tekshirishda xatolik:', error);
+        return false;
+    }
+}
+
+// Testni boshlash
+document.getElementById('startQuiz').addEventListener('click', function() {
+    startQuiz();
+});
+
+// Savollarni yuklash
+async function startQuiz() {
+    try {
+        // Energiya tekshirish
+        const hasEnoughEnergy = await checkEnergy();
+        
+        if (!hasEnoughEnergy) {
+            alert('❌ Energiya yetarli emas! Testni boshlash uchun 20 energiya kerak.');
+            return;
+        }
+
+        // Task ID ni olish
+        const urlParams = new URLSearchParams(window.location.search);
+        const taskId = urlParams.get('task_id');
+        
+        let url = '/ml/get_questions';
+        if (taskId) {
+            url += `?task_id=${taskId}`;
+        }
+
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+            questions = data.questions;
+            document.getElementById('startScreen').classList.add('d-none');
+            document.getElementById('quizContainer').classList.remove('d-none');
+            quizStarted = true;
+            quizInProgress = true;
+            showQuestion(0);
+        } else {
+            alert('Savollarni yuklashda xatolik: ' + data.error);
+        }
+    } catch (error) {
+        alert('Xatolik yuz berdi: ' + error);
+    }
+}
+
+// Savolni ko'rsatish
+function showQuestion(index) {
+    if (index < 0 || index >= questions.length) return;
+    
+    const question = questions[index];
+    document.getElementById('questionText').textContent = question.question;
+    document.getElementById('questionCategory').textContent = question.category;
+    document.getElementById('questionDifficulty').textContent = question.difficulty;
+    
+    // Variantlarni tozalash
+    for (let i = 0; i < 4; i++) {
+        const optionItem = document.querySelector(`.option-item[data-option="${i}"]`);
+        const optionText = document.getElementById(`optionText${i}`);
+        const optionInput = document.getElementById(`option${i}`);
+        
+        optionText.textContent = question.options[i];
+        optionInput.checked = false;
+        optionItem.classList.remove('selected', 'correct', 'incorrect');
+    }
+    
+    // Oldingi javobni ko'rsatish
+    if (userAnswers[index] !== undefined) {
+        const previousAnswer = userAnswers[index];
+        document.getElementById(`option${previousAnswer}`).checked = true;
+        document.querySelector(`.option-item[data-option="${previousAnswer}"]`).classList.add('selected');
+    }
+    
+    // Navigation tugmalarini yangilash
+    document.getElementById('prevQuestion').disabled = index === 0;
+    document.getElementById('nextQuestion').classList.toggle('d-none', index === questions.length - 1);
+    document.getElementById('submitQuiz').classList.toggle('d-none', index !== questions.length - 1);
+    
+    // Statistikani yangilash
+    document.getElementById('currentQuestion').textContent = index + 1;
+    document.getElementById('totalQuestions').textContent = questions.length;
+    
+    currentQuestionIndex = index;
+}
+
+// Variant tanlash
+document.querySelectorAll('.option-item').forEach(item => {
+    item.addEventListener('click', function() {
+        if (!quizStarted) return;
+        
+        const optionIndex = parseInt(this.dataset.option);
+        
+        // Barcha variantlardan tanlangan classni olib tashlash
+        document.querySelectorAll('.option-item').forEach(opt => {
+            opt.classList.remove('selected');
+        });
+        
+        // Tanlangan variantga class qo'shish
+        this.classList.add('selected');
+        document.getElementById(`option${optionIndex}`).checked = true;
+        
+        // Javobni saqlash
+        userAnswers[currentQuestionIndex] = optionIndex;
+        
+        // To'g'ri javoblar sonini yangilash
+        updateStats();
+    });
+});
+
+// Navigation
+document.getElementById('prevQuestion').addEventListener('click', function() {
+    if (currentQuestionIndex > 0) {
+        showQuestion(currentQuestionIndex - 1);
+    }
+});
+
+document.getElementById('nextQuestion').addEventListener('click', function() {
+    if (currentQuestionIndex < questions.length - 1) {
+        showQuestion(currentQuestionIndex + 1);
+    }
+});
+
+// Testni yakunlash
+document.getElementById('submitQuiz').addEventListener('click', function() {
+    finishQuiz();
+});
+
+// Statistikani yangilash
+function updateStats() {
+    let correctCount = 0;
+    
+    for (let i = 0; i < userAnswers.length; i++) {
+        if (userAnswers[i] !== undefined && userAnswers[i] === questions[i].correct_answer) {
+            correctCount++;
+        }
+    }
+    
+    const score = correctCount * 10;
+    
+    document.getElementById('correctCount').textContent = correctCount;
+    document.getElementById('score').textContent = score;
+}
+
+// Testni yakunlash
+async function finishQuiz() {
+    // Javoblarni tekshirish
+    let correctCount = 0;
+    const results = [];
+    
+    for (let i = 0; i < questions.length; i++) {
+        const isCorrect = userAnswers[i] === questions[i].correct_answer;
+        if (isCorrect) correctCount++;
+        
+        results.push({
+            question_id: questions[i].id,
+            user_answer: userAnswers[i],
+            correct_answer: questions[i].correct_answer,
+            is_correct: isCorrect
+        });
+    }
+    
+    const score = correctCount * 10;
+    
+    // Task ID ni olish
+    const urlParams = new URLSearchParams(window.location.search);
+    const taskId = urlParams.get('task_id');
+    
+    // Serverga natijalarni yuborish
+    try {
+        const submitData = {
+            results: results,
+            score: score,
+            correct_count: correctCount,
+            total_questions: questions.length
+        };
+        
+        if (taskId) {
+            submitData.task_id = taskId;
+        }
+
+        const response = await fetch('/ml/submit_quiz', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(submitData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            // Natijalarni ko'rsatish
+            document.getElementById('quizContainer').classList.add('d-none');
+            document.getElementById('resultsContainer').classList.remove('d-none');
+            quizInProgress = false;
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('correctAnswers').textContent = `${correctCount}/${questions.length}`;
+            document.getElementById('earnedCoins').textContent = `+${data.coins_earned} coin`;
+            document.getElementById('earnedEnergy').textContent = `-${data.energy_used} energiya`;
+            
+            // Agar topshiriq uchun test bo'lsa, qo'shimcha xabar
+            if (data.task_completed) {
+                const taskMessage = document.createElement('div');
+                taskMessage.className = 'alert alert-success mt-3';
+                taskMessage.innerHTML = `
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Tabriklaymiz!</strong> Topshiriq testi muvaffaqiyatli yakunlandi! 
+                    Endi topshiriqni bajarishingiz mumkin.
+                    <div class="mt-2">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-arrow-left me-1"></i>Dashboardga qaytish
+                        </a>
+                    </div>
+                `;
+                document.getElementById('taskCompletionMessage').appendChild(taskMessage);
+            }
+        } else {
+            alert('Natijalarni saqlashda xatolik: ' + data.error);
+        }
+    } catch (error) {
+        alert('Xatolik yuz berdi: ' + error);
+    }
+}
+
+// Qayta boshlash
+document.getElementById('restartQuiz').addEventListener('click', function() {
+    resetQuiz();
+});
+
+// Sahifa yuklanganda URL parametrlarini tekshirish
+document.addEventListener('DOMContentLoaded', function() {
+    checkUrlParams();
+});
+</script>
+{% endblock %}
+{% endblock %}

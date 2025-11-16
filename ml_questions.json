@@ -1,0 +1,705 @@
+{
+  "eco_questions": [
+    {
+      "id": 1,
+      "question": "Plastik idishlarni qayta ishlash qaysi atrof-muhit muammosini yechishga yordam beradi?",
+      "options": [
+        "Havo ifloslanishi",
+        "Suv ifloslanishi", 
+        "Tuproq ifloslanishi",
+        "Shovqin ifloslanishi"
+      ],
+      "correct_answer": 1,
+      "category": "qayta ishlash",
+      "difficulty": "easy",
+      "explanation": "Plastik idishlar suv manbalarini ifloslantiradi, qayta ishlash bu muammoni kamaytiradi."
+    },
+    {
+      "id": 2,
+      "question": "Quyosh energiyasidan foydalanish qanday afzalliklarga ega?",
+      "options": [
+        "Arzon va qayta tiklanmaydigan",
+        "Qimmat va cheklangan",
+        "Bepul va qayta tiklanadigan",
+        "Iflos va xavfli"
+      ],
+      "correct_answer": 2,
+      "category": "energiya",
+      "difficulty": "easy",
+      "explanation": "Quyosh energiyasi bepul, qayta tiklanadigan va atrof-muhitga zararsiz."
+    },
+    {
+      "id": 3,
+      "question": "Daraxtlar qanday ekologik ro'l o'ynaydi?",
+      "options": [
+        "Faqat ko'rkamlik uchun",
+        "Karbonat angidridni yutadi va kislorod chiqaradi",
+        "Tuproqni quritadi",
+        "Havoni ifloslantiradi"
+      ],
+      "correct_answer": 1,
+      "category": "o'simliklar",
+      "difficulty": "medium",
+      "explanation": "Daraxtlar fotosintez orqali CO2 ni yutib, kislorod chiqaradi."
+    },
+    {
+      "id": 4,
+      "question": "Suv tejashning eng samarali usuli qaysi?",
+      "options": [
+        "Dushda ko'p vaqt o'tkazish",
+        "Avtomobilni har kuni yuvish",
+        "Oqova suvlarni qayta ishlatish",
+        "Barcha kranlarni ochiq qoldirish"
+      ],
+      "correct_answer": 2,
+      "category": "suv",
+      "difficulty": "medium",
+      "explanation": "Oqova suvlarni qayta ishlatish suvni tejashning eng samarali usuli."
+    },
+    {
+      "id": 5,
+      "question": "Qaysi material tabiiy ravishda parchalanishi eng uzoq vaqt oladi?",
+      "options": [
+        "Qog'oz",
+        "Plastik",
+        "O'simlik qoldiqlari",
+        "Paxta"
+      ],
+      "correct_answer": 1,
+      "category": "materiallar",
+      "difficulty": "hard",
+      "explanation": "Plastik 400 yilgacha parchalanishi mumkin, bu boshqa materiallardan ancha uzoq."
+    },
+    {
+      "id": 6,
+      "question": "Global isishning asosiy sababi nima?",
+      "options": [
+        "Quyosh faolligining oshishi",
+        "Parizodlar faolligi",
+        "Issiqxona gazlarining ko'payishi",
+        "Dengiz oqimlarining o'zgarishi"
+      ],
+      "correct_answer": 2,
+      "category": "iqlim",
+      "difficulty": "medium",
+      "explanation": "Issiqxona gazlarining ko'payishi Yer atmosferasini isiydi."
+    },
+    {
+      "id": 7,
+      "question": "Elektr avtomobillari qanday atrof-muhit afzalligiga ega?",
+      "options": [
+        "Ular benzinli avtomobillarga qaraganda tezroq",
+        "Ular ish vaqtida chiqindi chiqarmaydi",
+        "Ular to'liq qayta ishlanadi",
+        "Ular energiya ishlab chiqaradi"
+      ],
+      "correct_answer": 1,
+      "category": "transport",
+      "difficulty": "easy",
+      "explanation": "Elektr avtomobillari ish vaqtida hech qanday chiqindiga ega emas."
+    },
+    {
+      "id": 8,
+      "question": "O'rmonlarni qirqish qanday muammolarga olib keladi?",
+      "options": [
+        "Tuproq eroziyasi",
+        "Havo sifatining yaxshilanishi",
+        "Suv sathining pasayishi",
+        "Yomg'ir miqdorining kamayishi"
+      ],
+      "correct_answer": 0,
+      "category": "o'rmon",
+      "difficulty": "hard",
+      "explanation": "O'rmonlarsiz tuproq eroziyaga uchraydi va unumdorligi yo'qoladi."
+    },
+    {
+      "id": 9,
+      "question": "Qaysi energiya manbai eng kam atrof-muhit ta'siriga ega?",
+      "options": [
+        "Ko'mir",
+        "Yadro energiyasi",
+        "Quyosh energiyasi",
+        "Tabiiy gaz"
+      ],
+      "correct_answer": 2,
+      "category": "energiya",
+      "difficulty": "medium",
+      "explanation": "Quyosh energiyasi chiqindisiz va ifloslantirmasdan ishlaydi."
+    },
+    {
+      "id": 10,
+      "question": "Ekologik iz qoldirishni kamaytirishning eng yaxshi usuli?",
+      "options": [
+        "Ko'proq mahsulot sotib olish",
+        "Qayta ishlash va qayta foydalanish",
+        "Har doim yangi narsalardan foydalanish",
+        "Barcha chiqindilarni birga aralashtirish"
+      ],
+      "correct_answer": 1,
+      "category": "umumiy",
+      "difficulty": "easy",
+      "explanation": "Qayta ishlash va qayta foydalanish resurslarni tejaydi va chiqindilarni kamaytiradi."
+    },
+    {
+      "id": 11,
+      "question": "Okeanlar asosan qanday ifloslanadi?",
+      "options": [
+        "Havo ifloslanishi",
+        "Plastik chiqindilar",
+        "Shovqin ifloslanishi",
+        "Radioaktiv chiqindilar"
+      ],
+      "correct_answer": 1,
+      "category": "okean",
+      "difficulty": "medium",
+      "explanation": "Har yili millionlab tonna plastik okeanlarga tushadi."
+    },
+    {
+      "id": 12,
+      "question": "Biodiversitetni saqlash nima uchun muhim?",
+      "options": [
+        "Faqat go'zallik uchun",
+        "Ekologik muvozanatni saqlash uchun",
+        "Turizmni rivojlantirish uchun",
+        "Qishloq xo'jaligini kamaytirish uchun"
+      ],
+      "correct_answer": 1,
+      "category": "biodiversitet",
+      "difficulty": "hard",
+      "explanation": "Biodiversitet ekologik tizimlarning barqarorligini ta'minlaydi."
+    },
+    {
+      "id": 13,
+      "question": "Qaysi gaz issiqxona effektiga asosiy hissa qo'shadi?",
+      "options": [
+        "Kislorod",
+        "Azot",
+        "Karbonat angidrid",
+        "Vodorod"
+      ],
+      "correct_answer": 2,
+      "category": "iqlim",
+      "difficulty": "easy",
+      "explanation": "Karbonat angidrid asosiy issiqxona gazi hisoblanadi."
+    },
+    {
+      "id": 14,
+      "question": "Organik qishloq xo'jaligi nima uchun yaxshi?",
+      "options": [
+        "Kimyovilardan foydalanadi",
+        "Tuproq sifati va biologik xilma-xillikni yaxshilaydi",
+        "Ko'proq hosil beradi",
+        "Arzonroq"
+      ],
+      "correct_answer": 1,
+      "category": "qishloq xo'jaligi",
+      "difficulty": "medium",
+      "explanation": "Organik qishloq xo'jaligi kimyovilarsiz, tuproq sifati va biologik xilma-xillikni yaxshilaydi."
+    },
+    {
+      "id": 15,
+      "question": "Qaysi davlat dunyoda eng ko'p qayta ishlaydi?",
+      "options": [
+        "AQSH",
+        "Xitoy",
+        "Germaniya",
+        "Hindiston"
+      ],
+      "correct_answer": 2,
+      "category": "qayta ishlash",
+      "difficulty": "hard",
+      "explanation": "Germaniya dunyoda eng yuqori qayta ishlash darajasiga ega."
+    },
+    {
+      "id": 16,
+      "question": "Suv ifloslanishining asosiy manbai nima?",
+      "options": [
+        "Sanoat chiqindilari",
+        "Qishloq xo'jaligi oqova suvlari",
+        "Shaxsiy gigiena",
+        "Barcha javoblar to'g'ri"
+      ],
+      "correct_answer": 3,
+      "category": "suv",
+      "difficulty": "medium",
+      "explanation": "Suv ifloslanishining barcha ko'rsatilgan manbalari mavjud."
+    },
+    {
+      "id": 17,
+      "question": "Qaysi hayvon turi yo'qolib ketish xavfi ostida?",
+      "options": [
+        "It",
+        "Mushuk",
+        "Qoplon",
+        "Sigir"
+      ],
+      "correct_answer": 2,
+      "category": "hayvonot",
+      "difficulty": "easy",
+      "explanation": "Qoplon yo'qolib ketish xavfi ostidagi turlardan biridir."
+    },
+    
+    {
+      "id": 18,
+      "question": "Qayta tiklanadigan energiya manbalariga misol?",
+      "options": [
+        "Ko'mir",
+        "Neft",
+        "Quyosh energiyasi",
+        "Tabiiy gaz"
+      ],
+      "correct_answer": 2,
+      "category": "energiya",
+      "difficulty": "easy",
+      "explanation": "Quyosh energiyasi qayta tiklanadigan energiya manbaidir."
+    },
+    {
+      "id": 19,
+      "question": "Atmosferadagi ozon qatlami nima uchun muhim?",
+      "options": [
+        "Havoni iliq saqlaydi",
+        "Zararli ultrabinafsha nurlaridan himoya qiladi",
+        "Yomg'ir yog'ishiga yordam beradi",
+        "Havoni tozalaydi"
+      ],
+      "correct_answer": 1,
+      "category": "atmosfera",
+      "difficulty": "medium",
+      "explanation": "Ozon qatlami Yerga tushadigan zararli ultrabinafsha nurlarini ushlab qoladi."
+    },
+    {
+      "id": 20,
+      "question": "Ekologik qatlamlar qanday tartibda joylashgan?",
+      "options": [
+        "Troposfera - Stratosfera - Mezosfera - Termosfera",
+        "Stratosfera - Troposfera - Termosfera - Mezosfera",
+        "Termosfera - Mezosfera - Stratosfera - Troposfera",
+        "Mezosfera - Termosfera - Troposfera - Stratosfera"
+      ],
+      "correct_answer": 0,
+      "category": "atmosfera",
+      "difficulty": "hard",
+      "explanation": "Atmosfera qatlamlari pastdan yuqoriga: troposfera, stratosfera, mezosfera, termosfera."
+    },
+    {
+      "id": 21,
+      "question": "Qaysi davlat ekologik jihatdan eng toza hisoblanadi?",
+      "options": [
+        "Finlandiya",
+        "AQSH",
+        "Xitoy",
+        "Hindiston"
+      ],
+      "correct_answer": 0,
+      "category": "umumiy",
+      "difficulty": "medium",
+      "explanation": "Finlandiya dunyoning eng toza davlatlaridan biri hisoblanadi."
+    },
+    {
+      "id": 22,
+      "question": "Suv sifati qanday o'lchanadi?",
+      "options": [
+        "Rangi bo'yicha",
+        "pH darajasi va kimyoviy tarkibi bo'yicha",
+        "Hidiga qarab",
+        "Haroratiga qarab"
+      ],
+      "correct_answer": 1,
+      "category": "suv",
+      "difficulty": "easy",
+      "explanation": "Suv sifati pH darajasi, kimyoviy tarkibi va bakterialogik tahlillar orqali aniq o'lchanadi."
+    },
+    {
+      "id": 23,
+      "question": "Qaysi o'simlik havoni eng yaxshi tozalaydi?",
+      "options": [
+        "Aloe vera",
+        "Sansevieria",
+        "Atirgul",
+        "Kaktus"
+      ],
+      "correct_answer": 1,
+      "category": "o'simliklar",
+      "difficulty": "easy",
+      "explanation": "Sansevieria (Tiger plant) havoni eng samarali tozalovchi o'simliklardan biridir."
+    },
+    {
+      "id": 24,
+      "question": "Ekologik turizm nima?",
+      "options": [
+        "Qimmat sayohatlar",
+        "Tabiatni muhofaza qilgan holda sayohat qilish",
+        "Faqat yozgi sayohatlar",
+        "Suv sporti bilan shug'ullanish"
+      ],
+      "correct_answer": 1,
+      "category": "turizm",
+      "difficulty": "medium",
+      "explanation": "Ekologik turizm - tabiatni muhofaza qilgan holda sayohat qilish va mahalliy iqtisodiyotni qo'llab-quvvatlash."
+    },
+    {
+      "id": 25,
+      "question": "Qaysi material eng tez parchalanishi mumkin?",
+      "options": [
+        "Plastik shisha",
+        "Alyuminiy quti",
+        "Banan po'stlog'i",
+        "Shisha idish"
+      ],
+      "correct_answer": 2,
+      "category": "materiallar",
+      "difficulty": "easy",
+      "explanation": "Banan po'stlog'i 2-10 hafta ichida parchalanishi mumkin."
+    },
+    {
+      "id": 26,
+      "question": "Global isish okeanlarga qanday ta'sir qiladi?",
+      "options": [
+        "Okeanlar sovuyadi",
+        "Okean sathi ko'tariladi",
+        "Okeanlar sho'rlashadi",
+        "Okean to'lqinlari kamayadi"
+      ],
+      "correct_answer": 1,
+      "category": "iqlim",
+      "difficulty": "medium",
+      "explanation": "Global isish muzliklarni eritadi va okean suvlarining kengayishiga olib keladi, bu okean sathining ko'tarilishiga sabab bo'ladi."
+    },
+    {
+      "id": 27,
+      "question": "Qaysi davlat eng ko'p karbonat angidrid chiqaradi?",
+      "options": [
+        "AQSH",
+        "Xitoy",
+        "Hindiston",
+        "Rossiya"
+      ],
+      "correct_answer": 1,
+      "category": "iqlim",
+      "difficulty": "medium",
+      "explanation": "Xitoy dunyoda eng ko'p karbonat angidrid chiqaradigan davlat hisoblanadi."
+    },
+    {
+      "id": 28,
+      "question": "Ekologik toza transport vositasi qaysi?",
+      "options": [
+        "Dizel avtomobil",
+        "Elektr velosiped",
+        "Yuk vertolyoti",
+        "Kater"
+      ],
+      "correct_answer": 1,
+      "category": "transport",
+      "difficulty": "easy",
+      "explanation": "Elektr velosiped hech qanday chiqindi chiqarmaydi va energiya tejaydi."
+    },
+    {
+      "id": 29,
+      "question": "Qaysi yil Yer kuni birinchi marta nishonlangan?",
+      "options": [
+        "1960",
+        "1970",
+        "1980",
+        "1990"
+      ],
+      "correct_answer": 1,
+      "category": "tarix",
+      "difficulty": "hard",
+      "explanation": "Birinchi Yer kuni 1970-yil 22-aprelda nishonlangan."
+    },
+    {
+      "id": 30,
+      "question": "Ekologik fermerlik nima?",
+      "options": [
+        "Kimyovilarsiz dehqonchilik",
+        "Faqat gʻallachilik",
+        "Suvni isrof qilish",
+        "Yirik texnikadan foydalanish"
+      ],
+      "correct_answer": 0,
+      "category": "qishloq xo'jaligi",
+      "difficulty": "medium",
+      "explanation": "Ekologik fermerlik - kimyoviy oʻgʻitlar va pestitsidlarsiz, tabiiy usullarda dehqonchilik qilish."
+    },
+    {
+      "id": 31,
+      "question": "Qaysi hayvon ekologik muhitning sifati ko'rsatkichi hisoblanadi?",
+      "options": [
+        "Chumoli",
+        "Ari",
+        "Qurbaqa",
+        "Kalamush"
+      ],
+      "correct_answer": 2,
+      "category": "hayvonot",
+      "difficulty": "hard",
+      "explanation": "Qurbaqalar ekologik muhitning sifati ko'rsatkichi hisoblanadi, chunki ular suv va havoning sifatiqa sezgir."
+    },
+    {
+      "id": 32,
+      "question": "Qayta ishlangan qog'oz qanday foydali?",
+      "options": [
+        "Arzonroq",
+        "Daraxtlarni tejaydi",
+        "Rangi yaxshi",
+        "Mustahkamroq"
+      ],
+      "correct_answer": 1,
+      "category": "qayta ishlash",
+      "difficulty": "easy",
+      "explanation": "Qayta ishlangan qog'oz yangi daraxtlarni kesishni kamaytiradi va daraxtlarni tejaydi."
+    },
+    {
+      "id": 33,
+      "question": "Ekologik uy qurishda qaysi material afzal?",
+      "options": [
+        "Plastik",
+        "Beton",
+        "Bambuk",
+        "Temir"
+      ],
+      "correct_answer": 2,
+      "category": "qurilish",
+      "difficulty": "medium",
+      "explanation": "Bambuk tez o'sadigan, qayta tiklanadigan va ekologik toza qurilish materialidir."
+    },
+    {
+      "id": 34,
+      "question": "Qaysi mamlakatda eng ko'p shamol energiyasi ishlab chiqariladi?",
+      "options": [
+        "Daniya",
+        "Xitoy",
+        "AQSH",
+        "Germaniya"
+      ],
+      "correct_answer": 1,
+      "category": "energiya",
+      "difficulty": "hard",
+      "explanation": "Xitoy dunyoda eng ko'p shamol energiyasi ishlab chiqaradigan davlat hisoblanadi."
+    },
+    {
+      "id": 35,
+      "question": "Suvni tejashning eng oddiy usuli?",
+      "options": [
+        "Dush ostida kamroq vaqt o'tkazish",
+        "Avtomobilni yuvmaslik",
+        "Suvni qayta ishlatish",
+        "Suv ichmaslik"
+      ],
+      "correct_answer": 0,
+      "category": "suv",
+      "difficulty": "easy",
+      "explanation": "Dush ostida kamroq vaqt o'tkazish suvni tejashning eng oddiy va samarali usuli."
+    },
+    {
+      "id": 36,
+      "question": "Ekologik mahsulotlar nima bilan farq qiladi?",
+      "options": [
+        "Qimmatroq",
+        "Kimyovilarsiz ishlab chiqarilgan",
+        "Rangi boshqacha",
+        "Hidli"
+      ],
+      "correct_answer": 1,
+      "category": "umumiy",
+      "difficulty": "easy",
+      "explanation": "Ekologik mahsulotlar kimyoviy oʻgʻitlar, pestitsidlar va GMO larsiz ishlab chiqariladi."
+    },
+    {
+      "id": 37,
+      "question": "Qaysi shahar dunyoning eng toza shahri hisoblanadi?",
+      "options": [
+        "Tokio",
+        "Kopengagen",
+        "Nyu-York",
+        "London"
+      ],
+      "correct_answer": 1,
+      "category": "shaharlar",
+      "difficulty": "medium",
+      "explanation": "Kopengagen dunyoning eng toza va ekologik shaharlaridan biri hisoblanadi."
+    },
+    {
+      "id": 38,
+      "question": "Qaysi energiya manbai eng ko'p suv talab qiladi?",
+      "options": [
+        "Quyosh energiyasi",
+        "Shamol energiyasi",
+        "Yadro energiyasi",
+        "Gidroenergiya"
+      ],
+      "correct_answer": 3,
+      "category": "energiya",
+      "difficulty": "hard",
+      "explanation": "Gidroenergiya suv omborlarini qurish uchun ko'p miqdorda suv talab qiladi."
+    },
+    {
+      "id": 39,
+      "question": "Ekologik poyabzal qanday materialdan tayyorlanadi?",
+      "options": [
+        "Plastik",
+        "Kauchuk",
+        "Kanop yoki bambuk",
+        "Sintetik material"
+      ],
+      "correct_answer": 2,
+      "category": "moda",
+      "difficulty": "medium",
+      "explanation": "Ekologik poyabzal kanop, bambuk kabi tabiiy va qayta tiklanadigan materiallardan tayyorlanadi."
+    },
+    {
+      "id": 40,
+      "question": "Qaysi o'simlik havoni tozalashda eng samarali?",
+      "options": [
+        "Lola",
+        "Orxideya",
+        "Spatifillum",
+        "Kaktus"
+      ],
+      "correct_answer": 2,
+      "category": "o'simliklar",
+      "difficulty": "medium",
+      "explanation": "Spatifillum (Peace Lily) havoni tozalashda eng samarali o'simliklardan biridir."
+    },
+    {
+      "id": 41,
+      "question": "Ekologik toza yonilg'i misoli?",
+      "options": [
+        "Ko'mir",
+        "Neft",
+        "Vodorod",
+        "Dizel"
+      ],
+      "correct_answer": 2,
+      "category": "energiya",
+      "difficulty": "hard",
+      "explanation": "Vodorod yonilg'isi faqat suv bug'ini chiqaradi va ekologik toza hisoblanadi."
+    },
+    {
+      "id": 42,
+      "question": "Qaysi mamlakatda eng ko'p quyosh energiyasi ishlab chiqariladi?",
+      "options": [
+        "Xitoy",
+        "AQSH",
+        "Yaponiya",
+        "Germaniya"
+      ],
+      "correct_answer": 0,
+      "category": "energiya",
+      "difficulty": "medium",
+      "explanation": "Xitoy dunyoda eng ko'p quyosh energiyasi ishlab chiqaradigan davlat hisoblanadi."
+    },
+    {
+      "id": 43,
+      "question": "Ekologik qishloq xo'jaligida qanday oʻgʻit ishlatiladi?",
+      "options": [
+        "Kimyoviy oʻgʻitlar",
+        "Kompost",
+        "Sintetik moddalar",
+        "Mineral oʻgʻitlar"
+      ],
+      "correct_answer": 1,
+      "category": "qishloq xo'jaligi",
+      "difficulty": "easy",
+      "explanation": "Ekologik qishloq xo'jaligida tabiiy kompost ishlatiladi."
+    },
+    {
+      "id": 44,
+      "question": "Qaysi material qayta ishlashda eng qiyin?",
+      "options": [
+        "Qog'oz",
+        "Shisha",
+        "Aralash materiallar",
+        "Metall"
+      ],
+      "correct_answer": 2,
+      "category": "qayta ishlash",
+      "difficulty": "hard",
+      "explanation": "Aralash materiallar (masalan, tetrapak) qayta ishlashda eng qiyin hisoblanadi."
+    },
+    {
+      "id": 45,
+      "question": "Ekologik turizmda nima muhim?",
+      "options": [
+        "Qimmat mehmonxonalar",
+        "Mahalliy madaniyatni qo'llab-quvvatlash",
+        "Tez transport",
+        "Katta shaharlar"
+      ],
+      "correct_answer": 1,
+      "category": "turizm",
+      "difficulty": "medium",
+      "explanation": "Ekologik turizmda mahalliy madaniyatni qo'llab-quvvatlash va tabiatni muhofaza qilish muhim."
+    },
+    {
+      "id": 46,
+      "question": "Qaysi davlat ekologik qonunchilikda yetakchi?",
+      "options": [
+        "Shvetsiya",
+        "AQSH",
+        "Xitoy",
+        "Braziliya"
+      ],
+      "correct_answer": 0,
+      "category": "qonunchilik",
+      "difficulty": "hard",
+      "explanation": "Shvetsiya ekologik qonunchilik va barqaror rivojlanishda dunyo yetakchisi hisoblanadi."
+    },
+    {
+      "id": 47,
+      "question": "Suvni tozalashning eng qadimgi usuli?",
+      "options": [
+        "Kimyoviy tozalash",
+        "Qaynatish",
+        "Filtrlash",
+        "UV nurlari"
+      ],
+      "correct_answer": 1,
+      "category": "suv",
+      "difficulty": "easy",
+      "explanation": "Suvni qaynatish eng qadimgi va eng oddiy tozalash usuli hisoblanadi."
+    },
+    {
+      "id": 48,
+      "question": "Ekologik qurilish materialiga misol?",
+      "options": [
+        "Plastik",
+        "Beton",
+        "Saman bloklari",
+        "Temir"
+      ],
+      "correct_answer": 2,
+      "category": "qurilish",
+      "difficulty": "medium",
+      "explanation": "Saman bloklari ekologik toza, energiya tejovchi qurilish materialidir."
+    },
+    {
+      "id": 49,
+      "question": "Qaysi energiya manbai eng kam joy egallaydi?",
+      "options": [
+        "Quyosh panellari",
+        "Shamol turbinalari",
+        "Gidroelektrostansiyalar",
+        "Yadro reaktorlari"
+      ],
+      "correct_answer": 3,
+      "category": "energiya",
+      "difficulty": "hard",
+      "explanation": "Yadro reaktorlari eng kam joy egallab, eng ko'p energiya ishlab chiqaradi."
+    },
+    {
+      "id": 50,
+      "question": "Ekologik toza transport tizimi?",
+      "options": [
+        "Shaxsiy avtomobillar",
+        "Ommaviy transport",
+        "Taksi",
+        "Yuk mashinalari"
+      ],
+      "correct_answer": 1,
+      "category": "transport",
+      "difficulty": "easy",
+      "explanation": "Ommaviy transport shaxsiy avtomobillarga qaraganda ekologik toza va energiya tejovchi."
+    }
+  ]
+}

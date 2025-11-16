@@ -1,16 +1,18 @@
-# app.py - TO'LIQ YANGILANGAN KOD
+# app.py - TO'LIQ ECOVERSE ILOVASI
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import os
+import json
+import random
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'eco-verse-2024-secret-key'
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "ecoverse_fixed.db")}'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{os.path.join(basedir, "ecoverse.db")}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -18,7 +20,7 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Database Modellar
+# DATABASE MODELLARI
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -40,6 +42,7 @@ class Task(db.Model):
     reward_coins = db.Column(db.Integer, default=10)
     energy_cost = db.Column(db.Integer, default=10)
     difficulty = db.Column(db.String(20), default='easy')
+    quiz_required = db.Column(db.Boolean, default=True)
 
 class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -48,6 +51,13 @@ class Item(db.Model):
     item_type = db.Column(db.String(30), nullable=False)
     image_path = db.Column(db.String(200))
     energy_boost = db.Column(db.Integer, default=0)
+
+class EnergyPack(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    energy_amount = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Integer, nullable=False)
+    description = db.Column(db.Text)
 
 class Inventory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -78,26 +88,17 @@ class Story(db.Model):
     views_count = db.Column(db.Integer, default=0)
     author = db.relationship('User', backref=db.backref('user_stories', lazy=True))
 
-class Message(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    is_read = db.Column(db.Boolean, default=False)
-    
-    sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_messages')
-    receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_messages')
-
-class GameSession(db.Model):
+class QuizResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    game_type = db.Column(db.String(50), nullable=False)
-    score = db.Column(db.Integer, default=0)
-    coins_earned = db.Column(db.Integer, default=0)
-    played_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
-    user = db.relationship('User', backref='game_sessions')
+    score = db.Column(db.Integer, nullable=False)
+    correct_answers = db.Column(db.Integer, nullable=False)
+    total_questions = db.Column(db.Integer, nullable=False)
+    coins_earned = db.Column(db.Integer, nullable=False)
+    completed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    task_id = db.Column(db.Integer, db.ForeignKey('task.id'), nullable=True)
+    user = db.relationship('User', backref='quiz_results')
+    task = db.relationship('Task', backref='quiz_results')
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -105,90 +106,227 @@ def load_user(user_id):
 
 def init_database():
     with app.app_context():
-        db.create_all()
-        if not User.query.first():
+        try:
+            db.drop_all()
+            db.create_all()
+            create_demo_data()
+            print("✅ Database yangilandi!")
+        except Exception as e:
+            print(f"❌ Database yangilashda xatolik: {e}")
+            db.create_all()
             create_demo_data()
             print("✅ Database yaratildi!")
 
 def create_demo_data():
     demo_tasks = [
-        Task(title="Plastik idishlarni qayta ishlash", 
-             description="5 ta plastik idishni qayta ishlash markaziga olib boring",
-             reward_coins=15, energy_cost=10, difficulty="easy"),
-        Task(title="Energiya tejash", 
-             description="1 kun davomida keraksiz chiroqlarni o'chiring",
-             reward_coins=20, energy_cost=15, difficulty="medium"),
-        Task(title="Daraxt ekish", 
-             description="Yashil maydonga 1 ta daraxt eking",
-             reward_coins=50, energy_cost=25, difficulty="hard"),
+        Task(title="Plastik idishlarni qayta ishlash", description="5 ta plastik idishni qayta ishlash markaziga olib boring", reward_coins=15, energy_cost=10, difficulty="easy", quiz_required=True),
+        Task(title="Energiya tejash", description="1 kun davomida keraksiz chiroqlarni o'chiring", reward_coins=20, energy_cost=15, difficulty="medium", quiz_required=True),
+        Task(title="Daraxt ekish", description="Yashil maydonga 1 ta daraxt eking", reward_coins=50, energy_cost=25, difficulty="hard", quiz_required=True),
     ]
     
     demo_items = [
         Item(name="Yashil Kepka", price=30, item_type="hat", image_path="images/hat_green.png"),
         Item(name="Ko'k Kepka", price=35, item_type="hat", image_path="images/hat_blue.png"),
+        Item(name="Qizil Kepka", price=40, item_type="hat", image_path="images/hat_red.png"),
         Item(name="Yashil Futbolka", price=45, item_type="clothes", image_path="images/shirt_green.png"),
         Item(name="Ko'k Futbolka", price=50, item_type="clothes", image_path="images/shirt_blue.png"),
-        Item(name="Jins Shim", price=60, item_type="clothes", image_path="images/pants_jeans.png"),
-        Item(name="Oq Krossovka", price=80, item_type="shoes", image_path="images/shoes_sneakers.png"),
-        Item(name="Eco Rukzak", price=75, item_type="accessory", image_path="images/bag_backpack.png"),
-        Item(name="Energiya Ichimlik", price=25, item_type="energy", image_path="images/energy_drink.png", energy_boost=20),
-        Item(name="O'rmon Fon", price=100, item_type="background", image_path="images/bg_forest.png"),
+        Item(name="Qora Futbolka", price=55, item_type="clothes", image_path="images/shirt_black.png"),
+        Item(name="Krossovka", price=60, item_type="shoes", image_path="images/shoes_sneakers.png"),
+        Item(name="Qizil krossovka", price=65, item_type="shoes", image_path="images/shoes_red.png"),
+        Item(name="Oq Krossovka", price=70, item_type="shoes", image_path="images/shoes_white.png"),    
+        Item(name="Jins Shim", price=70, item_type="clothes", image_path="images/pants_jeans.png"),
+        Item(name="Yashil Shim", price=75, item_type="clothes", image_path="images/pants_green.png"),
+        Item(name="Rukzak", price=80, item_type="accessory", image_path="images/backpack.png"),
+        Item(name="Quyosh ko'zoynak", price=85, item_type="accessory", image_path="images/sunglasses.png"),
+        Item(name="Sport soati", price=90, item_type="accessory", image_path="images/sport_watch.png"),
+    ]
+    
+    demo_energy_packs = [
+        EnergyPack(name="Kichik Energiya Paketi", energy_amount=20, price=15, description="20 energiya"),
+        EnergyPack(name="O'rta Energiya Paketi", energy_amount=50, price=35, description="50 energiya"),
+        EnergyPack(name="Katta Energiya Paketi", energy_amount=100, price=60, description="100 energiya"),
     ]
     
     demo_users = [
-        User(username='admin', email='admin@ecoverse.com', 
-             password_hash=generate_password_hash('admin123'), role='admin', coins=1000, is_admin=True),
-        User(username='eco_bola', email='bola@ecoverse.com', 
-             password_hash=generate_password_hash('bola123'), role='child', coins=150),
-        User(username='eco_katta', email='katta@ecoverse.com', 
-             password_hash=generate_password_hash('katta123'), role='adult', coins=80),
+        User(username='admin', email='admin@ecoverse.com', password_hash=generate_password_hash('admin123'), role='admin', coins=1000, is_admin=True),
+        User(username='eco_bola', email='bola@ecoverse.com', password_hash=generate_password_hash('bola123'), role='child', coins=150),
+        User(username='eco_katta', email='katta@ecoverse.com', password_hash=generate_password_hash('katta123'), role='adult', coins=80),
     ]
     
     for user in demo_users:
         db.session.add(user)
-    db.session.commit()
-    
-    demo_posts = [
-        Post(user_id=2, title="Yashil energiya", 
-             content="Quyosh energiyasidan foydalaning!", category="Eko-maslahat"),
-        Post(user_id=3, title="Daraxt ekish", 
-             content="Har kishi daraxt ekishi kerak.", category="Volunteer event"),
-    ]
-    
-    demo_stories = [
-        Story(user_id=2, title="Mening birinchi daraxtim", 
-              content="Bugun men birinchi marta daraxt ekdim!", 
-              image_path="images/story_tree.jpg"),
-    ]
-    
     for task in demo_tasks:
         db.session.add(task)
     for item in demo_items:
         db.session.add(item)
-    for post in demo_posts:
-        db.session.add(post)
-    for story in demo_stories:
-        db.session.add(story)
+    for energy_pack in demo_energy_packs:
+        db.session.add(energy_pack)
     
     db.session.commit()
 
-# YANGILANGAN LOGIN FUNKSIYASI
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+# ML SAVOLLARNI JSON FAYLDAN O'QISH
+def load_questions_from_json():
+    try:
+        with open('ml_questions.json', 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        return data
+    except FileNotFoundError:
+        print("⚠️  ml_questions.json fayli topilmadi! Demo savollar ishlatiladi.")
+        return create_demo_questions()
+    except json.JSONDecodeError as e:
+        print(f"⚠️  JSON faylini o'qishda xatolik: {e}")
+        return create_demo_questions()
+    except Exception as e:
+        print(f"⚠️  Xatolik: {e}")
+        return create_demo_questions()
+
+def create_demo_questions():
+    """Agar ml_questions.json bo'lmasa, demo savollar yaratish"""
+    return {
+        "eco_questions": [
+            {
+                "id": 1,
+                "question": "Qaysi material qayta ishlanishi eng oson?",
+                "options": ["Plastik", "Shisha", "Alyuminiy", "Qog'oz"],
+                "correct_answer": 3,
+                "category": "Qayta ishlash",
+                "difficulty": "Oson"
+            },
+            {
+                "id": 2,
+                "question": "Energiya tejash uchun qanday chiroq turi yaxshi?",
+                "options": ["Lampa", "LED", "Neytron", "Halogen"],
+                "correct_answer": 1,
+                "category": "Energiya",
+                "difficulty": "O'rta"
+            },
+            {
+                "id": 3,
+                "question": "Daraxtlar nima uchun muhim?",
+                "options": ["Kulon olish", "Havoni tozalash", "Ovqat berish", "Sovutish"],
+                "correct_answer": 1,
+                "category": "Ekologiya",
+                "difficulty": "Oson"
+            },
+            {
+                "id": 4,
+                "question": "Suvni tejash usuli?",
+                "options": ["Dushda uzoq turish", "Kranni yopish", "Hammom qilish", "Suv ichish"],
+                "correct_answer": 1,
+                "category": "Suv",
+                "difficulty": "O'rta"
+            },
+            {
+                "id": 5,
+                "question": "Qaysi transport ekologik toza?",
+                "options": ["Avtomobil", "Velosiped", "Samolyot", "Poyezd"],
+                "correct_answer": 1,
+                "category": "Transport",
+                "difficulty": "Oson"
+            },
+            {
+                "id": 6,
+                "question": "Kompost qanday tayyorlanadi?",
+                "options": ["Plastik idishlar", "Oziq-ovqat chiqindilari", "Metall buyumlar", "Suv"],
+                "correct_answer": 1,
+                "category": "Kompost",
+                "difficulty": "Qiyin"
+            },
+            {
+                "id": 7,
+                "question": "Qaysi energiya manbai qayta tiklanadi?",
+                "options": ["Quyosh", "Neft", "Gaz", "Ko'mir"],
+                "correct_answer": 0,
+                "category": "Energiya",
+                "difficulty": "O'rta"
+            },
+            {
+                "id": 8,
+                "question": "Atrof-muhitni ifloslantiruvchi gaz?",
+                "options": ["Oksigen", "Azot", "Uglerod dioksid", "Geliy"],
+                "correct_answer": 2,
+                "category": "Havo",
+                "difficulty": "Oson"
+            },
+            {
+                "id": 9,
+                "question": "Qaysi hayvon yo'qolib ketish xavfi ostida?",
+                "options": ["It", "Mushuk", "Yo'lbars", "Sigir"],
+                "correct_answer": 2,
+                "category": "Hayvonot",
+                "difficulty": "O'rta"
+            },
+            {
+                "id": 10,
+                "question": "Ekologik iz qoldirmaslik nima?",
+                "options": ["Tabiatni buzmaslik", "Uy qurish", "Yo'l qurish", "Daraxt kesish"],
+                "correct_answer": 0,
+                "category": "Ekologiya",
+                "difficulty": "Qiyin"
+            },
+            {
+                "id": 11,
+                "question": "Qaysi chiqindilar biologik parchalanishi mumkin?",
+                "options": ["Plastik", "Metall", "Oziq-ovqat chiqindilari", "Shisha"],
+                "correct_answer": 2,
+                "category": "Chiqindilar",
+                "difficulty": "Oson"
+            },
+            {
+                "id": 12,
+                "question": "Global isishga qaysi gaz sabab bo'ladi?",
+                "options": ["Kislorod", "Uglerod dioksid", "Azot", "Vodorod"],
+                "correct_answer": 1,
+                "category": "Iqlim",
+                "difficulty": "O'rta"
+            },
+            {
+                "id": 13,
+                "question": "Suvni tozalashda qaysi usul samarali?",
+                "options": ["Xlorlash", "Quyosh energiyasi", "Filtrlash", "Quyultirish"],
+                "correct_answer": 2,
+                "category": "Suv",
+                "difficulty": "O'rta"
+            },
+            {
+                "id": 14,
+                "question": "Qaysi energiya manbai eng toza?",
+                "options": ["Quyosh", "Yadro", "Ko'mir", "Gaz"],
+                "correct_answer": 0,
+                "category": "Energiya",
+                "difficulty": "Oson"
+            },
+            {
+                "id": 15,
+                "question": "O'rmonlarni qo'riqlash nima uchun muhim?",
+                "options": ["Daraxtlar uchun", "Havo sifatini yaxshilash", "Yer osti suvlari uchun", "Barcha javoblar to'g'ri"],
+                "correct_answer": 3,
+                "category": "Ekologiya",
+                "difficulty": "Qiyin"
+            }
+        ]
+    }
+
+# ASOSIY ROUTE'LAR
+@app.route('/')
+def index():
     if current_user.is_authenticated:
         if current_user.is_admin:
             return redirect(url_for('admin_dashboard'))
-        elif current_user.role == 'child':
-            return redirect(url_for('dashboard'))
         elif current_user.role == 'adult':
             return redirect(url_for('dashboard_adult'))
         else:
             return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
         
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        
         user = User.query.filter_by(username=username).first()
         
         if user and check_password_hash(user.password_hash, password):
@@ -205,7 +343,6 @@ def login():
             
             user.last_login = datetime.utcnow()
             db.session.commit()
-            
             login_user(user, remember=True)
             flash(f'Xush kelibsiz, {user.username}!', 'success')
             
@@ -240,15 +377,9 @@ def register():
             return render_template('register.html')
         
         hashed_password = generate_password_hash(password)
-        
         new_user = User(
-            username=username,
-            email=email,
-            password_hash=hashed_password,
-            role=role,
-            coins=100 if role == 'child' else 50,
-            energy=100,
-            streak=0
+            username=username, email=email, password_hash=hashed_password, role=role,
+            coins=100 if role == 'child' else 50, energy=100, streak=0
         )
         
         db.session.add(new_user)
@@ -258,473 +389,213 @@ def register():
     
     return render_template('register.html')
 
-# YANGI: Kattalar uchun alohida dashboard route'i
-@app.route('/dashboard_adult')
-@login_required
-def dashboard_adult():
-    if current_user.is_admin:
-        return redirect(url_for('admin_dashboard'))
-    elif current_user.role == 'child':
-        return redirect(url_for('dashboard'))
-    
-    posts = Post.query.filter_by(status='active').order_by(Post.date.desc()).limit(5).all()
-    return render_template('dashboard_adult.html', user=current_user, posts=posts)
-
 @app.route('/dashboard')
 @login_required
 def dashboard():
     if current_user.is_admin:
         return redirect(url_for('admin_dashboard'))
-    
     if current_user.role == 'adult':
         return redirect(url_for('dashboard_adult'))
     
     tasks = Task.query.all()
     items = Item.query.limit(6).all()
-    return render_template('dashboard_child.html', 
-                         user=current_user,
-                         tasks=tasks,
-                         items=items)
+    energy_packs = EnergyPack.query.all()
+    return render_template('dashboard_child.html', user=current_user, tasks=tasks, items=items, energy_packs=energy_packs)
 
-# Admin route'lari
-@app.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    if current_user.is_authenticated and current_user.is_admin:
-        return redirect(url_for('admin_dashboard'))
-        
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        
-        user = User.query.filter_by(username=username, is_admin=True).first()
-        
-        if user and check_password_hash(user.password_hash, password):
-            login_user(user, remember=True)
-            flash('Admin panelga xush kelibsiz!', 'success')
-            return redirect(url_for('admin_dashboard'))
-        else:
-            flash('Admin login yoki parol noto\'g\'ri!', 'error')
-    
-    return render_template('admin_login.html')
-
-@app.route('/admin/dashboard')
-@login_required
-def admin_dashboard():
-    if not current_user.is_admin:
-        flash('Siz admin emassiz!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    total_users = User.query.count()
-    total_child_users = User.query.filter_by(role='child').count()
-    total_adult_users = User.query.filter_by(role='adult').count()
-    total_posts = Post.query.count()
-    total_tasks = Task.query.count()
-    total_items = Item.query.count()
-    
-    recent_users = User.query.order_by(User.created_at.desc()).limit(5).all()
-    recent_posts = Post.query.order_by(Post.date.desc()).limit(5).all()
-    
-    return render_template('admin_dashboard.html',
-                         total_users=total_users,
-                         total_child_users=total_child_users,
-                         total_adult_users=total_adult_users,
-                         total_posts=total_posts,
-                         total_tasks=total_tasks,
-                         total_items=total_items,
-                         recent_users=recent_users,
-                         recent_posts=recent_posts,
-                         current_user=current_user)
-
-@app.route('/admin/users')
-@login_required
-def admin_users():
-    if not current_user.is_admin:
-        flash('Siz admin emassiz!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    users = User.query.all()
-    return render_template('admin_users.html', users=users, current_user=current_user)
-
-@app.route('/admin/child')
-@login_required
-def admin_child():
-    if not current_user.is_admin:
-        flash('Siz admin emassiz!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    child_users = User.query.filter_by(role='child').all()
-    tasks = Task.query.all()
-    items = Item.query.all()
-    
-    return render_template('admin_child.html',
-                         child_users=child_users,
-                         tasks=tasks,
-                         items=items,
-                         current_user=current_user)
-
-@app.route('/admin/adult')
-@login_required
-def admin_adult():
-    if not current_user.is_admin:
-        flash('Siz admin emassiz!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    adult_users = User.query.filter_by(role='adult').all()
-    posts = Post.query.order_by(Post.date.desc()).all()
-    
-    return render_template('admin_adult.html',
-                         adult_users=adult_users,
-                         posts=posts,
-                         current_user=current_user)
-
-@app.route('/admin/shop')
-@login_required
-def admin_shop():
-    if not current_user.is_admin:
-        flash('Siz admin emassiz!', 'error')
-        return redirect(url_for('dashboard'))
-    
-    items = Item.query.all()
-    return render_template('admin_shop.html', items=items, current_user=current_user)
-
-@app.route('/admin/logout')
-@login_required
-def admin_logout():
-    logout_user()
-    return redirect(url_for('admin_login'))
-
-# YANGI: Post statusini yangilash API
-@app.route('/admin/update_post_status/<int:post_id>', methods=['POST'])
-@login_required
-def admin_update_post_status(post_id):
-    if not current_user.is_admin:
-        return jsonify({'success': False, 'error': 'Admin huquqi kerak!'})
-    
-    data = request.get_json()
-    new_status = data.get('status')
-    
-    post = Post.query.get_or_404(post_id)
-    post.status = new_status
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Post statusi yangilandi!'})
-
-# YANGI: Post o'chirish API
-@app.route('/admin/delete_post/<int:post_id>', methods=['POST'])
-@login_required
-def admin_delete_post(post_id):
-    if not current_user.is_admin:
-        return jsonify({'success': False, 'error': 'Admin huquqi kerak!'})
-    
-    post = Post.query.get_or_404(post_id)
-    db.session.delete(post)
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Post muvaffaqiyatli o\'chirildi!'})
-
-# Admin API Route'lar
-@app.route('/admin/update_user_coins/<int:user_id>', methods=['POST'])
-@login_required
-def admin_update_user_coins(user_id):
-    if not current_user.is_admin:
-        return jsonify({'success': False, 'error': 'Admin huquqi kerak!'})
-    
-    data = request.get_json()
-    new_coins = data.get('coins')
-    
-    user = User.query.get_or_404(user_id)
-    user.coins = new_coins
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Coinlar yangilandi!'})
-
-@app.route('/admin/update_user_energy/<int:user_id>', methods=['POST'])
-@login_required
-def admin_update_user_energy(user_id):
-    if not current_user.is_admin:
-        return jsonify({'success': False, 'error': 'Admin huquqi kerak!'})
-    
-    data = request.get_json()
-    new_energy = data.get('energy')
-    
-    user = User.query.get_or_404(user_id)
-    user.energy = new_energy
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Energiya yangilandi!'})
-
-@app.route('/admin/add_task', methods=['POST'])
-@login_required
-def admin_add_task():
-    if not current_user.is_admin:
-        return jsonify({'success': False, 'error': 'Admin huquqi kerak!'})
-    
-    data = request.get_json()
-    new_task = Task(
-        title=data.get('title'),
-        description=data.get('description'),
-        reward_coins=data.get('reward_coins', 10),
-        energy_cost=data.get('energy_cost', 10),
-        difficulty=data.get('difficulty', 'easy')
-    )
-    
-    db.session.add(new_task)
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Topshiriq qo\'shildi!'})
-
-@app.route('/admin/delete_task/<int:task_id>', methods=['POST'])
-@login_required
-def admin_delete_task(task_id):
-    if not current_user.is_admin:
-        return jsonify({'success': False, 'error': 'Admin huquqi kerak!'})
-    
-    task = Task.query.get_or_404(task_id)
-    db.session.delete(task)
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Topshiriq o\'chirildi!'})
-
-# Asosiy Route'lar
-@app.route('/')
-def index():
-    if current_user.is_authenticated:
-        if current_user.is_admin:
-            return redirect(url_for('admin_dashboard'))
-        elif current_user.role == 'adult':
-            return redirect(url_for('dashboard_adult'))
-        else:
-            return redirect(url_for('dashboard'))
-    return redirect(url_for('login'))
-
-# YANGI: Barcha sahifalar uchun route'lar
-@app.route('/shop')
-@login_required
-def shop():
-    items = Item.query.all()
-    return render_template('shop.html', items=items, user=current_user)
-
-@app.route('/hero')
-@login_required
-def hero():
-    inventory = Inventory.query.filter_by(user_id=current_user.id).all()
-    equipped_items = Inventory.query.filter_by(user_id=current_user.id, equipped=True).all()
-    
-    equipped_clothes = [inv for inv in equipped_items if inv.item.item_type == 'clothes']
-    equipped_hat = [inv for inv in equipped_items if inv.item.item_type == 'hat']
-    equipped_shoes = [inv for inv in equipped_items if inv.item.item_type == 'shoes']
-    equipped_accessory = [inv for inv in equipped_items if inv.item.item_type == 'accessory']
-    
-    clothes_items = [inv for inv in inventory if inv.item.item_type == 'clothes']
-    accessory_items = [inv for inv in inventory if inv.item.item_type == 'accessory']
-    hat_items = [inv for inv in inventory if inv.item.item_type == 'hat']
-    shoe_items = [inv for inv in inventory if inv.item.item_type == 'shoes']
-    background_items = [inv for inv in inventory if inv.item.item_type == 'background']
-    
-    return render_template('hero.html', 
-                         inventory=inventory,
-                         equipped_items=equipped_items,
-                         equipped_clothes=equipped_clothes,
-                         equipped_hat=equipped_hat,
-                         equipped_shoes=equipped_shoes,
-                         equipped_accessory=equipped_accessory,
-                         clothes_items=clothes_items,
-                         accessory_items=accessory_items,
-                         hat_items=hat_items,
-                         shoe_items=shoe_items,
-                         background_items=background_items,
-                         user=current_user)
-
-@app.route('/posts')
-@login_required
-def posts():
-    all_posts = Post.query.filter_by(status='active').order_by(Post.date.desc()).all()
-    return render_template('posts.html', posts=all_posts, user=current_user)
-
-@app.route('/post_detail/<int:post_id>')
-@login_required
-def post_detail(post_id):
-    post = Post.query.get_or_404(post_id)
-    return render_template('post_detail.html', post=post, user=current_user)
-
-@app.route('/messages')
-@login_required
-def messages():
-    users = User.query.filter(User.id != current_user.id).all()
-    return render_template('messages.html', users=users, user=current_user)
-
+# GAMES ROUTE'LARI
 @app.route('/games')
 @login_required
 def games():
-    return render_template('games.html', user=current_user)
+    """O'yinlar sahifasi"""
+    # Foydalanuvchi statistikasini olish
+    quiz_count = QuizResult.query.filter_by(user_id=current_user.id).count()
+    
+    return render_template('games.html', 
+                         user=current_user, 
+                         quiz_count=quiz_count)
 
-@app.route('/leaderboard')
+@app.route('/games/recycling')
 @login_required
-def leaderboard():
-    users = User.query.order_by(User.coins.desc()).limit(10).all()
-    return render_template('leaderboard.html', users=users, user=current_user)
+def recycling_game():
+    """Qayta ishlash o'yini"""
+    flash('Bu oʻyin hozircha ishlab chiqilmoqda. Tez orada!', 'info')
+    return redirect(url_for('games'))
 
-@app.route('/news')
+@app.route('/games/energy_saving')
 @login_required
-def news():
-    return render_template('news.html', user=current_user)
+def energy_saving_game():
+    """Energiya tejash o'yini"""
+    flash('Bu oʻyin hozircha ishlab chiqilmoqda. Tez orada!', 'info')
+    return redirect(url_for('games'))
 
-@app.route('/missions')
+# ML TEST ROUTE'LARI
+@app.route('/ml_quiz')
 @login_required
-def missions():
-    tasks = Task.query.all()
-    return render_template('missions.html', tasks=tasks, user=current_user)
+def ml_quiz():
+    task_id = request.args.get('task_id', type=int)
+    task = None
+    if task_id:
+        task = Task.query.get(task_id)
+    return render_template('ml_quiz.html', user=current_user, task=task)
 
-@app.route('/eco_tips')
+@app.route('/ml/get_questions')
 @login_required
-def eco_tips():
-    return render_template('eco_tips.html', user=current_user)
-
-@app.route('/achievements')
-@login_required
-def achievements():
-    return render_template('achievements.html', user=current_user)
-
-@app.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html', user=current_user)
-
-@app.route('/stories')
-@login_required
-def stories():
-    active_stories = Story.query.filter(Story.expires_at > datetime.utcnow()).order_by(Story.created_at.desc()).all()
-    total_views = db.session.query(db.func.sum(Story.views_count)).scalar() or 0
-    popular_story = Story.query.order_by(Story.views_count.desc()).first()
-    
-    return render_template('stories.html', 
-                         stories=active_stories,
-                         total_views=total_views,
-                         popular_story=popular_story,
-                         now=datetime.utcnow(),
-                         user=current_user)
-
-# YANGI: Stories uchun API route'lar
-@app.route('/create_story', methods=['POST'])
-@login_required
-def create_story():
-    if current_user.role != 'adult':
-        return jsonify({'success': False, 'error': 'Faqat kattalar story yaratishi mumkin!'})
-    
-    title = request.form['title']
-    content = request.form['content']
-    image = request.files.get('image')
-    
-    image_path = None
-    if image:
-        filename = f"story_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{image.filename}"
-        image_path = f"images/stories/{filename}"
-        image.save(os.path.join('static', image_path))
-    
-    new_story = Story(
-        user_id=current_user.id,
-        title=title,
-        content=content,
-        image_path=image_path
-    )
-    
-    db.session.add(new_story)
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Story muvaffaqiyatli yaratildi!'})
-
-@app.route('/view_story/<int:story_id>', methods=['POST'])
-@login_required
-def view_story(story_id):
-    story = Story.query.get_or_404(story_id)
-    story.views_count += 1
-    db.session.commit()
-    
-    return jsonify({'success': True, 'views_count': story.views_count})
-
-# YANGI: O'yinlar uchun API route'lar
-@app.route('/play_game/<game_type>', methods=['POST'])
-@login_required
-def play_game(game_type):
-    if current_user.energy < 10:
-        return jsonify({'success': False, 'error': 'Energiya yetarli emas!'})
-    
-    # O'yin natijasini hisoblash
-    score = 50 + (current_user.streak * 5)  # Streak ga qarab score
-    coins_earned = 10 + (score // 10)
-    
-    # Energiya sarflash
-    current_user.energy = max(0, current_user.energy - 10)
-    current_user.coins += coins_earned
-    
-    # O'yin sessiyasini saqlash
-    game_session = GameSession(
-        user_id=current_user.id,
-        game_type=game_type,
-        score=score,
-        coins_earned=coins_earned
-    )
-    
-    db.session.add(game_session)
-    db.session.commit()
-    
-    return jsonify({
-        'success': True,
-        'score': score,
-        'coins_earned': coins_earned,
-        'energy': current_user.energy,
-        'coins': current_user.coins,
-        'message': f'O\'yin yakunlandi! {coins_earned} coin yutib oldingiz!'
-    })
-
-# YANGI: Xabarlar uchun API route'lar
-@app.route('/send_message', methods=['POST'])
-@login_required
-def send_message():
-    data = request.get_json()
-    receiver_id = data.get('receiver_id')
-    content = data.get('content')
-    
-    if not content or not receiver_id:
-        return jsonify({'success': False, 'error': 'Xabar va qabul qiluvchi kerak!'})
-    
-    receiver = User.query.get(receiver_id)
-    if not receiver:
-        return jsonify({'success': False, 'error': 'Qabul qiluvchi topilmadi!'})
-    
-    new_message = Message(
-        sender_id=current_user.id,
-        receiver_id=receiver_id,
-        content=content
-    )
-    
-    db.session.add(new_message)
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Xabar yuborildi!'})
-
-@app.route('/get_messages/<int:user_id>')
-@login_required
-def get_messages(user_id):
-    messages = Message.query.filter(
-        ((Message.sender_id == current_user.id) & (Message.receiver_id == user_id)) |
-        ((Message.sender_id == user_id) & (Message.receiver_id == current_user.id))
-    ).order_by(Message.timestamp.asc()).all()
-    
-    messages_data = []
-    for msg in messages:
-        messages_data.append({
-            'id': msg.id,
-            'sender_id': msg.sender_id,
-            'sender_name': msg.sender.username,
-            'content': msg.content,
-            'timestamp': msg.timestamp.strftime('%H:%M'),
-            'is_sent': msg.sender_id == current_user.id
+def get_questions():
+    try:
+        # JSON fayldan savollarni o'qish
+        data = load_questions_from_json()
+        
+        if 'eco_questions' not in data:
+            return jsonify({
+                'success': False,
+                'error': 'JSON faylda eco_questions topilmadi!'
+            })
+        
+        all_questions = data['eco_questions']
+        
+        if len(all_questions) == 0:
+            return jsonify({
+                'success': False,
+                'error': 'JSON faylda savollar topilmadi!'
+            })
+        
+        # Task ID bo'yicha qiyinlik darajasini aniqlash
+        task_id = request.args.get('task_id', type=int)
+        difficulty_filter = None
+        
+        if task_id:
+            task = Task.query.get(task_id)
+            if task:
+                difficulty_filter = task.difficulty
+                print(f"🔍 Task {task_id} uchun qiyinlik darajasi: {difficulty_filter}")
+        
+        # Qiyinlik darajasiga qarab savollarni filtrlash
+        if difficulty_filter:
+            # Qiyinlik darajasini moslashtirish
+            difficulty_mapping = {
+                'easy': ['Oson'],
+                'medium': ['O\'rta', 'Ortacha'],
+                'hard': ['Qiyin', 'Murakkab']
+            }
+            
+            target_difficulties = difficulty_mapping.get(difficulty_filter.lower(), [difficulty_filter])
+            filtered_questions = [q for q in all_questions if q.get('difficulty') in target_difficulties]
+            
+            if len(filtered_questions) > 0:
+                all_questions = filtered_questions
+                print(f"✅ {difficulty_filter} darajali {len(filtered_questions)} ta savol topildi")
+            else:
+                print(f"⚠️ {difficulty_filter} darajali savol topilmadi, barcha savollar ishlatiladi")
+        
+        # 10 ta tasodifiy savol tanlash (5 o'rniga 10)
+        selected_questions = random.sample(all_questions, min(10, len(all_questions)))
+        
+        print(f"✅ {len(selected_questions)} ta savol yuklandi (qiyinlik: {difficulty_filter or 'barcha'})")
+        
+        return jsonify({
+            'success': True,
+            'questions': selected_questions,
+            'total': len(selected_questions),
+            'difficulty': difficulty_filter,
+            'source': 'ml_questions.json'
         })
-    
-    return jsonify({'success': True, 'messages': messages_data})
+        
+    except Exception as e:
+        print(f"❌ Savollarni yuklashda xatolik: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': f'Savollarni yuklashda xatolik: {str(e)}'
+        })
 
-# Mavjud API route'lar
+@app.route('/ml/submit_quiz', methods=['POST'])
+@login_required
+def submit_quiz():
+    try:
+        data = request.get_json()
+        results = data.get('results', [])
+        score = data.get('score', 0)
+        correct_count = data.get('correct_count', 0)
+        total_questions = data.get('total_questions', 0)
+        task_id = data.get('task_id', None)
+        
+        # 10 ta savol uchun mukofotni oshirdim
+        coins_earned = max(20, correct_count * 3)  # Har bir to'g'ri javob uchun 3 coin
+        energy_cost = 25  # Energiya xarajatini oshirdim
+        
+        # Agar task_id bo'lsa, topshiriq uchun test
+        task = None
+        if task_id:
+            task = Task.query.get(task_id)
+            if task:
+                # Topshiriqning qiyinlik darajasiga qarab mukofot
+                if task.difficulty == 'easy':
+                    coins_earned = task.reward_coins + 10
+                elif task.difficulty == 'medium':
+                    coins_earned = task.reward_coins + 15
+                elif task.difficulty == 'hard':
+                    coins_earned = task.reward_coins + 20
+        
+        if current_user.energy < energy_cost:
+            return jsonify({
+                'success': False,
+                'error': f'Energiya yetarli emas! Sizda {current_user.energy} energiya bor, kerak: {energy_cost}'
+            })
+        
+        current_user.coins += coins_earned
+        current_user.energy = max(0, current_user.energy - energy_cost)
+        
+        quiz_result = QuizResult(
+            user_id=current_user.id,
+            score=score,
+            correct_answers=correct_count,
+            total_questions=total_questions,
+            coins_earned=coins_earned,
+            task_id=task_id
+        )
+        
+        db.session.add(quiz_result)
+        db.session.commit()
+        
+        message = f'Test muvaffaqiyatli yakunlandi! {correct_count}/{total_questions} savolga to\'g\'ri javob berdingiz. {coins_earned} coin yutib oldingiz!'
+        if task:
+            message += f' "{task.title}" topshirig\'i uchun test tamomlandi!'
+        
+        return jsonify({
+            'success': True,
+            'score': score,
+            'correct_answers': correct_count,
+            'total_questions': total_questions,
+            'coins_earned': coins_earned,
+            'energy_used': energy_cost,
+            'new_coins': current_user.coins,
+            'new_energy': current_user.energy,
+            'task_completed': bool(task),
+            'message': message
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': f'Natijalarni saqlashda xatolik: {str(e)}'
+        })
+
+# API ROUTE'LARI
+@app.route('/start_task_quiz/<int:task_id>')
+@login_required
+def start_task_quiz(task_id):
+    """Topshiriq uchun testni boshlash"""
+    if current_user.role != 'child':
+        flash('Faqat bolalar uchun!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    task = Task.query.get_or_404(task_id)
+    
+    if current_user.energy < task.energy_cost:
+        flash(f'Energiya yetarli emas! Sizda {current_user.energy} energiya bor, kerak: {task.energy_cost}', 'error')
+        return redirect(url_for('dashboard'))
+    
+    return redirect(url_for('ml_quiz', task_id=task_id))
+
 @app.route('/complete_task/<int:task_id>', methods=['POST'])
 @login_required
 def complete_task(task_id):
@@ -732,6 +603,20 @@ def complete_task(task_id):
         return jsonify({'success': False, 'error': 'Faqat bolalar uchun'})
     
     task = Task.query.get_or_404(task_id)
+    
+    # Agar test talab qilinsa, test natijasini tekshirish
+    if task.quiz_required:
+        latest_quiz = QuizResult.query.filter_by(
+            user_id=current_user.id, 
+            task_id=task_id
+        ).order_by(QuizResult.completed_at.desc()).first()
+        
+        if not latest_quiz:
+            return jsonify({
+                'success': False, 
+                'error': 'Avval topshiriq uchun testni topshiring!',
+                'quiz_required': True
+            })
     
     if current_user.energy >= task.energy_cost:
         current_user.coins += task.reward_coins
@@ -756,7 +641,7 @@ def buy_item(item_id):
         current_user.coins -= item.price
         
         if item.energy_boost > 0:
-            current_user.energy = min(100, current_user.energy + item.energy_boost)
+            current_user.energy += item.energy_boost
         
         new_inventory = Inventory(user_id=current_user.id, item_id=item.id)
         db.session.add(new_inventory)
@@ -778,86 +663,118 @@ def buy_item(item_id):
 @app.route('/buy_energy', methods=['POST'])
 @login_required
 def buy_energy():
-    data = request.get_json()
-    energy_amount = int(data.get('energy', 50))
-    price = int(data.get('price', 25))
-    
-    if current_user.coins < price:
+    try:
+        data = request.get_json()
+        energy_amount = data.get('energy', 0)
+        price = data.get('price', 0)
+        
+        if current_user.coins >= price:
+            current_user.coins -= price
+            current_user.energy += energy_amount
+            db.session.commit()
+            
+            return jsonify({
+                'success': True,
+                'coins': current_user.coins,
+                'energy': current_user.energy,
+                'message': f'Energiya sotib olindi! +{energy_amount} energiya'
+            })
+        
         return jsonify({'success': False, 'error': 'Coin yetarli emas!'})
     
-    current_user.coins -= price
-    current_user.energy += energy_amount
-    db.session.commit()
-    
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'Xatolik: {str(e)}'})
+
+@app.route('/check_energy/<int:energy_needed>')
+@login_required
+def check_energy(energy_needed):
+    has_enough = current_user.energy >= energy_needed
     return jsonify({
-        'success': True, 
-        'message': f'{energy_amount} energiya sotib olindi!',
+        'has_enough': has_enough,
+        'current_energy': current_user.energy,
+        'energy_needed': energy_needed
+    })
+
+@app.route('/get_user_stats')
+@login_required
+def get_user_stats():
+    return jsonify({
+        'success': True,
         'coins': current_user.coins,
-        'energy': current_user.energy
+        'energy': current_user.energy,
+        'streak': current_user.streak
     })
 
-@app.route('/equip_item/<int:item_id>', methods=['POST'])
+# ADMIN ROUTE'LARI (soddalashtirilgan)
+@app.route('/admin/dashboard')
 @login_required
-def equip_item(item_id):
-    inventory_item = Inventory.query.filter_by(id=item_id, user_id=current_user.id).first()
-    
-    if not inventory_item:
-        return jsonify({'success': False, 'error': 'Item topilmadi!'})
-    
-    same_type_items = Inventory.query.filter_by(
-        user_id=current_user.id, 
-        equipped=True
-    ).join(Item).filter(Item.item_type == inventory_item.item.item_type).all()
-    
-    for item in same_type_items:
-        item.equipped = False
-    
-    inventory_item.equipped = True
-    db.session.commit()
-    
-    return jsonify({
-        'success': True,
-        'message': f'{inventory_item.item.name} muvaffaqiyatli kiyildi!'
-    })
+def admin_dashboard():
+    if not current_user.is_admin:
+        flash('Sizga admin huquqi berilmagan!', 'error')
+        return redirect(url_for('dashboard'))
+    return render_template('admin_dashboard.html', user=current_user)
 
-@app.route('/unequip_item/<int:item_id>', methods=['POST'])
-@login_required
-def unequip_item(item_id):
-    inventory_item = Inventory.query.filter_by(id=item_id, user_id=current_user.id).first()
-    
-    if not inventory_item:
-        return jsonify({'success': False, 'error': 'Item topilmadi!'})
-    
-    inventory_item.equipped = False
-    db.session.commit()
-    
-    return jsonify({
-        'success': True,
-        'message': f'{inventory_item.item.name} muvaffaqiyatli echildi!'
-    })
+@app.route('/admin/login')
+def admin_login():
+    if current_user.is_authenticated and current_user.is_admin:
+        return redirect(url_for('admin_dashboard'))
+    return render_template('admin_login.html')
 
-@app.route('/create_post', methods=['POST'])
+# BOSHQALAR ROUTE'LARI
+@app.route('/leaderboard')
 @login_required
-def create_post():
+def leaderboard():
+    return render_template('leaderboard.html', user=current_user)
+
+@app.route('/news')
+@login_required
+def news():
+    return render_template('news.html', user=current_user)
+
+@app.route('/missions')
+@login_required
+def missions():
+    return render_template('missions.html', user=current_user)
+
+@app.route('/stories')
+@login_required
+def stories():
+    return render_template('stories.html', user=current_user)
+
+@app.route('/shop')
+@login_required
+def shop():
+    items = Item.query.all()
+    energy_packs = EnergyPack.query.all()
+    return render_template('shop.html', user=current_user, items=items, energy_packs=energy_packs)
+
+@app.route('/hero')
+@login_required
+def hero():
+    return render_template('hero.html', user=current_user)
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', user=current_user)
+
+@app.route('/posts')
+@login_required
+def posts():
+    return render_template('posts.html', user=current_user)
+
+@app.route('/messages')
+@login_required
+def messages():
+    return render_template('messages.html', user=current_user)
+
+@app.route('/dashboard_adult')
+@login_required
+def dashboard_adult():
     if current_user.role != 'adult':
-        return jsonify({'success': False, 'error': 'Faqat kattalar uchun'})
-    
-    title = request.form['title']
-    content = request.form['content']
-    category = request.form['category']
-    
-    new_post = Post(
-        user_id=current_user.id,
-        title=title,
-        content=content,
-        category=category,
-        status='active'
-    )
-    
-    db.session.add(new_post)
-    db.session.commit()
-    
-    return jsonify({'success': True, 'message': 'Post muvaffaqiyatli yaratildi!'})
+        flash('Bu sahifa faqat kattalar uchun!', 'error')
+        return redirect(url_for('dashboard'))
+    return render_template('dashboard_adult.html', user=current_user)
 
 @app.route('/logout')
 @login_required
@@ -869,9 +786,16 @@ def logout():
 if __name__ == '__main__':
     init_database()
     
+    # ML savollarini yuklashni tekshirish
+    questions_data = load_questions_from_json()
+    question_count = len(questions_data.get('eco_questions', []))
+    print(f"📚 ML savollari yuklandi: {question_count} ta savol")
+    
     print("\n🎉 EcoVerse tizimi ishga tushdi!")
     print("📍 Asosiy sahifa: http://localhost:5000")
-    print("👨‍💼 Admin panel: http://localhost:5000/admin/login")
+    print("👨‍💼 Admin panel: http://localhost:5000/admin/dashboard")
+    print("🎮 O'yinlar: http://localhost:5000/games")
+    print("🧠 Test: http://localhost:5000/ml_quiz")
     print("\n📋 Demo loginlar:")
     print("   👨‍💼 Admin: admin / admin123")
     print("   👦 Bola: eco_bola / bola123") 

@@ -3,108 +3,246 @@
 {% block title %}EcoVerse - Eco Hero{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card hero-card text-white">
-                <div class="card-body text-center">
-                    <h4>Eco Hero</h4>
-                    <h2>{{ user.username }}</h2>
-                    <div class="mt-3">
-                        <span class="badge bg-warning">Level {{ (user.streak // 7) + 1 }}</span>
-                    </div>
-                </div>
-            </div>
+<div class="container mt-4 dashboard-content">
+    <!-- Welcome Animation Container -->
+    <div id="welcomeAnimation" class="welcome-container">
+        <div class="nature-background" id="natureBg"></div>
+        <div class="welcome-content">
+            <div class="welcome-icon">🌍</div>
+            <h1 class="welcome-title">EcoVerse ga Xush Kelibsiz!</h1>
+            <p class="welcome-subtitle">Tabiatni himoya qilish sarguzashti boshlanmoqda</p>
+            <div class="welcome-user">{{ user.username }}</div>
         </div>
-        <div class="col-md-4">
-            <div class="card">
+    </div>
+
+    <!-- Asosiy Dashboard Content -->
+    <div class="row mb-4">
+        <!-- Hero Profile Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card eco-card hero-profile-card">
                 <div class="card-body text-center">
-                    <div class="hero-avatar mb-3">
+                    <div class="hero-avatar mb-3 floating-element">
                         <i class="fas fa-user-shield"></i>
                     </div>
-                    <h4>{{ user.username }}</h4>
-                    <p class="text-muted">Level {{ (user.streak // 7) + 1 }}</p>
-                    <a href="{{ url_for('hero') }}" class="btn btn-eco w-100">
+                    <h4 class="hero-name">{{ user.username }}</h4>
+                    <p class="text-muted">Eco Hero</p>
+                    <div class="level-badge mb-3">
+                        <span class="badge badge-eco">Level {{ (user.streak // 7) + 1 }}</span>
+                    </div>
+                    <a href="{{ url_for('hero') }}" class="btn btn-eco-animated w-100">
                         <i class="fas fa-user-edit me-2"></i>Hero ni tahrirlash
                     </a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card">
+
+        <!-- Stats Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card eco-card stats-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title mb-4">📊 Statistika</h5>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <div class="stat-icon">💰</div>
+                                <h4 id="coins-display" class="stat-value">{{ user.coins }}</h4>
+                                <small class="stat-label">Coinlar</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <div class="stat-icon">⚡</div>
+                                <h4 id="energy-display" class="stat-value">{{ user.energy }}</h4>
+                                <small class="stat-label">Energiya</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-item">
+                                <div class="stat-icon">🔥</div>
+                                <h4 class="stat-value">{{ user.streak }}</h4>
+                                <small class="stat-label">Kun</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card eco-card quick-actions-card">
                 <div class="card-body">
-                    <h5>Statistika</h5>
-                    <div class="row text-center">
-                        <div class="col-4">
-                            <h6>💰 Coinlar</h6>
-                            <h4>{{ user.coins }}</h4>
-                        </div>
-                        <div class="col-4">
-                            <h6>⚡ Energiya</h6>
-                            <h4>{{ user.energy }}</h4>
-                        </div>
-                        <div class="col-4">
-                            <h6>🔥 Streak</h6>
-                            <h4>{{ user.streak }} kun</h4>
-                        </div>
+                    <h5 class="card-title mb-3">🚀 Tezkor Harakatlar</h5>
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('ml_quiz') }}" class="btn btn-eco-animated">
+                            <i class="fas fa-brain me-2"></i>Testni Boshlash
+                        </a>
+                        <a href="{{ url_for('games') }}" class="btn btn-outline-eco">
+                            <i class="fas fa-gamepad me-2"></i>O'yinlar
+                        </a>
+                        <a href="{{ url_for('shop') }}" class="btn btn-outline-eco">
+                            <i class="fas fa-store me-2"></i>Do'kon
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Topshiriqlar Bo'limi -->
     <div class="row">
-        <div class="col-md-8">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5>🎯 Topshiriqlar</h5>
+        <div class="col-12">
+            <div class="card eco-card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>🎯 Topshiriqlar</h5>
                 </div>
                 <div class="card-body">
-                    {% for task in tasks %}
-                    <div class="card task-card mb-3">
+                    <!-- Eco Bilim Testi -->
+                    <div class="card task-card mb-3 eco-card">
                         <div class="card-body">
-                            <h6>{{ task.title }}</h6>
-                            <p class="text-muted">{{ task.description }}</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-{% if task.difficulty == 'easy' %}success{% elif task.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
-                                    {{ task.difficulty }}
-                                </span>
-                                <span>💰 {{ task.reward_coins }} coin</span>
-                                <span>⚡ {{ task.energy_cost }} energiya</span>
-                                <button class="btn btn-success btn-sm complete-task" 
-                                        data-task-id="{{ task.id }}"
-                                        {% if user.energy < task.energy_cost %}disabled title="Energiya yetarli emas"{% endif %}>
-                                    Bajarish
-                                </button>
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="task-title">🧠 Eco Bilim Testi</h6>
+                                    <p class="task-description text-muted">
+                                        Ekologiya bilimingizni sinab ko'ring va 50 coin yuting
+                                    </p>
+                                    <div class="task-meta">
+                                        <span class="badge bg-danger me-2">O'ta</span>
+                                        <span class="me-3">💰 50 coin</span>
+                                        <span>⚡ 20 energiya</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <a href="{{ url_for('ml_quiz') }}" 
+                                       class="btn btn-eco-animated {% if user.energy < 20 %}disabled{% endif %}" 
+                                       {% if user.energy < 20 %}title="Energiya yetarli emas"{% endif %}>
+                                        Testni Boshlash
+                                    </a>
+                                    {% if user.energy < 20 %}
+                                    <small class="text-danger mt-2 d-block">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Energiya yetarli emas
+                                    </small>
+                                    {% endif %}
+                                </div>
                             </div>
-                            {% if user.energy < task.energy_cost %}
-                            <small class="text-danger mt-2">
-                                <i class="fas fa-exclamation-triangle me-1"></i>
-                                Energiya yetarli emas! Sizda: {{ user.energy }}, Kerak: {{ task.energy_cost }}
-                            </small>
-                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Barcha Topshiriqlar -->
+                    {% for task in tasks %}
+                    <div class="card task-card mb-3 eco-card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h6 class="task-title">{{ task.title }}</h6>
+                                    <p class="task-description text-muted">{{ task.description }}</p>
+                                    <div class="task-meta">
+                                        <span class="badge bg-{% if task.difficulty == 'easy' %}success{% elif task.difficulty == 'medium' %}warning{% else %}danger{% endif %} me-2">
+                                            {{ task.difficulty }}
+                                        </span>
+                                        <span class="me-3">💰 {{ task.reward_coins }} coin</span>
+                                        <span>⚡ {{ task.energy_cost }} energiya</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    {% if task.quiz_required %}
+                                    <a href="{{ url_for('start_task_quiz', task_id=task.id) }}" 
+                                       class="btn btn-primary btn-eco-animated {% if user.energy < task.energy_cost %}disabled{% endif %}" 
+                                       {% if user.energy < task.energy_cost %}title="Energiya yetarli emas"{% endif %}>
+                                        Testni Boshlash
+                                    </a>
+                                    {% else %}
+                                    <button class="btn btn-success btn-eco-animated complete-task" 
+                                            data-task-id="{{ task.id }}" 
+                                            data-reward-coins="{{ task.reward_coins }}" 
+                                            data-energy-cost="{{ task.energy_cost }}" 
+                                            {% if user.energy < task.energy_cost %}disabled{% endif %}>
+                                        Bajarish
+                                    </button>
+                                    {% endif %}
+                                    
+                                    {% if user.energy < task.energy_cost %}
+                                    <small class="text-danger mt-2 d-block">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Energiya yetarli emas
+                                    </small>
+                                    {% endif %}
+                                    
+                                    {% if task.quiz_required %}
+                                    <small class="text-info mt-2 d-block">
+                                        <i class="fas fa-graduation-cap me-1"></i>
+                                        Test talab qilinadi
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-md-4">
-            <div class="card">
+    <!-- Do'kon va Energiya Bo'limi -->
+    <div class="row mt-4">
+        <!-- Do'kon -->
+        <div class="col-md-8">
+            <div class="card eco-card">
                 <div class="card-header">
-                    <h5>🛍️ Do'kon</h5>
+                    <h5 class="mb-0"><i class="fas fa-store me-2"></i>🛍️ Do'kon</h5>
                 </div>
                 <div class="card-body">
-                    {% for item in items %}
-                    <div class="card shop-item mb-3">
-                        <div class="card-body text-center">
-                            <h6>{{ item.name }}</h6>
-                            <p class="text-muted">{{ item.item_type }}</p>
-                            <p>💰 {{ item.price }} coin</p>
-                            <button class="btn btn-outline-primary btn-sm buy-item" 
-                                    data-item-id="{{ item.id }}"
-                                    {% if user.coins < item.price %}disabled title="Coin yetarli emas"{% endif %}>
+                    <div class="row">
+                        {% for item in items %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card shop-item eco-card">
+                                <div class="card-body text-center">
+                                    <div class="item-icon mb-2">
+                                        <i class="fas fa-tshirt fa-2x text-success"></i>
+                                    </div>
+                                    <h6 class="item-name">{{ item.name }}</h6>
+                                    <p class="item-price text-warning fw-bold">💰 {{ item.price }} coin</p>
+                                    <button class="btn btn-sm btn-eco buy-item" 
+                                            data-item-id="{{ item.id }}" 
+                                            data-item-price="{{ item.price }}" 
+                                            data-item-name="{{ item.name }}"
+                                            {% if user.coins < item.price %}disabled{% endif %}>
+                                        Sotib olish
+                                    </button>
+                                    {% if user.coins < item.price %}
+                                    <small class="text-danger d-block mt-1">
+                                        Coin yetarli emas
+                                    </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Energiya Paketlari -->
+        <div class="col-md-4">
+            <div class="card eco-card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>⚡ Energiya</h5>
+                </div>
+                <div class="card-body">
+                    {% for pack in energy_packs %}
+                    <div class="energy-pack-card mb-3 p-3 border rounded">
+                        <h6>{{ pack.name }}</h6>
+                        <p class="text-muted mb-1">{{ pack.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-success">+{{ pack.energy_amount }} ⚡</span>
+                            <span class="text-warning">💰 {{ pack.price }}</span>
+                            <button class="btn btn-sm btn-success buy-energy" 
+                                    data-energy="{{ pack.energy_amount }}" 
+                                    data-price="{{ pack.price }}"
+                                    {% if user.coins < pack.price %}disabled{% endif %}>
                                 Sotib olish
                             </button>
                         </div>
@@ -112,101 +250,262 @@
                     {% endfor %}
                 </div>
             </div>
-            
-            <!-- Qo'shimcha Havolalar qismi -->
-            <div class="card mt-3">
-                <div class="card-header">
-                    <h5>🔗 Qo'shimcha Havolalar</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <div class="card quick-link-card text-center h-100">
-                                <div class="card-body py-3">
-                                    <i class="fas fa-gamepad fa-2x text-primary mb-2"></i>
-                                    <h6 class="mb-1">O'yinlar</h6>
-                                    <small class="text-muted">Eko-o'yinlar</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="card quick-link-card text-center h-100">
-                                <div class="card-body py-3">
-                                    <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
-                                    <h6 class="mb-1">Reyting</h6>
-                                    <small class="text-muted">Bellashuv</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="card quick-link-card text-center h-100">
-                                <div class="card-body py-3">
-                                    <i class="fas fa-newspaper fa-2x text-info mb-2"></i>
-                                    <h6 class="mb-1">Yangiliklar</h6>
-                                    <small class="text-muted">Eko-yangiliklar</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="card quick-link-card text-center h-100">
-                                <div class="card-body py-3">
-                                    <i class="fas fa-seedling fa-2x text-success mb-2"></i>
-                                    <h6 class="mb-1">Mission</h6>
-                                    <small class="text-muted">Topshiriqlar</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row mt-2">
-                        <div class="col-12">
-                            <a href="{{ url_for('shop') }}" class="btn btn-outline-success w-100 mb-2">
-                                <i class="fas fa-store me-1"></i>Do'kon
-                            </a>
-                            <a href="{{ url_for('hero') }}" class="btn btn-outline-primary w-100 mb-2">
-                                <i class="fas fa-user me-1"></i>Mening Hero
-                            </a>
-                            <a href="{{ url_for('posts') }}" class="btn btn-outline-info w-100">
-                                <i class="fas fa-users me-1"></i>Jamoa
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 
 <style>
-   .navbar-eco { background: linear-gradient(135deg, #4CAF50, #2196F3); }
-        .hero-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; }
-        .task-card { border-left: 4px solid #4CAF50; border-radius: 10px; transition: all 0.3s ease; }
-        .task-card:hover { transform: translateX(5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .shop-item { transition: transform 0.2s; border: 2px solid transparent; }
-        .shop-item:hover { transform: translateY(-5px); border-color: #4CAF50; }
-        .hero-avatar {
-            width: 80px; height: 80px; background: linear-gradient(135deg, #4CAF50, #2196F3); 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-            color: white; font-size: 2rem; margin: 0 auto;
+    /* Animatsiya va dizayn stillari */
+    .welcome-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 50%, #4CAF50 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        animation: welcomeFloat 2s ease-out forwards;
+    }
+
+    .welcome-content {
+        text-align: center;
+        color: white;
+        z-index: 10000;
+    }
+
+    .welcome-icon {
+        font-size: 6rem;
+        margin-bottom: 2rem;
+        animation: naturePulse 2s ease-in-out infinite;
+        text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    }
+
+    .welcome-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .welcome-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+        opacity: 0.9;
+    }
+
+    .welcome-user {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #FFD54F;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Kartalar dizayni */
+    .eco-card {
+        background: linear-gradient(135deg, #FFFFFF 0%, #F1F8E9 100%);
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 8px 25px rgba(27, 94, 32, 0.1);
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .eco-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(27, 94, 32, 0.2);
+    }
+
+    .hero-profile-card {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+
+    .stats-card {
+        background: linear-gradient(135deg, #FFD54F, #FFB300);
+        color: white;
+    }
+
+    .hero-avatar {
+        width: 80px;
+        height: 80px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        margin: 0 auto;
+        backdrop-filter: blur(10px);
+    }
+
+    .stat-item {
+        padding: 10px 0;
+    }
+
+    .stat-icon {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        margin: 5px 0;
+    }
+
+    .stat-label {
+        font-size: 0.8rem;
+        opacity: 0.9;
+    }
+
+    .task-card {
+        border-left: 4px solid #4CAF50;
+        transition: all 0.3s ease;
+    }
+
+    .task-card:hover {
+        transform: translateX(5px);
+    }
+
+    .shop-item {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .shop-item:hover {
+        transform: translateY(-5px);
+        border-color: #4CAF50;
+    }
+
+    .item-icon {
+        color: #4CAF50;
+    }
+
+    /* Tugmalar */
+    .btn-eco-animated {
+        background: linear-gradient(135deg, #1B5E20, #2E7D32);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 12px 25px;
+        font-weight: 600;
+        transition: all 0.4s ease;
+        box-shadow: 0 6px 20px rgba(27, 94, 32, 0.4);
+    }
+
+    .btn-eco-animated:hover {
+        background: linear-gradient(135deg, #145218, #1B5E20);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(27, 94, 32, 0.6);
+        color: white;
+    }
+
+    .btn-outline-eco {
+        border: 2px solid #1B5E20;
+        color: #1B5E20;
+        background: transparent;
+        border-radius: 12px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-eco:hover {
+        background: linear-gradient(135deg, #1B5E20, #2E7D32);
+        border-color: #1B5E20;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    /* Animatsiyalar */
+    @keyframes welcomeFloat {
+        0% {
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
         }
-        .quick-link-card {
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
         }
-        .quick-link-card:hover {
-            transform: translateY(-5px);
-            border-color: #4CAF50;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    @keyframes naturePulse {
+        0% {
+            transform: scale(1);
         }
+        50% {
+            transform: scale(1.1);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+
+    .floating-element {
+        animation: naturePulse 3s ease-in-out infinite;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .welcome-title {
+            font-size: 2rem;
+        }
+        
+        .welcome-icon {
+            font-size: 4rem;
+        }
+        
+        .welcome-user {
+            font-size: 1.2rem;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block scripts %}
 <script>
+    // Welcome animatsiyasini boshqarish
+    document.addEventListener('DOMContentLoaded', function() {
+        const welcomeContainer = document.getElementById('welcomeAnimation');
+        
+        if (welcomeContainer) {
+            // 3 soniyadan so'ng welcome ekranini olib tashlash
+            setTimeout(() => {
+                welcomeContainer.style.opacity = '0';
+                welcomeContainer.style.transform = 'translateY(-50px) scale(0.9)';
+                welcomeContainer.style.transition = 'all 0.8s ease-in-out';
+                
+                setTimeout(() => {
+                    welcomeContainer.remove();
+                }, 800);
+            }, 3000);
+        }
+
+        // Dashboard elementlariga kechikkan animatsiya qo'shish
+        setTimeout(() => {
+            const dashboardElements = document.querySelectorAll('.eco-card');
+            dashboardElements.forEach((element, index) => {
+                element.style.animation = `welcomeFloat 0.6s ease-out ${index * 0.1}s both`;
+            });
+        }, 3500);
+    });
+
     // Topshiriq bajarish
     document.querySelectorAll('.complete-task').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const taskId = this.dataset.taskId;
-            
+            const rewardCoins = parseInt(this.dataset.rewardCoins);
+            const energyCost = parseInt(this.dataset.energyCost);
+
             fetch(`/complete_task/${taskId}`, {
                 method: 'POST',
                 headers: {
@@ -216,8 +515,18 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    alert('✅ ' + data.message);
-                    location.reload();
+                    // Statistikani yangilash
+                    document.getElementById('coins-display').textContent = data.coins;
+                    document.getElementById('energy-display').textContent = data.energy;
+
+                    // Success animatsiya
+                    this.innerHTML = '<i class="fas fa-check me-2"></i>Bajarildi!';
+                    this.classList.remove('btn-success');
+                    this.classList.add('btn-success', 'disabled');
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
                 } else {
                     alert('❌ ' + data.error);
                 }
@@ -230,9 +539,15 @@
 
     // Item sotib olish
     document.querySelectorAll('.buy-item').forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const itemId = this.dataset.itemId;
-            
+            const itemPrice = parseInt(this.dataset.itemPrice);
+            const itemName = this.dataset.itemName;
+
+            if (!confirm(`${itemName} ni ${itemPrice} coin evaziga sotib olishni xohlaysizmi?`)) {
+                return;
+            }
+
             fetch(`/buy_item/${itemId}`, {
                 method: 'POST',
                 headers: {
@@ -242,6 +557,57 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
+                    // Statistikani yangilash
+                    document.getElementById('coins-display').textContent = data.coins;
+                    if (data.energy) {
+                        document.getElementById('energy-display').textContent = data.energy;
+                    }
+
+                    // Success animatsiya
+                    this.innerHTML = '<i class="fas fa-check me-2"></i>Sotib olindi!';
+                    this.classList.remove('btn-eco');
+                    this.classList.add('btn-success', 'disabled');
+                    
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ Xatolik yuz berdi: ' + error);
+            });
+        });
+    });
+
+    // Energiya sotib olish
+    document.querySelectorAll('.buy-energy').forEach(button => {
+        button.addEventListener('click', function () {
+            const energyAmount = parseInt(this.dataset.energy);
+            const price = parseInt(this.dataset.price);
+
+            if (!confirm(`${energyAmount} energiyani ${price} coin evaziga sotib olishni xohlaysizmi?`)) {
+                return;
+            }
+
+            fetch('/buy_energy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    energy: energyAmount,
+                    price: price
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Statistikani yangilash
+                    document.getElementById('coins-display').textContent = data.coins;
+                    document.getElementById('energy-display').textContent = data.energy;
+
                     alert('✅ ' + data.message);
                     location.reload();
                 } else {
@@ -253,5 +619,20 @@
             });
         });
     });
+
+    // Real-time stats yangilash
+    function updateUserStats() {
+        fetch('/get_user_stats')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('coins-display').textContent = data.coins;
+                    document.getElementById('energy-display').textContent = data.energy;
+                }
+            });
+    }
+
+    // Har 30 soniyada statistikani yangilash
+    setInterval(updateUserStats, 30000);
 </script>
 {% endblock %}
