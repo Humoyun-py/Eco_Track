@@ -705,23 +705,186 @@ def get_user_stats():
         'streak': current_user.streak
     })
 
-# ADMIN ROUTE'LARI (soddalashtirilgan)
+# ADMIN ROUTE'LARI - Yangi route'lar qo'shing
 @app.route('/admin/dashboard')
 @login_required
 def admin_dashboard():
     if not current_user.is_admin:
         flash('Sizga admin huquqi berilmagan!', 'error')
         return redirect(url_for('dashboard'))
-    return render_template('admin_dashboard.html', user=current_user)
+    
+    # Admin statistikasi
+    total_users = User.query.count()
+    total_tasks = Task.query.count()
+    total_quiz_results = QuizResult.query.count()
+    total_posts = Post.query.count()
+    
+    # Rol bo'yicha foydalanuvchilar soni
+    total_child_users = User.query.filter_by(role='child').count()
+    total_adult_users = User.query.filter_by(role='adult').count()
+    
+    # So'nggi foydalanuvchilar
+    recent_users = User.query.order_by(User.created_at.desc()).limit(5).all()
+    
+    # So'nggi postlar
+    recent_posts = Post.query.order_by(Post.date.desc()).limit(5).all()
+    
+    return render_template('admin_dashboard.html', 
+                         user=current_user,
+                         total_users=total_users,
+                         total_tasks=total_tasks,
+                         total_quiz_results=total_quiz_results,
+                         total_posts=total_posts,
+                         total_child_users=total_child_users,
+                         total_adult_users=total_adult_users,
+                         recent_users=recent_users,
+                         recent_posts=recent_posts)
 
-@app.route('/admin/login')
+@app.route('/admin/adult')
+@login_required
+def admin_adult():
+    if not current_user.is_admin:
+        flash('Sizga admin huquqi berilmagan!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    # Faqat kattalar foydalanuvchilari
+    adult_users = User.query.filter_by(role='adult').all()
+    
+    return render_template('admin_adult.html', 
+                         user=current_user, 
+                         adult_users=adult_users)
+
+@app.route('/admin/logout')
+@login_required
+def admin_logout():
+    logout_user()
+    flash('Siz admin paneldan chiqdingiz!', 'info')
+    return redirect(url_for('admin_login'))
+
+@app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if current_user.is_authenticated and current_user.is_admin:
         return redirect(url_for('admin_dashboard'))
+    
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        
+        if user and check_password_hash(user.password_hash, password) and user.is_admin:
+            login_user(user, remember=True)
+            flash('Admin panelga xush kelibsiz!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Admin login yoki parol noto\'g\'ri!', 'error')
+    
     return render_template('admin_login.html')
 
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    if not current_user.is_admin:
+        flash('Sizga admin huquqi berilmagan!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    users = User.query.all()
+    return render_template('admin_users.html', user=current_user, users=users)
+
+@app.route('/admin/tasks')
+@login_required
+def admin_tasks():
+    if not current_user.is_admin:
+        flash('Sizga admin huquqi berilmagan!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    tasks = Task.query.all()
+    return render_template('admin_tasks.html', user=current_user, tasks=tasks)
+
+@app.route('/admin/child')
+@login_required
+def admin_child():
+    if not current_user.is_admin:
+        flash('Sizga admin huquqi berilmagan!', 'error')
+        return redirect(url_for('dashboard'))
+    
+    # Faqat bolalar foydalanuvchilari
+    child_users = User.query.filter_by(role='child').all()
+    tasks = Task.query.all()
+    
+    return render_template('admin_child.html', 
+                         user=current_user, 
+                         child_users=child_users, 
+                         tasks=tasks)
+
+# Yangi admin API route'lari
+@app.route('/admin/update_user_coins/<int:user_id>', methods=['POST'])
+@login_required
+def update_user_coins(user_id):
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'error': 'Admin huquqi yo\'q'})
+    
+    data = request.get_json()
+    user = User.query.get(user_id)
+    if user:
+        user.coins = data.get('coins', user.coins)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Coinlar yangilandi'})
+    
+    return jsonify({'success': False, 'error': 'Foydalanuvchi topilmadi'})
+
+@app.route('/admin/update_user_energy/<int:user_id>', methods=['POST'])
+@login_required
+def update_user_energy(user_id):
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'error': 'Admin huquqi yo\'q'})
+    
+    data = request.get_json()
+    user = User.query.get(user_id)
+    if user:
+        user.energy = data.get('energy', user.energy)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Energiya yangilandi'})
+    
+    return jsonify({'success': False, 'error': 'Foydalanuvchi topilmadi'})
+
+@app.route('/admin/add_task', methods=['POST'])
+@login_required
+def add_task():
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'error': 'Admin huquqi yo\'q'})
+    
+    data = request.get_json()
+    try:
+        new_task = Task(
+            title=data.get('title'),
+            description=data.get('description'),
+            difficulty=data.get('difficulty', 'easy'),
+            reward_coins=data.get('reward_coins', 10),
+            energy_cost=data.get('energy_cost', 10),
+            quiz_required=True
+        )
+        db.session.add(new_task)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Topshiriq muvaffaqiyatli qo\'shildi'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/admin/delete_task/<int:task_id>', methods=['POST'])
+@login_required
+def delete_task(task_id):
+    if not current_user.is_admin:
+        return jsonify({'success': False, 'error': 'Admin huquqi yo\'q'})
+    
+    task = Task.query.get(task_id)
+    if task:
+        db.session.delete(task)
+        db.session.commit()
+        return jsonify({'success': True, 'message': 'Topshiriq muvaffaqiyatli o\'chirildi'})
+    
+    return jsonify({'success': False, 'error': 'Topshiriq topilmadi'})
+
 # BOSHQALAR ROUTE'LARI
-@app.route('/leaderboard')
+@app.route('/leaderboard')  # ✅ TO'G'RI - 'leaderboard'
 @login_required
 def leaderboard():
     return render_template('leaderboard.html', user=current_user)
@@ -751,7 +914,99 @@ def shop():
 @app.route('/hero')
 @login_required
 def hero():
-    return render_template('hero.html', user=current_user)
+    # Foydalanuvchining inventorysini olish
+    inventory_items = Inventory.query.filter_by(user_id=current_user.id).all()
+    
+    # Kiyilgan itemlarni ajratib olish
+    equipped_items = [item for item in inventory_items if item.equipped]
+    
+    # Kategoriya bo'yicha ajratish
+    clothes_items = [item for item in inventory_items if item.item.item_type == 'clothes']
+    hat_items = [item for item in inventory_items if item.item.item_type == 'hat']
+    shoe_items = [item for item in inventory_items if item.item.item_type == 'shoes']
+    accessory_items = [item for item in inventory_items if item.item.item_type == 'accessory']
+    
+    # Kiyilgan itemlarni kategoriya bo'yicha ajratish
+    equipped_clothes = [item for item in equipped_items if item.item.item_type == 'clothes']
+    equipped_hat = [item for item in equipped_items if item.item.item_type == 'hat']
+    equipped_shoes = [item for item in equipped_items if item.item.item_type == 'shoes']
+    equipped_accessory = [item for item in equipped_items if item.item.item_type == 'accessory']
+    
+    return render_template('hero.html', 
+                         user=current_user,
+                         inventory_items=inventory_items,
+                         equipped_items=equipped_items,
+                         clothes_items=clothes_items,
+                         hat_items=hat_items,
+                         shoe_items=shoe_items,
+                         accessory_items=accessory_items,
+                         equipped_clothes=equipped_clothes,
+                         equipped_hat=equipped_hat,
+                         equipped_shoes=equipped_shoes,
+                         equipped_accessory=equipped_accessory)
+
+@app.route('/equip_item/<int:item_id>', methods=['POST'])
+@login_required
+def equip_item(item_id):
+    try:
+        # Itemni inventorydan topish
+        inventory_item = Inventory.query.filter_by(
+            user_id=current_user.id, 
+            id=item_id
+        ).first()
+        
+        if not inventory_item:
+            return jsonify({'success': False, 'error': 'Item topilmadi!'})
+        
+        # Bir xil turdagi boshqa kiyilgan itemlarni echish
+        item_type = inventory_item.item.item_type
+        same_type_items = Inventory.query.filter_by(
+            user_id=current_user.id,
+            equipped=True
+        ).join(Item).filter(Item.item_type == item_type).all()
+        
+        for item in same_type_items:
+            item.equipped = False
+        
+        # Yangi itemni kiyish
+        inventory_item.equipped = True
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'{inventory_item.item.name} muvaffaqiyatli kiyildi!'
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'Xatolik: {str(e)}'})
+
+@app.route('/unequip_item/<int:item_id>', methods=['POST'])
+@login_required
+def unequip_item(item_id):
+    try:
+        # Itemni inventorydan topish
+        inventory_item = Inventory.query.filter_by(
+            user_id=current_user.id, 
+            id=item_id
+        ).first()
+        
+        if not inventory_item:
+            return jsonify({'success': False, 'error': 'Item topilmadi!'})
+        
+        if not inventory_item.equipped:
+            return jsonify({'success': False, 'error': 'Bu item kiyilmagan!'})
+        
+        # Itemni echish
+        inventory_item.equipped = False
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': f'{inventory_item.item.name} muvaffaqiyatli echildi!'
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': f'Xatolik: {str(e)}'})
 
 @app.route('/profile')
 @login_required

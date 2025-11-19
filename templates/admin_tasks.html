@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topshiriqlar - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .admin-sidebar {
+            background: #2c3e50;
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        .admin-main {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+        .nav-link {
+            color: white;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin: 5px 10px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .sidebar-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding-top: 20px;
+            overflow-y: auto;
+        }
+        .table th {
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 admin-sidebar">
+                <div class="sidebar-sticky">
+                    <div class="text-center mb-4">
+                        <h4><i class="fas fa-leaf me-2"></i>EcoVerse Admin</h4>
+                        <small class="text-muted">Topshiriqlar</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_users') }}">
+                                <i class="fas fa-users me-2"></i>Foydalanuvchilar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('admin_tasks') }}">
+                                <i class="fas fa-tasks me-2"></i>Topshiriqlar
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link bg-success" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-arrow-left me-2"></i>User Panel
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link bg-warning text-dark" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Chiqish
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-5 p-3">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>
+                            {{ user.username }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 admin-main">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 text-gray-800">
+                        <i class="fas fa-tasks me-2"></i>Topshiriqlar
+                    </h1>
+                    <div class="text-end">
+                        <span class="text-muted">Jami: </span>
+                        <strong>{{ tasks|length }} ta topshiriq</strong>
+                    </div>
+                </div>
+
+                <!-- Tasks Table -->
+                <div class="card shadow">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Barcha Topshiriqlar</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Sarlavha</th>
+                                        <th>Tavsif</th>
+                                        <th>Mukofot</th>
+                                        <th>Energiya</th>
+                                        <th>Qiyinlik</th>
+                                        <th>Test Talab</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for task in tasks %}
+                                    <tr>
+                                        <td>{{ task.id }}</td>
+                                        <td><strong>{{ task.title }}</strong></td>
+                                        <td>{{ task.description[:80] }}...</td>
+                                        <td>{{ task.reward_coins }} coin</td>
+                                        <td>{{ task.energy_cost }} energiya</td>
+                                        <td>
+                                            <span class="badge {% if task.difficulty == 'easy' %}bg-success{% elif task.difficulty == 'medium' %}bg-warning{% else %}bg-danger{% endif %}">
+                                                {{ task.difficulty }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if task.quiz_required %}
+                                            <span class="badge bg-info">Ha</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">Yo'q</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="row mt-4">
+                    <div class="col-md-3">
+                        <div class="card bg-primary text-white">
+                            <div class="card-body text-center">
+                                <h4>{{ tasks|length }}</h4>
+                                <small>Jami Topshiriqlar</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-success text-white">
+                            <div class="card-body text-center">
+                                <h4>{{ tasks|selectattr('difficulty', 'equalto', 'easy')|list|length }}</h4>
+                                <small>Oson</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-warning text-white">
+                            <div class="card-body text-center">
+                                <h4>{{ tasks|selectattr('difficulty', 'equalto', 'medium')|list|length }}</h4>
+                                <small>O'rta</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-danger text-white">
+                            <div class="card-body text-center">
+                                <h4>{{ tasks|selectattr('difficulty', 'equalto', 'hard')|list|length }}</h4>
+                                <small>Qiyin</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

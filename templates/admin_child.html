@@ -17,6 +17,7 @@
             border: none;
             box-shadow: 0 3px 10px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            margin-bottom: 20px;
         }
         .eco-card:hover {
             transform: translateY(-3px);
@@ -36,42 +37,102 @@
             box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
             color: white;
         }
+        .admin-sidebar {
+            background: #2c3e50;
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+        }
+        .admin-main {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .nav-link {
+            color: white;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin: 5px 10px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark admin-navbar">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{{ url_for('admin_dashboard') }}">
-                <i class="fas fa-arrow-left me-2"></i>EcoVerse Admin
-            </a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">
-                    <i class="fas fa-user me-1"></i>{{ current_user.username }}
-                </span>
-                <a class="btn btn-outline-light btn-sm" href="{{ url_for('admin_logout') }}">
-                    <i class="fas fa-sign-out-alt me-1"></i>Chiqish
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <div class="container-fluid mt-4">
+    <div class="container-fluid p-0">
         <div class="row">
-            <div class="col-12">
-                <h2 class="fw-bold mb-4">👦 Bolalar Bo'limi Boshqaruvi</h2>
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 admin-sidebar">
+                <div class="p-3">
+                    <div class="text-center mb-4">
+                        <h4><i class="fas fa-leaf me-2"></i>EcoVerse Admin</h4>
+                        <small class="text-muted">Bolalar Bo'limi</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_users') }}">
+                                <i class="fas fa-users me-2"></i>Barcha Foydalanuvchilar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('admin_child') }}">
+                                <i class="fas fa-child me-2"></i>Bolalar Boshqaruvi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_tasks') }}">
+                                <i class="fas fa-tasks me-2"></i>Topshiriqlar
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link bg-success" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-arrow-left me-2"></i>User Panel
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link bg-warning text-dark" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Chiqish
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 admin-main">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 text-gray-800">
+                        <i class="fas fa-child me-2"></i>Bolalar Bo'limi Boshqaruvi
+                    </h1>
+                    <div class="text-end">
+                        <span class="text-muted">Admin: </span>
+                        <strong>{{ user.username }}</strong>
+                    </div>
+                </div>
 
                 <!-- Foydalanuvchilar jadvali -->
-                <div class="eco-card mb-4">
-                    <div class="card-header">
+                <div class="eco-card">
+                    <div class="card-header bg-success text-white">
                         <h5 class="fw-bold mb-0">👥 Bolalar Foydalanuvchilari</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table table-striped table-hover">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>Username</th>
+                                        <th>Email</th>
                                         <th>Coins</th>
                                         <th>Energiya</th>
                                         <th>Streak</th>
@@ -84,6 +145,7 @@
                                     <tr>
                                         <td>{{ user.id }}</td>
                                         <td><strong>{{ user.username }}</strong></td>
+                                        <td>{{ user.email }}</td>
                                         <td>
                                             <input type="number" class="form-control form-control-sm coins-input" 
                                                    value="{{ user.coins }}" data-user-id="{{ user.id }}" 
@@ -98,7 +160,7 @@
                                         <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
                                         <td>
                                             <button class="btn btn-sm btn-success save-user" data-user-id="{{ user.id }}">
-                                                <i class="fas fa-save"></i>
+                                                <i class="fas fa-save me-1"></i>Saqlash
                                             </button>
                                         </td>
                                     </tr>
@@ -111,16 +173,17 @@
 
                 <!-- Topshiriqlar qo'shish -->
                 <div class="eco-card">
-                    <div class="card-header">
+                    <div class="card-header bg-primary text-white">
                         <h5 class="fw-bold mb-0">🎯 Topshiriqlar Boshqaruvi</h5>
                     </div>
                     <div class="card-body">
                         <form id="addTaskForm">
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Sarlavha</label>
-                                        <input type="text" class="form-control" name="title" required>
+                                        <input type="text" class="form-control" name="title" required 
+                                               placeholder="Topshiriq nomi">
                                     </div>
                                 </div>
                                 <div class="col-md-2">
@@ -135,7 +198,7 @@
                                 </div>
                                 <div class="col-md-2">
                                     <div class="mb-3">
-                                        <label class="form-label">Coin mukofoti</label>
+                                        <label class="form-label">💰 Coin mukofoti</label>
                                         <input type="number" class="form-control" name="reward_coins" value="10" required>
                                     </div>
                                 </div>
@@ -145,41 +208,51 @@
                                         <input type="number" class="form-control" name="energy_cost" value="10" required>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <div class="mb-3">
                                         <label class="form-label">&nbsp;</label>
-                                        <button type="submit" class="btn btn-eco w-100">Topshiriq Qo'shish</button>
+                                        <button type="submit" class="btn btn-eco w-100">
+                                            <i class="fas fa-plus me-1"></i>Qo'shish
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Tavsif</label>
-                                <textarea class="form-control" name="description" rows="3" required></textarea>
+                                <textarea class="form-control" name="description" rows="2" required 
+                                          placeholder="Topshiriq tavsifi"></textarea>
                             </div>
                         </form>
 
                         <hr class="my-4">
 
-                        <h6>Mavjud Topshiriqlar</h6>
-                        {% for task in tasks %}
-                        <div class="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
-                            <div>
-                                <strong>{{ task.title }}</strong>
-                                <br>
-                                <small class="text-muted">{{ task.description }}</small>
+                        <h6 class="fw-bold mb-3">📋 Mavjud Topshiriqlar</h6>
+                        {% if tasks %}
+                            {% for task in tasks %}
+                            <div class="d-flex justify-content-between align-items-center mb-2 p-3 border rounded">
+                                <div class="flex-grow-1">
+                                    <strong class="text-primary">{{ task.title }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ task.description }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-{% if task.difficulty == 'easy' %}success{% elif task.difficulty == 'medium' %}warning{% else %}danger{% endif %} me-2">
+                                        {{ task.difficulty }}
+                                    </span>
+                                    <span class="text-warning me-2">💰 {{ task.reward_coins }}</span>
+                                    <span class="text-info me-2">⚡ {{ task.energy_cost }}</span>
+                                    <button class="btn btn-sm btn-danger delete-task" data-task-id="{{ task.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div>
-                                <span class="badge bg-{% if task.difficulty == 'easy' %}success{% elif task.difficulty == 'medium' %}warning{% else %}danger{% endif %} me-2">
-                                    {{ task.difficulty }}
-                                </span>
-                                <span class="text-warning me-2">💰 {{ task.reward_coins }}</span>
-                                <span class="text-danger me-2">⚡ {{ task.energy_cost }}</span>
-                                <button class="btn btn-sm btn-danger delete-task" data-task-id="{{ task.id }}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                            {% endfor %}
+                        {% else %}
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Hozircha topshiriqlar mavjud emas
                             </div>
-                        </div>
-                        {% endfor %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -198,6 +271,7 @@
                 const coins = parseInt(coinsInput.value);
                 const energy = parseInt(energyInput.value);
                 
+                // Coinlarni yangilash
                 fetch(`/admin/update_user_coins/${userId}`, {
                     method: 'POST',
                     headers: {
@@ -208,6 +282,7 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
+                        // Energiyani yangilash
                         fetch(`/admin/update_user_energy/${userId}`, {
                             method: 'POST',
                             headers: {
@@ -218,10 +293,17 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                alert('Foydalanuvchi ma\'lumotlari yangilandi!');
+                                alert('✅ Foydalanuvchi ma\'lumotlari muvaffaqiyatli yangilandi!');
+                            } else {
+                                alert('❌ Energiya yangilashda xatolik: ' + data.error);
                             }
                         });
+                    } else {
+                        alert('❌ Coin yangilashda xatolik: ' + data.error);
                     }
+                })
+                .catch(error => {
+                    alert('❌ Xatolik yuz berdi: ' + error);
                 });
             });
         });
@@ -245,11 +327,14 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert(result.message);
+                    alert('✅ ' + result.message);
                     location.reload();
                 } else {
-                    alert(result.error);
+                    alert('❌ ' + result.error);
                 }
+            })
+            .catch(error => {
+                alert('❌ Xatolik yuz berdi: ' + error);
             });
         });
 
@@ -264,11 +349,14 @@
                     .then(response => response.json())
                     .then(result => {
                         if (result.success) {
-                            alert(result.message);
+                            alert('✅ ' + result.message);
                             location.reload();
                         } else {
-                            alert(result.error);
+                            alert('❌ ' + result.error);
                         }
+                    })
+                    .catch(error => {
+                        alert('❌ Xatolik yuz berdi: ' + error);
                     });
                 }
             });

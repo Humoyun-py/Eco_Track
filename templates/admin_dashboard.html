@@ -3,145 +3,216 @@
 {% block title %}EcoVerse - Admin Dashboard{% endblock %}
 
 {% block content %}
-<div class="container-fluid mt-4">
+<div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <div class="col-md-3">
-            <div class="eco-card p-3">
-                <h5 class="fw-bold mb-3">🛠️ Boshqaruv</h5>
-                <div class="list-group">
-                    <a href="{{ url_for('admin_dashboard') }}" class="list-group-item list-group-item-action active">
-                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                    </a>
-                    <a href="{{ url_for('admin_users') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-users me-2"></i>Barcha Foydalanuvchilar
-                    </a>
-                    <a href="{{ url_for('admin_child') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-child me-2"></i>Bolalar Bo'limi
-                    </a>
-                    <a href="{{ url_for('admin_adult') }}" class="list-group-item list-group-item-action">
-                        <i class="fas fa-user me-2"></i>Kattalar Bo'limi
-                    </a>
+        <div class="col-md-3 col-lg-2 admin-sidebar p-0">
+            <div class="p-3">
+                <div class="text-center mb-4">
+                    <h4><i class="fas fa-leaf me-2"></i>EcoVerse Admin</h4>
+                    <small class="text-muted">Panel</small>
                 </div>
+                
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('admin_dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_users') }}">
+                            <i class="fas fa-users me-2"></i>Foydalanuvchilar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_tasks') }}">
+                            <i class="fas fa-tasks me-2"></i>Topshiriqlar
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('admin_child') }}">
+                            <i class="fas fa-child me-2"></i>Bolalar
+                        </a>
+                    </li>
+                    <li class="nav-item mt-4">
+                        <a class="nav-link bg-success" href="{{ url_for('dashboard') }}">
+                            <i class="fas fa-arrow-left me-2"></i>User Panel
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link bg-warning text-dark" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Chiqish
+                        </a>
+                    </li>
+                </ul>
             </div>
         </div>
 
         <!-- Main Content -->
-        <div class="col-md-9">
-            <h2 class="fw-bold mb-4">📊 Admin Dashboard</h2>
-
-            <!-- Statistikalar -->
-            <div class="row mb-4">
-                <div class="col-md-3 mb-3">
-                    <div class="eco-card-primary text-center p-4">
-                        <i class="fas fa-users fa-2x text-primary mb-3"></i>
-                        <h3>{{ total_users }}</h3>
-                        <p class="mb-0">Jami Foydalanuvchilar</p>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="eco-card-success text-center p-4">
-                        <i class="fas fa-child fa-2x text-success mb-3"></i>
-                        <h3>{{ total_child_users }}</h3>
-                        <p class="mb-0">Bolalar</p>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="eco-card text-center p-4">
-                        <i class="fas fa-user fa-2x text-info mb-3"></i>
-                        <h3>{{ total_adult_users }}</h3>
-                        <p class="mb-0">Kattalar</p>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-3">
-                    <div class="eco-card text-center p-4">
-                        <i class="fas fa-newspaper fa-2x text-warning mb-3"></i>
-                        <h3>{{ total_posts }}</h3>
-                        <p class="mb-0">Postlar</p>
-                    </div>
+        <div class="col-md-9 col-lg-10 admin-main p-4">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 text-gray-800">
+                    <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                </h1>
+                <div class="text-end">
+                    <span class="text-muted">Xush kelibsiz, </span>
+                    <strong>{{ user.username }}</strong>
                 </div>
             </div>
 
+            <!-- Stats Cards -->
             <div class="row">
-                <!-- So'nggi Foydalanuvchilar -->
-                <div class="col-md-6">
-                    <div class="eco-card">
-                        <div class="card-header bg-transparent">
-                            <h5 class="fw-bold mb-0">
-                                <i class="fas fa-user-plus me-2"></i>So'nggi Ro'yxatdan O'tganlar
-                            </h5>
-                        </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card stat-card border-left-primary">
                         <div class="card-body">
-                            {% for user in recent_users %}
-                            <div class="d-flex align-items-center mb-3 pb-2 border-bottom">
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px;">
-                                    <i class="fas fa-user"></i>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Foydalanuvchilar</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_users }}</div>
                                 </div>
-                                <div class="ms-3 flex-grow-1">
-                                    <strong>{{ user.username }}</strong>
-                                    <br>
-                                    <small class="text-muted">
-                                        {{ user.role|title }} • {{ user.created_at.strftime('%Y-%m-%d') }}
-                                    </small>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-primary"></i>
                                 </div>
-                                <span class="badge-eco">{{ user.coins }} coin</span>
                             </div>
-                            {% endfor %}
                         </div>
                     </div>
                 </div>
 
-                <!-- So'nggi Postlar -->
-                <div class="col-md-6">
-                    <div class="eco-card">
-                        <div class="card-header bg-transparent">
-                            <h5 class="fw-bold mb-0">
-                                <i class="fas fa-newspaper me-2"></i>So'nggi Postlar
-                            </h5>
-                        </div>
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card stat-card border-left-success">
                         <div class="card-body">
-                            {% for post in recent_posts %}
-                            <div class="mb-3 pb-2 border-bottom">
-                                <h6 class="fw-bold">{{ post.title }}</h6>
-                                <p class="text-muted small mb-1">{{ post.content[:80] }}...</p>
-                                <div class="d-flex justify-content-between">
-                                    <small>{{ post.author.username }}</small>
-                                    <small>{{ post.date.strftime('%m/%d') }}</small>
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Topshiriqlar</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_tasks }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-tasks fa-2x text-success"></i>
                                 </div>
                             </div>
-                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card stat-card border-left-info">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Test Natijalari</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_quiz_results }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-clipboard-list fa-2x text-info"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card stat-card border-left-warning">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Postlar</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_posts }}</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-newspaper fa-2x text-warning"></i>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tezkor Amallar -->
-            <div class="eco-card mt-4">
-                <div class="card-header bg-transparent">
-                    <h5 class="fw-bold mb-0">⚡ Tezkor Amallar</h5>
+            <!-- Recent Users -->
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-users me-2"></i>So'nggi Foydalanuvchilar
+                    </h6>
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-primary btn-sm">
+                        Barchasini Ko'rish
+                    </a>
                 </div>
                 <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 text-center">
-                            <a href="{{ url_for('admin_child') }}" class="btn btn-eco w-100 mb-2">
-                                <i class="fas fa-child me-2"></i>Bolalar Boshqaruvi
-                            </a>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <a href="{{ url_for('admin_adult') }}" class="btn btn-eco w-100 mb-2">
-                                <i class="fas fa-user me-2"></i>Kattalar Boshqaruvi
-                            </a>
-                        </div>
-                        <div class="col-md-4 text-center">
-                            <a href="{{ url_for('admin_users') }}" class="btn btn-eco w-100 mb-2">
-                                <i class="fas fa-users me-2"></i>Foydalanuvchilar
-                            </a>
-                        </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Coinlar</th>
+                                    <th>Qo'shilgan sana</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in recent_users %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ user.username }}</strong>
+                                        {% if user.is_admin %}
+                                        <span class="badge bg-danger ms-1">Admin</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <span class="badge {% if user.role == 'admin' %}bg-danger{% elif user.role == 'child' %}bg-success{% else %}bg-primary{% endif %}">
+                                            {{ user.role }}
+                                        </span>
+                                    </td>
+                                    <td>{{ user.coins }}</td>
+                                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .admin-sidebar {
+        background: #2c3e50;
+        color: white;
+        min-height: 100vh;
+    }
+    .admin-main {
+        background: #f8f9fa;
+        min-height: 100vh;
+    }
+    .stat-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        border: none;
+    }
+    .border-left-primary { border-left: 4px solid #4e73df !important; }
+    .border-left-success { border-left: 4px solid #1cc88a !important; }
+    .border-left-info { border-left: 4px solid #36b9cc !important; }
+    .border-left-warning { border-left: 4px solid #f6c23e !important; }
+    
+    .nav-link {
+        color: white;
+        padding: 12px 15px;
+        border-radius: 5px;
+        margin: 5px 10px;
+        transition: all 0.3s ease;
+    }
+    .nav-link:hover, .nav-link.active {
+        background: rgba(255,255,255,0.1);
+        color: white;
+    }
+</style>
 {% endblock %}
