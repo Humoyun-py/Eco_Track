@@ -44,6 +44,16 @@
         .table th {
             background: #f8f9fa;
         }
+        .task-actions .btn {
+            margin: 2px;
+        }
+        .badge-daily {
+            background: #ffc107;
+            color: black;
+        }
+        .badge-quiz {
+            background: #17a2b8;
+        }
     </style>
 </head>
 <body>
@@ -73,6 +83,16 @@
                                 <i class="fas fa-tasks me-2"></i>Topshiriqlar
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_news') }}">
+                                <i class="fas fa-newspaper me-2"></i>Yangiliklar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_announcements') }}">
+                                <i class="fas fa-bullhorn me-2"></i>E'lonlar
+                            </a>
+                        </li>
                         <li class="nav-item mt-4">
                             <a class="nav-link bg-success" href="{{ url_for('dashboard') }}">
                                 <i class="fas fa-arrow-left me-2"></i>User Panel
@@ -99,63 +119,17 @@
                 <!-- Header -->
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h1 class="h3 text-gray-800">
-                        <i class="fas fa-tasks me-2"></i>Topshiriqlar
+                        <i class="fas fa-tasks me-2"></i>Topshiriqlar Boshqaruvi
                     </h1>
                     <div class="text-end">
-                        <span class="text-muted">Jami: </span>
-                        <strong>{{ tasks|length }} ta topshiriq</strong>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                            <i class="fas fa-plus me-2"></i>Yangi Topshiriq
+                        </button>
                     </div>
                 </div>
 
-                <!-- Tasks Table -->
-                <div class="card shadow">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Barcha Topshiriqlar</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Sarlavha</th>
-                                        <th>Tavsif</th>
-                                        <th>Mukofot</th>
-                                        <th>Energiya</th>
-                                        <th>Qiyinlik</th>
-                                        <th>Test Talab</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for task in tasks %}
-                                    <tr>
-                                        <td>{{ task.id }}</td>
-                                        <td><strong>{{ task.title }}</strong></td>
-                                        <td>{{ task.description[:80] }}...</td>
-                                        <td>{{ task.reward_coins }} coin</td>
-                                        <td>{{ task.energy_cost }} energiya</td>
-                                        <td>
-                                            <span class="badge {% if task.difficulty == 'easy' %}bg-success{% elif task.difficulty == 'medium' %}bg-warning{% else %}bg-danger{% endif %}">
-                                                {{ task.difficulty }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            {% if task.quiz_required %}
-                                            <span class="badge bg-info">Ha</span>
-                                            {% else %}
-                                            <span class="badge bg-secondary">Yo'q</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Stats -->
-                <div class="row mt-4">
+                <!-- Control Panel -->
+                <div class="row mb-4">
                     <div class="col-md-3">
                         <div class="card bg-primary text-white">
                             <div class="card-body text-center">
@@ -167,25 +141,113 @@
                     <div class="col-md-3">
                         <div class="card bg-success text-white">
                             <div class="card-body text-center">
-                                <h4>{{ tasks|selectattr('difficulty', 'equalto', 'easy')|list|length }}</h4>
-                                <small>Oson</small>
+                                <h4>{{ tasks|selectattr('is_active')|list|length }}</h4>
+                                <small>Faol Topshiriqlar</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card bg-warning text-white">
                             <div class="card-body text-center">
-                                <h4>{{ tasks|selectattr('difficulty', 'equalto', 'medium')|list|length }}</h4>
-                                <small>O'rta</small>
+                                <h4>{{ tasks|selectattr('daily_reset')|list|length }}</h4>
+                                <small>Kunlik Topshiriqlar</small>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <div class="card bg-danger text-white">
+                        <div class="card bg-info text-white">
                             <div class="card-body text-center">
-                                <h4>{{ tasks|selectattr('difficulty', 'equalto', 'hard')|list|length }}</h4>
-                                <small>Qiyin</small>
+                                <button class="btn btn-light btn-sm" onclick="generateDailyTasks()">
+                                    <i class="fas fa-sync-alt me-2"></i>Kunliklarni Yangilash
+                                </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tasks Table -->
+                <div class="card shadow">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Barcha Topshiriqlar</h5>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="showInactive" onchange="filterTasks()">
+                            <label class="form-check-label" for="showInactive">Nofaollarni ko'rsatish</label>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="tasksTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Sarlavha</th>
+                                        <th>Tavsif</th>
+                                        <th>Mukofot</th>
+                                        <th>Energiya</th>
+                                        <th>Holat</th>
+                                        <th>Harakatlar</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for task in tasks %}
+                                    <tr class="{% if not task.is_active %}table-secondary{% endif %}" data-task-id="{{ task.id }}">
+                                        <td>{{ task.id }}</td>
+                                        <td>
+                                            <strong>{{ task.title }}</strong>
+                                            <div class="task-badges mt-1">
+                                                <span class="badge bg-{% if task.difficulty == 'easy' %}success{% elif task.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
+                                                    {{ task.difficulty }}
+                                                </span>
+                                                {% if task.daily_reset %}
+                                                <span class="badge badge-daily">Kunlik</span>
+                                                {% endif %}
+                                                {% if task.quiz_required %}
+                                                <span class="badge badge-quiz">Test</span>
+                                                {% endif %}
+                                                <span class="badge bg-secondary">{{ task.task_type }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ task.description[:80] }}{% if task.description|length > 80 %}...{% endif %}</td>
+                                        <td>
+                                            <span class="text-warning fw-bold">
+                                                <i class="fas fa-coins me-1"></i>{{ task.reward_coins }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-success">
+                                                <i class="fas fa-bolt me-1"></i>{{ task.energy_cost }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if task.is_active %}
+                                            <span class="badge bg-success">Faol</span>
+                                            {% else %}
+                                            <span class="badge bg-secondary">Nofaol</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="task-actions">
+                                                <button class="btn btn-sm btn-outline-primary" 
+                                                        onclick="editTask({{ task.id }})"
+                                                        data-bs-toggle="tooltip" title="Tahrirlash">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-{% if task.is_active %}warning{% else %}success{% endif %}" 
+                                                        onclick="toggleTask({{ task.id }})"
+                                                        data-bs-toggle="tooltip" title="{% if task.is_active %}Nofaollashtirish{% else %}Faollashtirish{% endif %}">
+                                                    <i class="fas fa-{% if task.is_active %}pause{% else %}play{% endif %}"></i>
+                                                </button>
+                                                <button class="btn btn-sm btn-outline-danger" 
+                                                        onclick="deleteTask({{ task.id }})"
+                                                        data-bs-toggle="tooltip" title="O'chirish">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -193,6 +255,407 @@
         </div>
     </div>
 
+    <!-- Add Task Modal -->
+    <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addTaskModalLabel">Yangi Topshiriq Qo'shish</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addTaskForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="taskTitle" class="form-label">Sarlavha *</label>
+                                    <input type="text" class="form-control" id="taskTitle" name="title" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="taskDifficulty" class="form-label">Qiyinlik Darajasi</label>
+                                    <select class="form-select" id="taskDifficulty" name="difficulty">
+                                        <option value="easy">Oson</option>
+                                        <option value="medium">O'rta</option>
+                                        <option value="hard">Qiyin</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="taskDescription" class="form-label">Tavsif *</label>
+                            <textarea class="form-control" id="taskDescription" name="description" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="taskReward" class="form-label">Mukofot (coin) *</label>
+                                    <input type="number" class="form-control" id="taskReward" name="reward_coins" value="10" min="1" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="taskEnergy" class="form-label">Energiya Sarfi *</label>
+                                    <input type="number" class="form-control" id="taskEnergy" name="energy_cost" value="10" min="1" required>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="taskType" class="form-label">Topshiriq Turi</label>
+                                    <select class="form-select" id="taskType" name="task_type">
+                                        <option value="regular">Doimiy</option>
+                                        <option value="daily">Kunlik</option>
+                                        <option value="quiz">Test</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="taskCategory" class="form-label">Kategoriya</label>
+                                    <select class="form-select" id="taskCategory" name="category">
+                                        <option value="eco">Ekologiya</option>
+                                        <option value="water">Suv tejash</option>
+                                        <option value="energy">Energiya tejash</option>
+                                        <option value="recycling">Qayta ishlash</option>
+                                        <option value="planting">Daraxt ekish</option>
+                                        <option value="composting">Kompost</option>
+                                        <option value="transport">Transport</option>
+                                        <option value="knowledge">Bilim</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Qo'shimcha Sozlamalar</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="taskQuizRequired" name="quiz_required" checked>
+                                        <label class="form-check-label" for="taskQuizRequired">
+                                            Test Talab Qilinadi
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="taskDailyReset" name="daily_reset">
+                                        <label class="form-check-label" for="taskDailyReset">
+                                            Kunlik Yangilansin
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="taskIsActive" name="is_active" checked>
+                                        <label class="form-check-label" for="taskIsActive">
+                                            Faol
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor Qilish</button>
+                    <button type="button" class="btn btn-primary" onclick="submitNewTask()">Qo'shish</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1" aria-labelledby="editTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTaskModalLabel">Topshiriqni Tahrirlash</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="editTaskModalBody">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Tooltip'larni faollashtirish
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+        });
+
+        // Topshiriqlarni filtrlash
+        function filterTasks() {
+            const showInactive = document.getElementById('showInactive').checked;
+            const rows = document.querySelectorAll('#tasksTable tbody tr');
+            
+            rows.forEach(row => {
+                const isActive = !row.classList.contains('table-secondary');
+                if (!showInactive && !isActive) {
+                    row.style.display = 'none';
+                } else {
+                    row.style.display = '';
+                }
+            });
+        }
+
+        // Yangi topshiriq qo'shish
+        function submitNewTask() {
+            const form = document.getElementById('addTaskForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            // Checkbox qiymatlarini to'g'rilash
+            data.quiz_required = document.getElementById('taskQuizRequired').checked;
+            data.daily_reset = document.getElementById('taskDailyReset').checked;
+            data.is_active = document.getElementById('taskIsActive').checked;
+            
+            // Yangi maydonlarni qo'shish
+            data.task_type = document.getElementById('taskType').value;
+            data.category = document.getElementById('taskCategory').value;
+            
+            fetch('/admin/add_task', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                    location.reload();
+                } else {
+                    alert('❌ ' + result.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ Xatolik yuz berdi: ' + error);
+            });
+        }
+
+        // Topshiriqni tahrirlash
+        function editTask(taskId) {
+            fetch('/admin/get_task/' + taskId)
+                .then(response => response.json())
+                .then(result => {
+                    if (!result.success) {
+                        alert('❌ ' + result.error);
+                        return;
+                    }
+                    
+                    const task = result.task;
+                    const modalBody = `
+                        <form id="editTaskForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Sarlavha</label>
+                                        <input type="text" class="form-control" name="title" value="${task.title}" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Qiyinlik Darajasi</label>
+                                        <select class="form-select" name="difficulty">
+                                            <option value="easy" ${task.difficulty === 'easy' ? 'selected' : ''}>Oson</option>
+                                            <option value="medium" ${task.difficulty === 'medium' ? 'selected' : ''}>O'rta</option>
+                                            <option value="hard" ${task.difficulty === 'hard' ? 'selected' : ''}>Qiyin</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Tavsif</label>
+                                <textarea class="form-control" name="description" rows="3" required>${task.description}</textarea>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Mukofot (coin)</label>
+                                        <input type="number" class="form-control" name="reward_coins" value="${task.reward_coins}" min="1" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Energiya Sarfi</label>
+                                        <input type="number" class="form-control" name="energy_cost" value="${task.energy_cost}" min="1" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label class="form-label">Topshiriq Turi</label>
+                                        <select class="form-select" name="task_type">
+                                            <option value="regular" ${task.task_type === 'regular' ? 'selected' : ''}>Doimiy</option>
+                                            <option value="daily" ${task.task_type === 'daily' ? 'selected' : ''}>Kunlik</option>
+                                            <option value="quiz" ${task.task_type === 'quiz' ? 'selected' : ''}>Test</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Kategoriya</label>
+                                        <select class="form-select" name="category">
+                                            <option value="eco" ${task.category === 'eco' ? 'selected' : ''}>Ekologiya</option>
+                                            <option value="water" ${task.category === 'water' ? 'selected' : ''}>Suv tejash</option>
+                                            <option value="energy" ${task.category === 'energy' ? 'selected' : ''}>Energiya tejash</option>
+                                            <option value="recycling" ${task.category === 'recycling' ? 'selected' : ''}>Qayta ishlash</option>
+                                            <option value="planting" ${task.category === 'planting' ? 'selected' : ''}>Daraxt ekish</option>
+                                            <option value="composting" ${task.category === 'composting' ? 'selected' : ''}>Kompost</option>
+                                            <option value="transport" ${task.category === 'transport' ? 'selected' : ''}>Transport</option>
+                                            <option value="knowledge" ${task.category === 'knowledge' ? 'selected' : ''}>Bilim</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Sozlamalar</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="quiz_required" ${task.quiz_required ? 'checked' : ''}>
+                                            <label class="form-check-label">Test Talab Qilinadi</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="daily_reset" ${task.daily_reset ? 'checked' : ''}>
+                                            <label class="form-check-label">Kunlik Yangilansin</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="is_active" ${task.is_active ? 'checked' : ''}>
+                                            <label class="form-check-label">Faol</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Bekor Qilish</button>
+                                <button type="button" class="btn btn-primary" onclick="updateTask(${task.id})">Saqlash</button>
+                            </div>
+                        </form>
+                    `;
+                    
+                    document.getElementById('editTaskModalBody').innerHTML = modalBody;
+                    const editModal = new bootstrap.Modal(document.getElementById('editTaskModal'));
+                    editModal.show();
+                })
+                .catch(error => {
+                    alert('❌ Topshiriqni yuklashda xatolik: ' + error);
+                });
+        }
+
+        function updateTask(taskId) {
+            const form = document.getElementById('editTaskForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            
+            // Checkbox qiymatlarini to'g'rilash
+            const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                data[checkbox.name] = checkbox.checked;
+            });
+            
+            fetch('/admin/update_task/' + taskId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                    location.reload();
+                } else {
+                    alert('❌ ' + result.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ Xatolik yuz berdi: ' + error);
+            });
+        }
+
+        // Topshiriq holatini o'zgartirish
+        function toggleTask(taskId) {
+            if (!confirm('Topshiriq holatini o\'zgartirishni tasdiqlaysizmi?')) return;
+            
+            fetch('/admin/toggle_task/' + taskId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                    location.reload();
+                } else {
+                    alert('❌ ' + result.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ Xatolik yuz berdi: ' + error);
+            });
+        }
+
+        // Topshiriqni o'chirish
+        function deleteTask(taskId) {
+            if (!confirm('Bu topshiriqni o\'chirishni tasdiqlaysizmi? Bu amalni ortga qaytarib bo\'lmaydi!')) return;
+            
+            fetch('/admin/delete_task/' + taskId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                    location.reload();
+                } else {
+                    alert('❌ ' + result.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ Xatolik yuz berdi: ' + error);
+            });
+        }
+
+        // Kunlik topshiriqlarni yangilash
+        function generateDailyTasks() {
+            if (!confirm('Bugungi kun uchun yangi kunlik topshiriqlar yaratishni tasdiqlaysizmi?')) return;
+            
+            fetch('/admin/generate_daily_tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                location.reload();
+                } else {
+                    alert('❌ ' + result.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ Xatolik yuz berdi: ' + error);
+            });
+        }
+    </script>
 </body>
 </html>

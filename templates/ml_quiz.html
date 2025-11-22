@@ -1,638 +1,571 @@
-{% extends "base.html" %}
-
-{% block title %}EcoVerse - ML Eco Test{% endblock %}
-
-{% block content %}
-<div class="container mt-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold text-center mb-4">🧠 Eco Bilim Testi</h2>
-            
-            {% if task %}
-            <div class="alert alert-info">
-                <h5><i class="fas fa-tasks me-2"></i>{{ task.title }}</h5>
-                <p class="mb-1">{{ task.description }}</p>
-                <small>
-                    <strong>Qiyinlik darajasi:</strong> 
-                    <span class="badge bg-{% if task.difficulty == 'easy' %}success{% elif task.difficulty == 'medium' %}warning{% else %}danger{% endif %}">
-                        {{ task.difficulty }}
-                    </span> |
-                    <strong>Mukofot:</strong> {{ task.reward_coins }} coin |
-                    <strong>Energiya:</strong> {{ task.energy_cost }}
-                </small>
-            </div>
-            {% endif %}
-            
-            <p class="text-center text-muted mb-5">Ekologiya bilimingizni sinab ko'ring va coinlar yuting!</p>
-        </div>
-    </div>
-
-    <!-- Test statistikasi -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card eco-card">
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-3">
-                            <h4 id="currentQuestion">1</h4>
-                            <p class="text-muted">Joriy savol</p>
-                        </div>
-                        <div class="col-md-3">
-                            <h4 id="totalQuestions">10</h4>
-                            <p class="text-muted">Jami savol</p>
-                        </div>
-                        <div class="col-md-3">
-                            <h4 id="correctCount">0</h4>
-                            <p class="text-muted">To'g'ri javob</p>
-                        </div>
-                        <div class="col-md-3">
-                            <h4 id="score">0</h4>
-                            <p class="text-muted">Ball</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Test konteyneri -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card eco-card">
-                <div class="card-body">
-                    <!-- Boshlash tugmasi -->
-                    <div id="startScreen" class="text-center py-5">
-                        <i class="fas fa-brain fa-4x text-success mb-4"></i>
-                        <h3>Eco Bilim Testiga Xush Kelibsiz!</h3>
-                        <p class="text-muted mb-4">
-                            {% if task %}
-                                "{{ task.title }}" topshirig'i uchun test
-                            {% else %}
-                                5 ta ekologiya savoliga javob bering va bilimingizni sinab ko'ring
-                            {% endif %}
-                        </p>
-                        <div class="test-info mb-4">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <i class="fas fa-clock text-warning me-2"></i>
-                                    <span>5 daqiqa</span>
-                                </div>
-                                <div class="col-md-4">
-                                    <i class="fas fa-coins text-warning me-2"></i>
-                                    <span>
-                                        {% if task %}
-                                            {{ task.reward_coins }} coin mukofot
-                                        {% else %}
-                                            50 coin mukofot
-                                        {% endif %}
-                                    </span>
-                                </div>
-                                <div class="col-md-4">
-                                    <i class="fas fa-bolt text-warning me-2"></i>
-                                    <span>20 energiya</span>
-                                </div>
-                            </div>
-                        </div>
-                        <button id="startQuiz" class="btn btn-eco btn-lg">
-                            {% if task %}
-                                Topshiriq Testini Boshlash
-                            {% else %}
-                                Testni Boshlash
-                            {% endif %}
-                        </button>
-                    </div>
-
-                    <!-- Test savollari -->
-                    <div id="quizContainer" class="d-none">
-                        <div class="question-header mb-4">
-                            <span class="badge bg-info" id="questionCategory">Kategoriya</span>
-                            <span class="badge bg-warning ms-2" id="questionDifficulty">O'rta</span>
-                        </div>
-                        
-                        <!-- Savol qismi - himoyalangan -->
-                        <div class="question-protected mb-4">
-                            <h4 class="question-text mb-4" id="questionText">Savol matni...</h4>
-                        </div>
-                        
-                        <div class="options-container mb-4">
-                            <div class="option-item mb-3" data-option="0">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="quizOption" id="option0">
-                                    <label class="form-check-label" for="option0" id="optionText0">
-                                        Variant 1
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="option-item mb-3" data-option="1">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="quizOption" id="option1">
-                                    <label class="form-check-label" for="option1" id="optionText1">
-                                        Variant 2
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="option-item mb-3" data-option="2">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="quizOption" id="option2">
-                                    <label class="form-check-label" for="option2" id="optionText2">
-                                        Variant 3
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="option-item mb-3" data-option="3">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="quizOption" id="option3">
-                                    <label class="form-check-label" for="option3" id="optionText3">
-                                        Variant 4
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="d-flex justify-content-between">
-                            <button id="prevQuestion" class="btn btn-outline-eco" disabled>Oldingi</button>
-                            <button id="nextQuestion" class="btn btn-eco">Keyingi savol</button>
-                            <button id="submitQuiz" class="btn btn-success d-none">Testni Yakunlash</button>
-                        </div>
-                    </div>
-
-                    <!-- Natijalar -->
-                    <div id="resultsContainer" class="d-none text-center py-5">
-                        <div class="results-icon mb-4">
-                            <i class="fas fa-trophy fa-4x text-warning"></i>
-                        </div>
-                        <h3>Test Yakunlandi!</h3>
-                        <div class="results-stats mb-4">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h2 id="finalScore">0</h2>
-                                    <p>Ball</p>
-                                </div>
-                                <div class="col-md-6">
-                                    <h2 id="correctAnswers">0/5</h2>
-                                    <p>To'g'ri javoblar</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="results-rewards mb-4">
-                            <h5 class="text-success" id="earnedCoins">+0 coin</h5>
-                            <p class="text-muted" id="earnedEnergy">+0 energiya</p>
-                        </div>
-                        <div id="taskCompletionMessage"></div>
-                        <div class="results-actions">
-                            <button id="restartQuiz" class="btn btn-eco me-3">Qayta Boshlash</button>
-                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-eco">Bosh Sahifa</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
-.eco-card {
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    border: none;
-}
-.option-item {
-    padding: 15px;
-    border: 2px solid #e9ecef;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-.option-item:hover {
-    border-color: #4CAF50;
-    background: rgba(76, 175, 80, 0.05);
-}
-.option-item.selected {
-    border-color: #4CAF50;
-    background: rgba(76, 175, 80, 0.1);
-}
-.question-text {
-    font-size: 1.2rem;
-    font-weight: 600;
-    user-select: none; /* Matnni tanlashni oldini olish */
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-}
-.question-protected {
-    position: relative;
-    background: rgba(76, 175, 80, 0.05);
-    padding: 20px;
-    border-radius: 10px;
-    border: 2px solid #e9ecef;
-}
-/* Screen qilishni qiyinlashtirish */
-.question-protected::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: transparent;
-    pointer-events: none;
-}
-.results-stats {
-    background: rgba(76, 175, 80, 0.1);
-    padding: 20px;
-    border-radius: 15px;
-    margin: 20px 0;
-}
-.btn-eco {
-    background: linear-gradient(135deg, #4CAF50, #2196F3);
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    font-weight: 600;
-}
-.btn-eco:hover {
-    background: linear-gradient(135deg, #45a049, #1976D2);
-    color: white;
-}
-.btn-outline-eco {
-    border: 2px solid #4CAF50;
-    color: #4CAF50;
-    padding: 12px 30px;
-    font-weight: 600;
-}
-.btn-outline-eco:hover {
-    background: #4CAF50;
-    color: white;
-}
-
-/* Copy qilishni bloklash */
-.protected-content {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-}
-
-/* Screen qilishga qarshi himoya */
-@media print {
-    .question-protected,
-    .quizContainer,
-    .options-container {
-        display: none !important;
-    }
-}
-</style>
-
-{% block scripts %}
-<script>
-let currentQuestionIndex = 0;
-let userAnswers = [];
-let questions = [];
-let quizStarted = false;
-let quizInProgress = false;
-
-// Screen va copy qilishni bloklash
-document.addEventListener('DOMContentLoaded', function() {
-    // Context menu ni bloklash
-    document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-    });
-    
-    // Klaviatura kombinatsiyalarini bloklash
-    document.addEventListener('keydown', function(e) {
-        // Ctrl+C, Ctrl+V, Ctrl+A, Print Screen bloklash
-        if ((e.ctrlKey && (e.key === 'c' || e.key === 'v' || e.key === 'a')) || e.key === 'PrintScreen') {
-            e.preventDefault();
-            return false;
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Test - EcoVerse</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .quiz-container {
+            background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
         
-        // F12 (Developer tools) bloklash
-        if (e.key === 'F12') {
-            e.preventDefault();
-            return false;
+        .quiz-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
         }
-    });
-    
-    // Drag & drop ni bloklash
-    document.addEventListener('dragstart', function(e) {
-        e.preventDefault();
-        return false;
-    });
-    
-    // Copy event ni bloklash
-    document.addEventListener('copy', function(e) {
-        e.preventDefault();
-        return false;
-    });
-    
-    // Cut event ni bloklash
-    document.addEventListener('cut', function(e) {
-        e.preventDefault();
-        return false;
-    });
-});
-
-// Tab o'zgarganda ogohlantirish
-let visibilityChange;
-if (typeof document.hidden !== "undefined") {
-    visibilityChange = "visibilitychange";
-} else if (typeof document.msHidden !== "undefined") {
-    visibilityChange = "msvisibilitychange";
-} else if (typeof document.webkitHidden !== "undefined") {
-    visibilityChange = "webkitvisibilitychange";
-}
-
-document.addEventListener(visibilityChange, function() {
-    if (document.hidden || document.msHidden || document.webkitHidden) {
-        if (quizInProgress) {
-            alert("⚠️ Test davomida sahifani tark etish mumkin emas! Agar davom etsangiz, test yangidan boshlanadi.");
-            resetQuiz();
+        
+        .difficulty-badge {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 15px;
         }
-    }
-}, false);
-
-// Oldinga/ortga tugmalarini bloklash
-window.addEventListener('beforeunload', function(e) {
-    if (quizInProgress) {
-        e.preventDefault();
-        e.returnValue = 'Test davomida sahifani tark etish mumkin emas!';
-        return 'Test davomida sahifani tark etish mumkin emas!';
-    }
-});
-
-// Testni reset qilish
-function resetQuiz() {
-    currentQuestionIndex = 0;
-    userAnswers = [];
-    questions = [];
-    quizStarted = false;
-    quizInProgress = false;
-    
-    document.getElementById('resultsContainer').classList.add('d-none');
-    document.getElementById('quizContainer').classList.add('d-none');
-    document.getElementById('startScreen').classList.remove('d-none');
-    document.getElementById('taskCompletionMessage').innerHTML = '';
-}
-
-// URL parametrlarini tekshirish
-function checkUrlParams() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const fromTask = urlParams.get('from_task');
-    const taskId = urlParams.get('task_id');
-    
-    if (fromTask === 'true' || taskId) {
-        setTimeout(() => {
-            startQuiz();
-        }, 1000);
-    }
-}
-
-// Energiya tekshirish
-async function checkEnergy() {
-    try {
-        const response = await fetch('/check_energy/20');
-        const data = await response.json();
-        return data.has_enough;
-    } catch (error) {
-        console.error('Energiya tekshirishda xatolik:', error);
-        return false;
-    }
-}
-
-// Testni boshlash
-document.getElementById('startQuiz').addEventListener('click', function() {
-    startQuiz();
-});
-
-// Savollarni yuklash
-async function startQuiz() {
-    try {
-        // Energiya tekshirish
-        const hasEnoughEnergy = await checkEnergy();
         
-        if (!hasEnoughEnergy) {
-            alert('❌ Energiya yetarli emas! Testni boshlash uchun 20 energiya kerak.');
-            return;
+        .question-card {
+            border: none;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
         }
-
-        // Task ID ni olish
-        const urlParams = new URLSearchParams(window.location.search);
-        const taskId = urlParams.get('task_id');
         
-        let url = '/ml/get_questions';
-        if (taskId) {
-            url += `?task_id=${taskId}`;
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-
-        const response = await fetch(url);
-        const data = await response.json();
         
-        if (data.success) {
-            questions = data.questions;
-            document.getElementById('startScreen').classList.add('d-none');
-            document.getElementById('quizContainer').classList.remove('d-none');
-            quizStarted = true;
-            quizInProgress = true;
-            showQuestion(0);
-        } else {
-            alert('Savollarni yuklashda xatolik: ' + data.error);
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            background: white;
         }
-    } catch (error) {
-        alert('Xatolik yuz berdi: ' + error);
-    }
-}
-
-// Savolni ko'rsatish
-function showQuestion(index) {
-    if (index < 0 || index >= questions.length) return;
-    
-    const question = questions[index];
-    document.getElementById('questionText').textContent = question.question;
-    document.getElementById('questionCategory').textContent = question.category;
-    document.getElementById('questionDifficulty').textContent = question.difficulty;
-    
-    // Variantlarni tozalash
-    for (let i = 0; i < 4; i++) {
-        const optionItem = document.querySelector(`.option-item[data-option="${i}"]`);
-        const optionText = document.getElementById(`optionText${i}`);
-        const optionInput = document.getElementById(`option${i}`);
         
-        optionText.textContent = question.options[i];
-        optionInput.checked = false;
-        optionItem.classList.remove('selected', 'correct', 'incorrect');
-    }
-    
-    // Oldingi javobni ko'rsatish
-    if (userAnswers[index] !== undefined) {
-        const previousAnswer = userAnswers[index];
-        document.getElementById(`option${previousAnswer}`).checked = true;
-        document.querySelector(`.option-item[data-option="${previousAnswer}"]`).classList.add('selected');
-    }
-    
-    // Navigation tugmalarini yangilash
-    document.getElementById('prevQuestion').disabled = index === 0;
-    document.getElementById('nextQuestion').classList.toggle('d-none', index === questions.length - 1);
-    document.getElementById('submitQuiz').classList.toggle('d-none', index !== questions.length - 1);
-    
-    // Statistikani yangilash
-    document.getElementById('currentQuestion').textContent = index + 1;
-    document.getElementById('totalQuestions').textContent = questions.length;
-    
-    currentQuestionIndex = index;
-}
-
-// Variant tanlash
-document.querySelectorAll('.option-item').forEach(item => {
-    item.addEventListener('click', function() {
-        if (!quizStarted) return;
-        
-        const optionIndex = parseInt(this.dataset.option);
-        
-        // Barcha variantlardan tanlangan classni olib tashlash
-        document.querySelectorAll('.option-item').forEach(opt => {
-            opt.classList.remove('selected');
-        });
-        
-        // Tanlangan variantga class qo'shish
-        this.classList.add('selected');
-        document.getElementById(`option${optionIndex}`).checked = true;
-        
-        // Javobni saqlash
-        userAnswers[currentQuestionIndex] = optionIndex;
-        
-        // To'g'ri javoblar sonini yangilash
-        updateStats();
-    });
-});
-
-// Navigation
-document.getElementById('prevQuestion').addEventListener('click', function() {
-    if (currentQuestionIndex > 0) {
-        showQuestion(currentQuestionIndex - 1);
-    }
-});
-
-document.getElementById('nextQuestion').addEventListener('click', function() {
-    if (currentQuestionIndex < questions.length - 1) {
-        showQuestion(currentQuestionIndex + 1);
-    }
-});
-
-// Testni yakunlash
-document.getElementById('submitQuiz').addEventListener('click', function() {
-    finishQuiz();
-});
-
-// Statistikani yangilash
-function updateStats() {
-    let correctCount = 0;
-    
-    for (let i = 0; i < userAnswers.length; i++) {
-        if (userAnswers[i] !== undefined && userAnswers[i] === questions[i].correct_answer) {
-            correctCount++;
+        .option-btn:hover {
+            border-color: #1B5E20;
+            background: #f8fff8;
         }
-    }
-    
-    const score = correctCount * 10;
-    
-    document.getElementById('correctCount').textContent = correctCount;
-    document.getElementById('score').textContent = score;
-}
-
-// Testni yakunlash
-async function finishQuiz() {
-    // Javoblarni tekshirish
-    let correctCount = 0;
-    const results = [];
-    
-    for (let i = 0; i < questions.length; i++) {
-        const isCorrect = userAnswers[i] === questions[i].correct_answer;
-        if (isCorrect) correctCount++;
         
-        results.push({
-            question_id: questions[i].id,
-            user_answer: userAnswers[i],
-            correct_answer: questions[i].correct_answer,
-            is_correct: isCorrect
-        });
-    }
-    
-    const score = correctCount * 10;
-    
-    // Task ID ni olish
-    const urlParams = new URLSearchParams(window.location.search);
-    const taskId = urlParams.get('task_id');
-    
-    // Serverga natijalarni yuborish
-    try {
-        const submitData = {
-            results: results,
-            score: score,
-            correct_count: correctCount,
-            total_questions: questions.length
-        };
-        
-        if (taskId) {
-            submitData.task_id = taskId;
+        .option-btn.selected {
+            border-color: #1B5E20;
+            background: #1B5E20;
+            color: white;
         }
-
-        const response = await fetch('/ml/submit_quiz', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(submitData)
-        });
         
-        const data = await response.json();
+        .option-btn.correct {
+            border-color: #28a745;
+            background: #28a745;
+            color: white;
+        }
         
-        if (data.success) {
-            // Natijalarni ko'rsatish
-            document.getElementById('quizContainer').classList.add('d-none');
-            document.getElementById('resultsContainer').classList.remove('d-none');
-            quizInProgress = false;
-            
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('correctAnswers').textContent = `${correctCount}/${questions.length}`;
-            document.getElementById('earnedCoins').textContent = `+${data.coins_earned} coin`;
-            document.getElementById('earnedEnergy').textContent = `-${data.energy_used} energiya`;
-            
-            // Agar topshiriq uchun test bo'lsa, qo'shimcha xabar
-            if (data.task_completed) {
-                const taskMessage = document.createElement('div');
-                taskMessage.className = 'alert alert-success mt-3';
-                taskMessage.innerHTML = `
-                    <i class="fas fa-check-circle me-2"></i>
-                    <strong>Tabriklaymiz!</strong> Topshiriq testi muvaffaqiyatli yakunlandi! 
-                    Endi topshiriqni bajarishingiz mumkin.
-                    <div class="mt-2">
-                        <a href="{{ url_for('dashboard') }}" class="btn btn-success btn-sm">
-                            <i class="fas fa-arrow-left me-1"></i>Dashboardga qaytish
+        .option-btn.incorrect {
+            border-color: #dc3545;
+            background: #dc3545;
+            color: white;
+        }
+        
+        .progress-bar {
+            height: 8px;
+            border-radius: 4px;
+        }
+        
+        .level-indicator {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 10px 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+        }
+        
+        .stats-circle {
+            width: 100px;
+            height: 100px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="container">
+            <!-- Header -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-light">
+                            <i class="fas fa-arrow-left me-2"></i>Orqaga
                         </a>
+                        <div class="level-indicator">
+                            <i class="fas fa-user-shield me-2"></i>
+                            Level {{ user.level }} | {{ user.username }}
+                        </div>
                     </div>
-                `;
-                document.getElementById('taskCompletionMessage').appendChild(taskMessage);
+                </div>
+            </div>
+
+            <!-- Quiz Content -->
+            <div class="row justify-content-center">
+                <div class="col-lg-8 col-md-10">
+                    <div class="quiz-card">
+                        <div class="card-body p-4">
+                            <!-- Loading Screen -->
+                            <div id="loadingScreen" class="text-center py-5">
+                                <div class="spinner-border text-success mb-3" style="width: 3rem; height: 3rem;"></div>
+                                <h4>Test tayyorlanmoqda...</h4>
+                                <p class="text-muted" id="loadingText">Sizning darajangizga mos savollar yuklanmoqda</p>
+                                
+                                <!-- Difficulty Info -->
+                                <div class="row mt-4">
+                                    <div class="col-md-4">
+                                        <div class="card border-success mb-3">
+                                            <div class="card-body text-center">
+                                                <span class="badge bg-success mb-2">OSON</span>
+                                                <h6>Level 1-3</h6>
+                                                <small class="text-muted">20-30 coin</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card border-warning mb-3">
+                                            <div class="card-body text-center">
+                                                <span class="badge bg-warning mb-2">O'RTA</span>
+                                                <h6>Level 4-6</h6>
+                                                <small class="text-muted">30-45 coin</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card border-danger mb-3">
+                                            <div class="card-body text-center">
+                                                <span class="badge bg-danger mb-2">QIYIN</span>
+                                                <h6>Level 7+</h6>
+                                                <small class="text-muted">45-70 coin</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quiz Screen -->
+                            <div id="quizScreen" style="display: none;">
+                                <!-- Quiz Header -->
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <div>
+                                        <h3 class="mb-1">🌱 Eco Test</h3>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge difficulty-badge bg-success me-2" id="difficultyBadge">OSON</span>
+                                            <span class="text-muted" id="questionCounter">1/5</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="mb-1">
+                                            <small class="text-muted">Energiya sarfi:</small>
+                                            <span class="fw-bold text-success" id="energyCost">15</span> ⚡
+                                        </div>
+                                        <div class="progress" style="width: 150px; height: 8px;">
+                                            <div id="quizProgress" class="progress-bar bg-success" style="width: 0%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Question -->
+                                <div id="questionContainer">
+                                    <div class="card question-card">
+                                        <div class="card-body">
+                                            <h5 class="card-title" id="questionText">Savol matni...</h5>
+                                            <div id="optionsContainer" class="mt-3">
+                                                <!-- Options will be loaded here -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Navigation -->
+                                <div class="d-flex justify-content-between mt-4">
+                                    <button id="prevBtn" class="btn btn-outline-secondary" disabled>
+                                        <i class="fas fa-arrow-left me-2"></i>Oldingi
+                                    </button>
+                                    <button id="nextBtn" class="btn btn-success">
+                                        Keyingi <i class="fas fa-arrow-right ms-2"></i>
+                                    </button>
+                                    <button id="submitBtn" class="btn btn-primary" style="display: none;">
+                                        Testni Yakunlash <i class="fas fa-paper-plane ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Results Screen -->
+                            <div id="resultsScreen" style="display: none;">
+                                <div class="result-card text-center">
+                                    <div class="mb-4">
+                                        <i class="fas fa-trophy fa-3x mb-3"></i>
+                                        <h2>Test Yakunlandi!</h2>
+                                        <p class="mb-0" id="resultMessage">Natijalar hisoblanmoqda...</p>
+                                    </div>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-3">
+                                            <div class="stats-circle bg-success">
+                                                <span id="correctAnswers">0</span>
+                                            </div>
+                                            <p class="mt-2 mb-0">To'g'ri javob</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="stats-circle bg-warning">
+                                                <span id="totalCoins">0</span>
+                                            </div>
+                                            <p class="mt-2 mb-0">Coin</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="stats-circle bg-info">
+                                                <span id="expGained">0</span>
+                                            </div>
+                                            <p class="mt-2 mb-0">Tajriba</p>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="stats-circle bg-primary">
+                                                <span id="userLevel">{{ user.level }}</span>
+                                            </div>
+                                            <p class="mt-2 mb-0">Daraja</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <button id="reviewBtn" class="btn btn-light w-100">
+                                                <i class="fas fa-redo me-2"></i>Javoblarni Ko'rib Chiqish
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light w-100">
+                                                <i class="fas fa-home me-2"></i>Bosh Sahifa
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Review Section -->
+                                <div id="reviewSection" style="display: none;" class="mt-4">
+                                    <h4 class="mb-3">Javoblaringizni Ko'rib Chiqing</h4>
+                                    <div id="reviewQuestions">
+                                        <!-- Review questions will be loaded here -->
+                                    </div>
+                                    <div class="text-center mt-4">
+                                        <a href="{{ url_for('dashboard') }}" class="btn btn-success">
+                                            <i class="fas fa-home me-2"></i>Bosh Sahifaga Qaytish
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Error Screen -->
+                            <div id="errorScreen" style="display: none;" class="text-center py-5">
+                                <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                                <h4>Xatolik yuz berdi</h4>
+                                <p id="errorMessage" class="text-muted"></p>
+                                <button onclick="location.reload()" class="btn btn-primary">
+                                    <i class="fas fa-redo me-2"></i>Qayta Urinish
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class EcoQuiz {
+            constructor() {
+                this.questions = [];
+                this.currentQuestionIndex = 0;
+                this.userAnswers = [];
+                this.quizStarted = false;
+                this.taskId = new URLSearchParams(window.location.search).get('task_id');
+                this.difficulty = '{{ difficulty }}' || '';
+                
+                this.init();
             }
-        } else {
-            alert('Natijalarni saqlashda xatolik: ' + data.error);
+
+            async init() {
+                await this.loadQuestions();
+                this.setupEventListeners();
+            }
+
+            async loadQuestions() {
+                try {
+                    const params = new URLSearchParams();
+                    if (this.taskId) params.append('task_id', this.taskId);
+                    if (this.difficulty) params.append('difficulty', this.difficulty);
+                    
+                    const response = await fetch(`/ml/get_questions?${params}`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.questions = data.questions;
+                        this.difficulty = data.difficulty;
+                        this.userLevel = data.user_level;
+                        
+                        this.showQuizScreen();
+                        this.updateDifficultyInfo();
+                        this.showQuestion(0);
+                    } else {
+                        this.showError(data.error);
+                    }
+                } catch (error) {
+                    this.showError('Savollarni yuklashda xatolik: ' + error.message);
+                }
+            }
+
+            showQuizScreen() {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('quizScreen').style.display = 'block';
+                this.quizStarted = true;
+            }
+
+            updateDifficultyInfo() {
+                const badge = document.getElementById('difficultyBadge');
+                const energyCost = document.getElementById('energyCost');
+                
+                switch(this.difficulty) {
+                    case 'easy':
+                        badge.className = 'badge difficulty-badge bg-success me-2';
+                        badge.textContent = 'OSON';
+                        energyCost.textContent = '15';
+                        break;
+                    case 'medium':
+                        badge.className = 'badge difficulty-badge bg-warning me-2';
+                        badge.textContent = 'O\'RTA';
+                        energyCost.textContent = '20';
+                        break;
+                    case 'hard':
+                        badge.className = 'badge difficulty-badge bg-danger me-2';
+                        badge.textContent = 'QIYIN';
+                        energyCost.textContent = '25';
+                        break;
+                }
+            }
+
+            showQuestion(index) {
+                if (index < 0 || index >= this.questions.length) return;
+                
+                this.currentQuestionIndex = index;
+                const question = this.questions[index];
+                
+                // Update question counter
+                document.getElementById('questionCounter').textContent = `${index + 1}/${this.questions.length}`;
+                
+                // Update progress bar
+                const progress = ((index + 1) / this.questions.length) * 100;
+                document.getElementById('quizProgress').style.width = `${progress}%`;
+                
+                // Show question text
+                document.getElementById('questionText').textContent = question.question;
+                
+                // Show options
+                const optionsContainer = document.getElementById('optionsContainer');
+                optionsContainer.innerHTML = '';
+                
+                question.options.forEach((option, optionIndex) => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option;
+                    button.dataset.optionIndex = optionIndex;
+                    
+                    // Check if user has already selected this option
+                    const userAnswer = this.userAnswers[index];
+                    if (userAnswer !== undefined && userAnswer === optionIndex) {
+                        button.classList.add('selected');
+                    }
+                    
+                    button.addEventListener('click', () => this.selectOption(optionIndex));
+                    optionsContainer.appendChild(button);
+                });
+                
+                // Update navigation buttons
+                document.getElementById('prevBtn').disabled = index === 0;
+                document.getElementById('nextBtn').style.display = index < this.questions.length - 1 ? 'block' : 'none';
+                document.getElementById('submitBtn').style.display = index === this.questions.length - 1 ? 'block' : 'none';
+            }
+
+            selectOption(optionIndex) {
+                const question = this.questions[this.currentQuestionIndex];
+                const options = document.querySelectorAll('.option-btn');
+                
+                // Remove selected class from all options
+                options.forEach(opt => opt.classList.remove('selected'));
+                
+                // Add selected class to clicked option
+                options[optionIndex].classList.add('selected');
+                
+                // Save user answer
+                this.userAnswers[this.currentQuestionIndex] = optionIndex;
+            }
+
+            nextQuestion() {
+                if (this.currentQuestionIndex < this.questions.length - 1) {
+                    this.showQuestion(this.currentQuestionIndex + 1);
+                }
+            }
+
+            prevQuestion() {
+                if (this.currentQuestionIndex > 0) {
+                    this.showQuestion(this.currentQuestionIndex - 1);
+                }
+            }
+
+            async submitQuiz() {
+                try {
+                    // Calculate results
+                    let correctCount = 0;
+                    const results = [];
+                    
+                    this.questions.forEach((question, index) => {
+                        const userAnswer = this.userAnswers[index];
+                        const isCorrect = userAnswer === question.correct_answer;
+                        
+                        if (isCorrect) correctCount++;
+                        
+                        results.push({
+                            question: question.question,
+                            user_answer: userAnswer,
+                            correct_answer: question.correct_answer,
+                            is_correct: isCorrect,
+                            explanation: question.explanation
+                        });
+                    });
+                    
+                    const score = (correctCount / this.questions.length) * 100;
+                    
+                    // Submit results to server
+                    const response = await fetch('/ml/submit_quiz', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            results: results,
+                            score: score,
+                            correct_count: correctCount,
+                            total_questions: this.questions.length,
+                            task_id: this.taskId,
+                            difficulty: this.difficulty
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.showResults(data);
+                    } else {
+                        alert('Xatolik: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('Testni yuborishda xatolik: ' + error.message);
+                }
+            }
+
+            showResults(data) {
+                document.getElementById('quizScreen').style.display = 'none';
+                document.getElementById('resultsScreen').style.display = 'block';
+                
+                // Update result stats
+                document.getElementById('correctAnswers').textContent = data.correct_answers;
+                document.getElementById('totalCoins').textContent = data.coins_earned;
+                document.getElementById('expGained').textContent = data.experience_gained;
+                document.getElementById('userLevel').textContent = data.new_level;
+                document.getElementById('resultMessage').textContent = data.message;
+                
+                // Store data for review
+                this.quizData = data;
+            }
+
+            showReview() {
+                document.getElementById('resultsScreen').style.display = 'none';
+                document.getElementById('reviewSection').style.display = 'block';
+                
+                const reviewContainer = document.getElementById('reviewQuestions');
+                reviewContainer.innerHTML = '';
+                
+                this.questions.forEach((question, index) => {
+                    const userAnswer = this.userAnswers[index];
+                    const isCorrect = userAnswer === question.correct_answer;
+                    
+                    const reviewCard = document.createElement('div');
+                    reviewCard.className = `card mb-3 ${isCorrect ? 'border-success' : 'border-danger'}`;
+                    
+                    reviewCard.innerHTML = `
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="card-title">${index + 1}. ${question.question}</h6>
+                                <span class="badge ${isCorrect ? 'bg-success' : 'bg-danger'}">
+                                    ${isCorrect ? '✓' : '✗'}
+                                </span>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <strong>Sizning javobingiz:</strong>
+                                <span class="${isCorrect ? 'text-success' : 'text-danger'}">
+                                    ${userAnswer !== undefined ? question.options[userAnswer] : 'Javob berilmagan'}
+                                </span>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <strong>To'g'ri javob:</strong>
+                                <span class="text-success">${question.options[question.correct_answer]}</span>
+                            </div>
+                            
+                            ${question.explanation ? `
+                                <div class="alert alert-info mt-2">
+                                    <strong>Izoh:</strong> ${question.explanation}
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                    
+                    reviewContainer.appendChild(reviewCard);
+                });
+            }
+
+            showError(message) {
+                document.getElementById('loadingScreen').style.display = 'none';
+                document.getElementById('errorScreen').style.display = 'block';
+                document.getElementById('errorMessage').textContent = message;
+            }
+
+            setupEventListeners() {
+                document.getElementById('nextBtn').addEventListener('click', () => this.nextQuestion());
+                document.getElementById('prevBtn').addEventListener('click', () => this.prevQuestion());
+                document.getElementById('submitBtn').addEventListener('click', () => this.submitQuiz());
+                document.getElementById('reviewBtn').addEventListener('click', () => this.showReview());
+            }
         }
-    } catch (error) {
-        alert('Xatolik yuz berdi: ' + error);
-    }
-}
 
-// Qayta boshlash
-document.getElementById('restartQuiz').addEventListener('click', function() {
-    resetQuiz();
-});
-
-// Sahifa yuklanganda URL parametrlarini tekshirish
-document.addEventListener('DOMContentLoaded', function() {
-    checkUrlParams();
-});
-</script>
-{% endblock %}
-{% endblock %}
+        // Initialize quiz when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new EcoQuiz();
+        });
+    </script>
+</body>
+</html>

@@ -1,218 +1,518 @@
-{% extends "base.html" %}
-
-{% block title %}EcoVerse - Admin Dashboard{% endblock %}
-
-{% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 admin-sidebar p-0">
-            <div class="p-3">
-                <div class="text-center mb-4">
-                    <h4><i class="fas fa-leaf me-2"></i>EcoVerse Admin</h4>
-                    <small class="text-muted">Panel</small>
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoVerse - Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .admin-sidebar {
+            background: #2c3e50;
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        .admin-main {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+        .nav-link {
+            color: white;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin: 5px 10px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .sidebar-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding-top: 20px;
+            overflow-y: auto;
+        }
+        .stat-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .border-left-primary { border-left: 4px solid #4e73df !important; }
+        .border-left-success { border-left: 4px solid #1cc88a !important; }
+        .border-left-info { border-left: 4px solid #36b9cc !important; }
+        .border-left-warning { border-left: 4px solid #f6c23e !important; }
+        .quick-action-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .quick-action-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4e73df;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 admin-sidebar">
+                <div class="sidebar-sticky">
+                    <div class="text-center mb-4">
+                        <h4><i class="fas fa-leaf me-2"></i>EcoVerse Admin</h4>
+                        <small class="text-muted">Boshqaruv Paneli</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('admin_dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_users') }}">
+                                <i class="fas fa-users me-2"></i>Foydalanuvchilar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_tasks') }}">
+                                <i class="fas fa-tasks me-2"></i>Topshiriqlar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_child') }}">
+                                <i class="fas fa-child me-2"></i>Bolalar Bo'limi
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_news') }}">
+                                <i class="fas fa-newspaper me-2"></i>Yangiliklar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_announcements') }}">
+                                <i class="fas fa-bullhorn me-2"></i>E'lonlar
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link bg-success" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-arrow-left me-2"></i>User Panel
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link bg-warning text-dark" href="{{ url_for('admin_logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Chiqish
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-5 p-3">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>
+                            {{ user.username }}
+                        </small>
+                        <br>
+                        <small class="text-muted">
+                            <i class="fas fa-shield-alt me-1"></i>
+                            Admin
+                        </small>
+                    </div>
                 </div>
-                
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('admin_dashboard') }}">
-                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_users') }}">
-                            <i class="fas fa-users me-2"></i>Foydalanuvchilar
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_tasks') }}">
-                            <i class="fas fa-tasks me-2"></i>Topshiriqlar
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('admin_child') }}">
-                            <i class="fas fa-child me-2"></i>Bolalar
-                        </a>
-                    </li>
-                    <li class="nav-item mt-4">
-                        <a class="nav-link bg-success" href="{{ url_for('dashboard') }}">
-                            <i class="fas fa-arrow-left me-2"></i>User Panel
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link bg-warning text-dark" href="{{ url_for('logout') }}">
-                            <i class="fas fa-sign-out-alt me-2"></i>Chiqish
-                        </a>
-                    </li>
-                </ul>
             </div>
-        </div>
 
-        <!-- Main Content -->
-        <div class="col-md-9 col-lg-10 admin-main p-4">
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 text-gray-800">
-                    <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
-                </h1>
-                <div class="text-end">
-                    <span class="text-muted">Xush kelibsiz, </span>
-                    <strong>{{ user.username }}</strong>
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 admin-main">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 text-gray-800">
+                        <i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard
+                    </h1>
+                    <div class="text-end">
+                        <span class="text-muted">Xush kelibsiz, </span>
+                        <strong>{{ user.username }}</strong>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Stats Cards -->
-            <div class="row">
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card stat-card border-left-primary">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                        Foydalanuvchilar</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_users }}</div>
+                <!-- Stats Cards -->
+                <div class="row">
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card border-left-primary h-100">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Foydalanuvchilar</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_users }}</div>
+                                        <small class="text-muted">
+                                            <span class="text-success">{{ total_child_users }} bola</span> • 
+                                            <span class="text-info">{{ total_adult_users }} katta</span>
+                                        </small>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-users fa-2x text-primary"></i>
+                                    </div>
                                 </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-users fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card border-left-success h-100">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Topshiriqlar</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_tasks }}</div>
+                                        <small class="text-muted">Faol topshiriqlar</small>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-tasks fa-2x text-success"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card border-left-info h-100">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                            Test Natijalari</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_quiz_results }}</div>
+                                        <small class="text-muted">Bajarilgan testlar</small>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-clipboard-list fa-2x text-info"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-3 col-md-6 mb-4">
+                        <div class="card stat-card border-left-warning h-100">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                            Yangiliklar</div>
+                                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_posts }}</div>
+                                        <small class="text-muted">Faol yangiliklar</small>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i class="fas fa-newspaper fa-2x text-warning"></i>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card stat-card border-left-success">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
-                                        Topshiriqlar</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_tasks }}</div>
+                <div class="row">
+                    <!-- So'nggi Foydalanuvchilar -->
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-users me-2"></i>So'nggi Foydalanuvchilar
+                                </h6>
+                                <a href="{{ url_for('admin_users') }}" class="btn btn-primary btn-sm">
+                                    Barchasini Ko'rish
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>Foydalanuvchi</th>
+                                                <th>Rol</th>
+                                                <th>Coinlar</th>
+                                                <th>Sana</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for user in recent_users %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="user-avatar me-3">
+                                                            {{ user.username[0].upper() }}
+                                                        </div>
+                                                        <div>
+                                                            <strong>{{ user.username }}</strong>
+                                                            <br>
+                                                            <small class="text-muted">{{ user.email }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <span class="badge {% if user.role == 'admin' %}bg-danger{% elif user.role == 'child' %}bg-success{% else %}bg-primary{% endif %}">
+                                                        {{ user.role }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-bold text-warning">
+                                                        <i class="fas fa-coins me-1"></i>{{ user.coins }}
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <small class="text-muted">{{ user.created_at.strftime('%m/%d/%Y') }}</small>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-tasks fa-2x text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- So'nggi Yangiliklar -->
+                    <div class="col-xl-6 col-lg-6">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-newspaper me-2"></i>So'nggi Yangiliklar
+                                </h6>
+                                <a href="{{ url_for('admin_news') }}" class="btn btn-primary btn-sm">
+                                    Barchasini Ko'rish
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                {% if recent_posts %}
+                                    {% for post in recent_posts %}
+                                    <div class="mb-3 pb-3 {% if not loop.last %}border-bottom{% endif %}">
+                                        <h6 class="fw-bold text-primary mb-1">{{ post.title }}</h6>
+                                        <p class="text-muted small mb-2">{{ post.content[:80] }}...</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">
+                                                <i class="fas fa-user me-1"></i>{{ post.author.username }}
+                                            </small>
+                                            <small class="text-muted">
+                                                <i class="fas fa-calendar me-1"></i>{{ post.created_at.strftime('%m/%d') }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-newspaper fa-2x text-muted mb-3"></i>
+                                        <p class="text-muted">Hozircha yangiliklar mavjud emas</p>
+                                        <a href="{{ url_for('admin_news') }}" class="btn btn-primary btn-sm">
+                                            Birinchi Yangilik Qo'shish
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tezkor Amallar -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-bolt me-2"></i>Tezkor Amallar
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3 mb-3">
+                                        <div class="quick-action-card text-center">
+                                            <i class="fas fa-user-plus fa-2x text-primary mb-3"></i>
+                                            <h6>Foydalanuvchi Qo'shish</h6>
+                                            <p class="text-muted small mb-3">Yangi foydalanuvchi yaratish</p>
+                                            <a href="{{ url_for('admin_users') }}" class="btn btn-outline-primary btn-sm">
+                                                O'tish
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="quick-action-card text-center">
+                                            <i class="fas fa-tasks fa-2x text-success mb-3"></i>
+                                            <h6>Topshiriq Qo'shish</h6>
+                                            <p class="text-muted small mb-3">Yangi ekologik topshiriq</p>
+                                            <a href="{{ url_for('admin_tasks') }}" class="btn btn-outline-success btn-sm">
+                                                O'tish
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="quick-action-card text-center">
+                                            <i class="fas fa-newspaper fa-2x text-warning mb-3"></i>
+                                            <h6>Yangilik Qo'shish</h6>
+                                            <p class="text-muted small mb-3">Yangi yangilik e'lon qilish</p>
+                                            <a href="{{ url_for('admin_news') }}" class="btn btn-outline-warning btn-sm">
+                                                O'tish
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="quick-action-card text-center">
+                                            <i class="fas fa-bullhorn fa-2x text-info mb-3"></i>
+                                            <h6>E'lon Qo'shish</h6>
+                                            <p class="text-muted small mb-3">Yangi e'lon yaratish</p>
+                                            <a href="{{ url_for('admin_announcements') }}" class="btn btn-outline-info btn-sm">
+                                                O'tish
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card stat-card border-left-info">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                        Test Natijalari</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_quiz_results }}</div>
-                                </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-clipboard-list fa-2x text-info"></i>
+                <!-- Tizim Statistikasi -->
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-chart-bar me-2"></i>Tizim Statistikasi
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-3 mb-3">
+                                        <div class="border rounded p-3">
+                                            <i class="fas fa-user-friends fa-2x text-primary mb-2"></i>
+                                            <h4>{{ total_users }}</h4>
+                                            <small class="text-muted">Jami Foydalanuvchilar</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="border rounded p-3">
+                                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                            <h4>{{ total_quiz_results }}</h4>
+                                            <small class="text-muted">Bajarilgan Testlar</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="border rounded p-3">
+                                            <i class="fas fa-trophy fa-2x text-warning mb-2"></i>
+                                            <h4>{{ total_tasks }}</h4>
+                                            <small class="text-muted">Faol Topshiriqlar</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3 mb-3">
+                                        <div class="border rounded p-3">
+                                            <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                                            <h4>{{ total_posts }}</h4>
+                                            <small class="text-muted">Yangi Yangiliklar</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="col-xl-3 col-md-6 mb-4">
-                    <div class="card stat-card border-left-warning">
-                        <div class="card-body">
-                            <div class="row no-gutters align-items-center">
-                                <div class="col mr-2">
-                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                        Postlar</div>
-                                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_posts }}</div>
+                    <div class="col-lg-4">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h6 class="m-0 font-weight-bold text-primary">
+                                    <i class="fas fa-info-circle me-2"></i>Tizim Ma'lumotlari
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <small class="text-muted">Tizim Versiyasi:</small>
+                                    <div class="fw-bold">EcoVerse v2.0</div>
                                 </div>
-                                <div class="col-auto">
-                                    <i class="fas fa-newspaper fa-2x text-warning"></i>
+                                <div class="mb-3">
+                                    <small class="text-muted">So'nggi Yangilanish:</small>
+                                    <div class="fw-bold">{{ recent_posts[0].created_at.strftime('%Y-%m-%d') if recent_posts else 'Noma\'lum' }}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted">Adminlar Soni:</small>
+                                    <div class="fw-bold">{{ users|selectattr('is_admin')|list|length if users else 1 }}</div>
+                                </div>
+                                <div class="mb-3">
+                                    <small class="text-muted">Faol Sessiyalar:</small>
+                                    <div class="fw-bold text-success">Faol</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Users -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-users me-2"></i>So'nggi Foydalanuvchilar
-                    </h6>
-                    <a href="{{ url_for('admin_users') }}" class="btn btn-primary btn-sm">
-                        Barchasini Ko'rish
-                    </a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-hover">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th>Rol</th>
-                                    <th>Coinlar</th>
-                                    <th>Qo'shilgan sana</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for user in recent_users %}
-                                <tr>
-                                    <td>
-                                        <strong>{{ user.username }}</strong>
-                                        {% if user.is_admin %}
-                                        <span class="badge bg-danger ms-1">Admin</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>{{ user.email }}</td>
-                                    <td>
-                                        <span class="badge {% if user.role == 'admin' %}bg-danger{% elif user.role == 'child' %}bg-success{% else %}bg-primary{% endif %}">
-                                            {{ user.role }}
-                                        </span>
-                                    </td>
-                                    <td>{{ user.coins }}</td>
-                                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<style>
-    .admin-sidebar {
-        background: #2c3e50;
-        color: white;
-        min-height: 100vh;
-    }
-    .admin-main {
-        background: #f8f9fa;
-        min-height: 100vh;
-    }
-    .stat-card {
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-        border: none;
-    }
-    .border-left-primary { border-left: 4px solid #4e73df !important; }
-    .border-left-success { border-left: 4px solid #1cc88a !important; }
-    .border-left-info { border-left: 4px solid #36b9cc !important; }
-    .border-left-warning { border-left: 4px solid #f6c23e !important; }
-    
-    .nav-link {
-        color: white;
-        padding: 12px 15px;
-        border-radius: 5px;
-        margin: 5px 10px;
-        transition: all 0.3s ease;
-    }
-    .nav-link:hover, .nav-link.active {
-        background: rgba(255,255,255,0.1);
-        color: white;
-    }
-</style>
-{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sidebar faol holatini saqlash
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href') === currentPath) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+
+            // Stat kartalari animatsiyasi
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('animate__animated', 'animate__fadeInUp');
+            });
+        });
+
+        // Yangilanish indikatori
+        function showUpdateIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'position-fixed bottom-0 end-0 m-3 p-3 bg-success text-white rounded shadow';
+            indicator.innerHTML = '<i class="fas fa-sync-alt me-2"></i>Ma\'lumotlar yangilandi';
+            document.body.appendChild(indicator);
+            
+            setTimeout(() => {
+                indicator.remove();
+            }, 3000);
+        }
+
+        // Avtomatik yangilash (har 30 soniyada)
+        setInterval(() => {
+            // Bu yerda ma'lumotlarni yangilash logikasi bo'ladi
+            console.log('Dashboard ma\'lumotlari yangilanmoqda...');
+        }, 30000);
+    </script>
+</body>
+</html>

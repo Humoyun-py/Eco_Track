@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoVerse - E'lonlar Boshqaruvi</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .admin-sidebar {
+            background: #2c3e50;
+            color: white;
+            min-height: 100vh;
+            position: fixed;
+            width: 250px;
+            left: 0;
+            top: 0;
+            z-index: 1000;
+        }
+        .admin-main {
+            margin-left: 250px;
+            padding: 20px;
+            min-height: 100vh;
+            background: #f8f9fa;
+        }
+        .nav-link {
+            color: white;
+            padding: 12px 15px;
+            border-radius: 5px;
+            margin: 5px 10px;
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .sidebar-sticky {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding-top: 20px;
+            overflow-y: auto;
+        }
+        .announcement-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .announcement-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .type-info { border-left: 4px solid #17a2b8; }
+        .type-warning { border-left: 4px solid #ffc107; }
+        .type-success { border-left: 4px solid #28a745; }
+        .type-danger { border-left: 4px solid #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-0">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 admin-sidebar">
+                <div class="sidebar-sticky">
+                    <div class="text-center mb-4">
+                        <h4><i class="fas fa-leaf me-2"></i>EcoVerse Admin</h4>
+                        <small class="text-muted">E'lonlar</small>
+                    </div>
+                    
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_dashboard') }}">
+                                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_users') }}">
+                                <i class="fas fa-users me-2"></i>Foydalanuvchilar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_tasks') }}">
+                                <i class="fas fa-tasks me-2"></i>Topshiriqlar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_news') }}">
+                                <i class="fas fa-newspaper me-2"></i>Yangiliklar
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ url_for('admin_announcements') }}">
+                                <i class="fas fa-bullhorn me-2"></i>E'lonlar
+                            </a>
+                        </li>
+                        <li class="nav-item mt-4">
+                            <a class="nav-link bg-success" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-arrow-left me-2"></i>User Panel
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link bg-warning text-dark" href="{{ url_for('admin_logout') }}">
+                                <i class="fas fa-sign-out-alt me-2"></i>Chiqish
+                            </a>
+                        </li>
+                    </ul>
+                    
+                    <div class="mt-5 p-3">
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>
+                            {{ user.username }}
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-md-9 col-lg-10 admin-main">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="h3 text-gray-800">
+                        <i class="fas fa-bullhorn me-2"></i>E'lonlar Boshqaruvi
+                    </h1>
+                    <div class="text-end">
+                        <span class="text-muted">Jami: </span>
+                        <strong>{{ announcements|length }} ta e'lon</strong>
+                    </div>
+                </div>
+
+                <!-- Yangi e'lon qo'shish formasi -->
+                <div class="card announcement-card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Yangi E'lon Qo'shish</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="addAnnouncementForm">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Sarlavha</label>
+                                        <input type="text" class="form-control" name="title" required 
+                                               placeholder="E'lon sarlavhasi">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">E'lon turi</label>
+                                        <select class="form-select" name="type" required>
+                                            <option value="info">Ma'lumot</option>
+                                            <option value="warning">Ogohlantirish</option>
+                                            <option value="success">Muvaffaqiyat</option>
+                                            <option value="danger">Muhim</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="mb-3">
+                                        <label class="form-label">Holati</label>
+                                        <select class="form-select" name="is_active" required>
+                                            <option value="true">Faol</option>
+                                            <option value="false">Nofaol</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Boshlanish sanasi</label>
+                                        <input type="datetime-local" class="form-control" name="start_date" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Tugash sanasi</label>
+                                        <input type="datetime-local" class="form-control" name="end_date" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Matn</label>
+                                <textarea class="form-control" name="content" rows="3" required 
+                                          placeholder="E'lon matni..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-plus me-2"></i>E'lon Qo'shish
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- E'lonlar ro'yxati -->
+                <div class="card announcement-card">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Barcha E'lonlar</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if announcements %}
+                            {% for announcement in announcements %}
+                            <div class="card mb-3 type-{{ announcement.announcement_type }}">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h5 class="card-title">
+                                                <i class="fas fa-bullhorn me-2 text-{{ announcement.announcement_type }}"></i>
+                                                {{ announcement.title }}
+                                            </h5>
+                                            <p class="card-text">{{ announcement.content }}</p>
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-user me-1"></i>{{ announcement.author.username }} • 
+                                                    <i class="fas fa-calendar me-1"></i>{{ announcement.start_date.strftime('%Y-%m-%d') }} - {{ announcement.end_date.strftime('%Y-%m-%d') }}
+                                                </small>
+                                                <span class="badge bg-{% if announcement.is_active %}success{% else %}secondary{% endif %}">
+                                                    {% if announcement.is_active %}Faol{% else %}Nofaol{% endif %}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="ms-3">
+                                            <button class="btn btn-sm btn-danger delete-announcement" data-announcement-id="{{ announcement.id }}">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">Hozircha e'lonlar mavjud emas</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sanalarni sozlash
+        const now = new Date();
+        const startDate = now.toISOString().slice(0, 16);
+        const endDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 16);
+        
+        document.querySelector('input[name="start_date"]').value = startDate;
+        document.querySelector('input[name="end_date"]').value = endDate;
+
+        // Yangi e'lon qo'shish
+        document.getElementById('addAnnouncementForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Boolean qiymatni konvertatsiya qilish
+            data.is_active = data.is_active === 'true';
+            
+            fetch('/admin/add_announcement', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                    location.reload();
+                } else {
+                    alert('❌ ' + result.error);
+                }
+            })
+            .catch(error => {
+                alert('❌ Xatolik yuz berdi: ' + error);
+            });
+        });
+
+        // E'lonni o'chirish
+        document.querySelectorAll('.delete-announcement').forEach(button => {
+            button.addEventListener('click', function() {
+                const announcementId = this.dataset.announcementId;
+                if (confirm('Haqiqatan ham bu e\'lonni o\'chirmoqchimisiz?')) {
+                    fetch(`/admin/delete_announcement/${announcementId}`, {
+                        method: 'POST'
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            alert('✅ ' + result.message);
+                            location.reload();
+                        } else {
+                            alert('❌ ' + result.error);
+                        }
+                    })
+                    .catch(error => {
+                        alert('❌ Xatolik yuz berdi: ' + error);
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
